@@ -1,0 +1,1 @@
+A variant of the [small multiples example](/mbostock/1157787) which, instead of resetting the domain of the *y*-scale every time it is used, creates a separate *y*-scale for each multiple.

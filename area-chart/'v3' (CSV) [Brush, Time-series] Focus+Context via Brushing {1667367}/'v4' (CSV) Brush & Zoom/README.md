@@ -1,0 +1,1 @@
+Combining [d3-brush](https://github.com/d3/d3-brush) and [d3-zoom](https://github.com/d3/d3-zoom) to implement Focus + Context. Another approach is to [zoom to the brushed region](/mbostock/f48fcdb929a620ed97877e4678ab15e6).

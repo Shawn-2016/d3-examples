@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+	<meta charset="utf-8">
+    <title> D3 brushing on grouped bar chart </title>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <style>
+	g.axis path, g.axis line {
+	    fill: none; stroke:black; shape-rendering:crispEdges;
+	}
+	g.brush rect.extent {
+	    fill-opacity:0.2;
+	}
+	</style>
+
+</head>
+<body>
+
+	<div id="graph"></div>
+
+	<script>
+
+	var main_margin = {
+	    top: 20,
+	    right: 80,
+	    bottom: 100,
+	    left: 40
+	},
+	mini_margin = {
+	    top: 460,
+	    right: 80,
+	    bottom: 20,
+	    left: 40
+	},
+	main_width = 1300 - main_margin.left - main_margin.right,
+	    main_height = 525 - main_margin.top - main_margin.bottom,
+	    mini_height = 525 - mini_margin.top - mini_margin.bottom;
+
+	// Define line colors
+	var color = d3.scale.category10();
+
+	// x0 is the time scale on the X axis
+	var main_x0 = d3.scale.ordinal().rangeRoundBands([0, main_width - 275], 0.2);
+	var mini_x0 = d3.scale.ordinal().rangeRoundBands([0, main_width - 275], 0.2);
+
+	var main_xZoom = d3.scale.linear()
+	    .range([0, main_width - 275])
+	    .domain([0, main_width - 275]);
+
+	// x1 is the portfolio scale on the X axis
+	var main_x1 = d3.scale.ordinal();
+	var mini_x1 = d3.scale.ordinal();
+
+	// y is the fix time scal on the Y axis
+	var main_y = d3.scale.linear().range([main_height, 0]);
+	var mini_y = d3.scale.linear().range([mini_height, 0]);
+
+	// Date format for the X axis
+	var dateFormat = d3.time.format("%a %d");
+
+	// Define the X axis
+	var main_xAxis = d3.svg.axis()
+	    .scale(main_x0)
+	    .tickFormat(dateFormat)
+	    .orient("bottom");
+
+	var mini_xAxis = d3.svg.axis()
+	    .scale(mini_x0)
+	    .tickFormat(dateFormat)
+	    .orient("bottom");
+
+	// Define the Y axis
+	var main_yAxis = d3.svg.axis()
+	    .scale(main_y)
+	    .tickFormat(function (d) {
+	    return d3.round((d / 1000 / 60 / 60), 0);
+	})
+	    .orient("left");
+
+	// Define main svg element in #graph
+	var svg = d3.select("#graph").append("svg")
+	    .attr("width", main_width + main_margin.left + main_margin.right)
+	    .attr("height", main_height + main_margin.top + main_margin.bottom);
+
+	var main = svg.append("g")
+	    .attr("transform", "translate(" + main_margin.left + "," + main_margin.top + ")");
+
+	var mini = svg.append("g")
+	    .attr("transform", "translate(" + mini_margin.left + "," + mini_margin.top + ")");
+
+
+
+	/*
+	 * Pull in the data
+	 */
+	//d3.json('fix_time_by_port.json', function(error, data) {
+	data = getData();
+
+	// This adds new elements to the data object
+	data.result.forEach(function (d) {
+	    d.portfolio = d._id.portfolio;
+	    d.date = new Date(d._id.year, d._id.month - 1, d._id.day);
+	});
+
+	// define the axis domains
+	main_x0.domain(data.result.map(function (d) {
+	    return d.date;
+	})
+	    .sort(d3.ascending));
+	mini_x0.domain(data.result.map(function (d) {
+	    return d.date;
+	})
+	    .sort(d3.ascending));
+
+	main_x1.domain(data.result.map(function (d) {
+	    return d.portfolio;
+	})
+	    .sort(d3.ascending))
+	    .rangeRoundBands([0, main_x0.rangeBand()], 0);
+	mini_x1.domain(data.result.map(function (d) {
+	    return d.portfolio;
+	})
+	    .sort(d3.ascending))
+	    .rangeRoundBands([0, main_x0.rangeBand()], 0);
+
+	main_y.domain([0, d3.max(data.result, function (d) {
+	    return d.buildFixTime;
+	})]);
+	mini_y.domain([0, d3.max(data.result, function (d) {
+	    return d.buildFixTime;
+	})]);
+
+
+	// Create brush for mini graph
+	var brush = d3.svg.brush()
+	    .x(mini_x0)
+	    .on("brush", brushed);
+
+	// flatten out the data
+	var nested = d3.nest()
+	    .key(function (d) {
+	    return d._id.portfolio;
+	})
+	    .entries(data.result);
+
+	// Add the X axis
+	main.append("g")
+	    .attr("class", "x axis")
+	    .attr("transform", "translate(0," + main_height + ")")
+	    .call(main_xAxis);
+
+	// Add the Y axis
+	main.append("g")
+	    .attr("class", "y axis")
+	    .attr("transform", "translate(0,0)")
+	    .call(main_yAxis);
+
+	// Add the mini x axis
+	mini.append("g")
+	    .attr("class", "x axis mini_axis")
+	    .attr("transform", "translate(0," + mini_height + ")")
+	    .call(mini_xAxis);
+
+	mini.append("g")
+	    .attr("class", "x brush")
+	    .call(brush)
+	    .selectAll("rect")
+	    .attr("y", -10)
+	    .attr("height", mini_height + 15);
+
+	// Create the bars
+	var bar = main.selectAll(".bars")
+	    .data(nested)
+	    .enter().append("g")
+	    .attr("class", function (d) {
+	    return d.key + "-group bar";
+	})
+	    .attr("fill", function (d) {
+	    return color(d.key);
+	});
+
+	bar.selectAll("rect")
+	    .data(function (d) {
+	    return d.values;
+	})
+	    .enter().append("rect")
+	    .attr("class", function (d) {
+	    return d.portfolio;
+	})
+	    .attr("transform", function (d) {
+	    return "translate(" + main_x0(d.date) + ",0)";
+	})
+	    .attr("width", function (d) {
+	    return main_x1.rangeBand();
+	})
+	    .attr("x", function (d) {
+	    return main_x1(d.portfolio);
+	})
+	    .attr("y", function (d) {
+	    return main_y(d.buildFixTime);
+	})
+	    .attr("height", function (d) {
+	    return main_height - main_y(d.buildFixTime);
+	});
+
+	// Create the bars
+	var mini_bar = mini.selectAll(".mini_bars")
+	    .data(nested)
+	    .enter().append("g")
+	    .attr("class", function (d) {
+	    return d.key + "-group mini_bar";
+	})
+	    .attr("fill", function (d) {
+	    return color(d.key);
+	});
+
+	mini_bar.selectAll("rect")
+	    .data(function (d) {
+	    return d.values;
+	})
+	    .enter().append("rect")
+	    .attr("class", function (d) {
+	    return d.portfolio;
+	})
+	    .attr("transform", function (d) {
+	    return "translate(" + mini_x0(d.date) + ",0)";
+	})
+	    .attr("width", function (d) {
+	    return mini_x1.rangeBand();
+	})
+	    .attr("x", function (d) {
+	    return mini_x1(d.portfolio);
+	})
+	    .attr("y", function (d) {
+	    return mini_y(d.buildFixTime);
+	})
+	    .attr("height", function (d) {
+	    return mini_height - mini_y(d.buildFixTime);
+	});
+
+
+	function brushed() {
+	    var originalRange = main_xZoom.range();
+	    main_xZoom.domain(brush.empty() ? 
+	                     originalRange: 
+	                     brush.extent() );
+	    
+	    main_x0.rangeRoundBands( [
+	        main_xZoom(originalRange[0]),
+	        main_xZoom(originalRange[1])
+	        ], 0.2);
+
+	    main_x1.rangeRoundBands([0, main_x0.rangeBand()], 0);
+	    
+	    bar.selectAll("rect")
+	        .attr("transform", function (d) {
+	            return "translate(" + main_x0(d.date) + ",0)";
+	        })
+	        .attr("width", function (d) {
+	            return main_x1.rangeBand();
+	        })
+	        .attr("x", function (d) {
+	            return main_x1(d.portfolio);
+	        });
+	    
+	    main.select("g.x.axis").call(main_xAxis);
+	}
+
+	//});
+	function getData() {
+	    return {
+	        "result" : [
+	                {
+	                        "_id" : {
+	                                "month" : 1,
+	                                "day" : 22,
+	                                "year" : 2014,
+	                                "portfolio" : "Sales"
+	                        },
+	                        "buildFixTime" : 3710497
+	                },
+	                {
+	                        "_id" : {
+	                                "month" : 1,
+	                                "day" : 23,
+	                                "year" : 2014,
+	                                "portfolio" : "Sales"
+	                        },
+	                        "buildFixTime" : 79209205
+	                },
+	                {
+	                        "_id" : {
+	                                "month" : 1,
+	                                "day" : 24,
+	                                "year" : 2014,
+	                                "portfolio" : "Analytics"
+	                        },
+	                        "buildFixTime" : 12429859
+	                },
+	                {
+	                        "_id" : {
+	                                "month" : 1,
+	                                "day" : 24,
+	                                "year" : 2014,
+	                                "portfolio" : "Sales"
+	                        },
+	                        "buildFixTime" : 25685555.333333332
+	                },
+	                {
+	                        "_id" : {
+	                                "month" : 1,
+	                                "day" : 24,
+	                                "year" : 2014,
+	                                "portfolio" : "Service"
+	                        },
+	                        "buildFixTime" : 27697021.363636363
+	                },
+	                {
+	                        "_id" : {
+	                                "month" : 1,
+	                                "day" : 25,
+	                                "year" : 2014,
+	                                "portfolio" : "Sales"
+	                        },
+	                        "buildFixTime" : 15102277
+	                },
+	                {
+	                        "_id" : {
+	                                "month" : 1,
+	                                "day" : 27,
+	                                "year" : 2014,
+	                                "portfolio" : "Sales"
+	                        },
+	                        "buildFixTime" : 101979273.53333333
+	                },
+	                {
+	                        "_id" : {
+	                                "month" : 1,
+	                                "day" : 27,
+	                                "year" : 2014,
+	                                "portfolio" : "Service"
+	                        },
+	                        "buildFixTime" : 146337385
+	                },
+	                {
+	                        "_id" : {
+	                                "month" : 1,
+	                                "day" : 27,
+	                                "year" : 2014,
+	                                "portfolio" : "Shared"
+	                        },
+	                        "buildFixTime" : 184778745.4
+	                },
+	                {
+	                        "_id" : {
+	                                "month" : 1,
+	                                "day" : 28,
+	                                "year" : 2014,
+	                                "portfolio" : "Sales"
+	                        },
+	                        "buildFixTime" : 15563893
+	                },
+	                {
+	                        "_id" : {
+	                                "month" : 1,
+	                                "day" : 28,
+	                                "year" : 2014,
+	                                "portfolio" : "Service"
+	                        },
+	                        "buildFixTime" : 54849882.35714286
+	                },
+	                {
+	                        "_id" : {
+	                                "month" : 1,
+	                                "day" : 29,
+	                                "year" : 2014,
+	                                "portfolio" : "Shared"
+	                        },
+	                        "buildFixTime" : 9851507.4
+	                },
+	                {
+	                        "_id" : {
+	                                "month" : 1,
+	                                "day" : 29,
+	                                "year" : 2014,
+	                                "portfolio" : "Service"
+	                        },
+	                        "buildFixTime" : 44009169
+	                },
+	                {
+	                        "_id" : {
+	                                "month" : 1,
+	                                "day" : 29,
+	                                "year" : 2014,
+	                                "portfolio" : "Sales"
+	                        },
+	                        "buildFixTime" : 61355253.333333336
+	                },
+	                {
+	                        "_id" : {
+	                                "month" : 1,
+	                                "day" : 29,
+	                                "year" : 2014,
+	                                "portfolio" : "Analytics"
+	                        },
+	                        "buildFixTime" : 88226552
+	                },
+	                {
+	                        "_id" : {
+	                                "month" : 1,
+	                                "day" : 30,
+	                                "year" : 2014,
+	                                "portfolio" : "Shared"
+	                        },
+	                        "buildFixTime" : 9669647
+	                },
+	                {
+	                        "_id" : {
+	                                "month" : 1,
+	                                "day" : 30,
+	                                "year" : 2014,
+	                                "portfolio" : "Sales"
+	                        },
+	                        "buildFixTime" : 67861647.1
+	                },
+	                {
+	                        "_id" : {
+	                                "month" : 1,
+	                                "day" : 30,
+	                                "year" : 2014,
+	                                "portfolio" : "Service"
+	                        },
+	                        "buildFixTime" : 136007838.5
+	                },
+	                {
+	                        "_id" : {
+	                                "month" : 1,
+	                                "day" : 31,
+	                                "year" : 2014,
+	                                "portfolio" : "Service"
+	                        },
+	                        "buildFixTime" : 1058584
+	                },
+	                {
+	                        "_id" : {
+	                                "month" : 1,
+	                                "day" : 31,
+	                                "year" : 2014,
+	                                "portfolio" : "Sales"
+	                        },
+	                        "buildFixTime" : 48767046.8
+	                }
+	        ],
+	        "ok" : 1
+	};
+	}
+
+	</script>
+
+</body>
+</html>
+<!-- http://stackoverflow.com/questions/21485339/d3-brushing-on-grouped-bar-chart/21492940#21492940 -->

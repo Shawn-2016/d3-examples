@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  margin: auto;
+  position: relative;
+  width: 960px;
+}
+
+svg { 
+  margin: auto;
+  margin-top: 10px;
+  display: block;
+}
+
+.extent {
+  stroke: #fff;
+  fill-opacity: .125;
+  shape-rendering: crispEdges;
+}
+
+p { text-align: center; }
+
+</style>
+
+<body>
+<script src="http://d3js.org/d3.v3.js"></script>
+<script>
+
+function genData(numPts) {
+
+  var maxVal = 100, minVal = -100, maxSize = 30;
+  var res = [];
+
+  for(var i = 0; i < numPts; i++) {
+    res.push({
+      x: Math.random() * (maxVal - minVal) + minVal,
+      y: Math.random() * (maxVal - minVal) + minVal,
+      size: Math.random() * maxSize
+    });
+  }
+
+  return res;
+};
+
+var h = 400, w = 800;
+    data = genData(75),
+    fmt = d3.format(".2f");
+
+var x = d3.scale.linear().range([0, w]);
+var y = d3.scale.linear().range([h, 0]);
+var colors = d3.scale.category20();
+
+var svg = d3.select('body').append('svg')
+            .attr('height', h)
+            .attr('width', w)
+            .style('background-color', "#ddd")
+            .append('g');
+
+var circleInfo = d3.select('body')
+                .append('p')
+                .html('<i>Click any circle</i>');
+
+var brushInfo = d3.select('body')
+                .append('p')
+                .html('<i>Select a region</i>');
+
+var brush = d3.svg.brush().x(x).y(y).on("brush", brushCb);
+
+svg.call(brush);
+svg.datum(data).call(draw);
+
+console.log("data:\n", data);
+
+
+function draw(selection) {
+
+  selection.each(function(d, i) {
+    var circles = d3.select(this)
+                    .selectAll('circle')
+                    .data(d);
+
+    x.domain( d3.extent(d, d => d.x) );
+    y.domain( d3.extent(d, d => d.y) );
+
+    circles.enter().append('circle')
+      .attr('cx', w / 2)
+      .attr('cy', h / 2)
+      .attr('fill', function (d, i) { return colors(i % 20); })
+      .attr('fill-opacity', 0.8)
+      .attr('r', 0);
+
+    circles
+      .transition()
+      .duration(500)
+      .attr('cx', function (d) { return x(d.x); })
+      .attr('cy', function (d) { return y(d.y); })
+      .attr('r', function (d) { return d.size; });
+
+    circles.exit()
+      .transition()
+      .duration(500)
+      .attr('cx', w / 2)
+      .attr('cy', h / 2)
+      .attr('r', 0)
+      .remove();
+
+    circles.on("mousedown", function (d, i) {
+      var xy = d3.mouse(svg.node()),
+        xInv = x.invert(xy[0]),
+        yInv = y.invert(xy[1]);
+
+      brush.extent([[xInv, yInv], [xInv, yInv]]);
+
+      circleInfo
+        .html(
+          "<b>x:</b>"     + fmt(d.x) + 
+          " <b>y:</b>"    + fmt(d.y) + 
+          " <b>Size:</b>" + fmt(d.size)
+        );
+    });
+  });
+}
+
+function brushCb() {
+  var t = 0;
+
+  if (brush.empty()) {
+    t = 0;
+  } else {
+    var extent = brush.extent();
+    var x0 = extent[0][0],
+      y0 = extent[0][1],
+      x1 = extent[1][0],
+      y1 = extent[1][1];
+
+    data.forEach(function (d) {
+      if (x0 <= d.x && d.x <= x1 && y0 <= d.y && d.y <= y1)
+        t += 1;
+    });
+  }
+
+  brushInfo
+    .html('<b>Selected circles:</b> ' + t);
+}
+
+</script>
+</body>

@@ -1,0 +1,2 @@
+This examples demonstrates how to use D3's brush component to implement focus + context zooming. Click and drag in the small chart below to pan or zoom.
+With the abitility to zoom and pan in the Focus view using d3.zoom behavior.
