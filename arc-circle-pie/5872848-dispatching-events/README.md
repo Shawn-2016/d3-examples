@@ -1,0 +1,5 @@
+This example demonstrates how to use [d3.dispatch](https://github.com/mbostock/d3/wiki/Internals#wiki-d3_dispatch) to coordinate views with shared state. Here, a bar chart and a pie chart show two views of the same data: population by age group for a given state. (For brevity, a legend is omitted.) This example uses two custom events: a *load* event when data is available, and a  *statechange* event when the displayed state is changed.
+
+Custom events allow loose coupling of components: views can listen for events and update the DOM accordingly, without needing to explicitly tie each view together. When the drop-down menu changes, a *statechange* event is triggered which causes any interested listeners to be notified.
+
+Each view uses a unique name, such as "bar" or "pie", so that multiple listeners can be notified for a single event. (D3 requires listeners to be named, rather than anonymous, so that it’s easier to remove or inspect registered listeners.) Thus, the "load.menu", "load.bar" and "load.pie" listeners are all notified when the data is loaded.
