@@ -1,0 +1,10 @@
+{0f22818096428b12ea23} V {a743242f46321491a950}
+
+left is actually more advanced than right.
+-> the dropdown list is arranged
+-> the current selection will overwrite the previous 1
+-> the red line can be remove via clicking the node
+
+Why keep right?
+-> right has more explanation
+-> right has less function

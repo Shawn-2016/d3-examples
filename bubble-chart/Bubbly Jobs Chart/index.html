@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Bubbly Jobs Chart</title>
+    <style>
+      body {
+        font: 14px monospace;
+      }
+      
+      .median-wage {
+        pointer-events: none;
+      }
+      
+      .median-wage line {
+        stroke: black;
+        stroke-width: 2px;
+        stroke-dasharray: 2, 5;
+        shape-rendering: crispEdges;
+      }
+      
+      .median-wage text {
+        font-size: 12px;
+        text-shadow:
+          -1px -1px 0px #fff,  
+            1px -1px 0px #fff,
+            -1px 1px 0px #fff,
+            1px 1px 0px #fff;
+      }
+      
+      .axis line {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+      }
+
+      .axis path {
+        display: none;
+      }
+
+      .axis .label {
+        font-size: 12px;
+      }
+
+      .tooltip {
+        width: 200px;
+        background-color: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgb(203, 203, 203);
+        padding: 0px 20px;
+      }
+
+      .tooltip h4 {
+        margin-top: 10px;
+      }
+
+      .tooltip p {
+        margin: 10px 0px;
+      }
+
+      .tooltip.hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="force-chart.js"></script>
+    <script>
+      var margin = { top: 20, left: 200, bottom: 30, right: 70 },
+          width = 960 - margin.right - margin.left,
+          height = 2500 - margin.top - margin.bottom;
+
+      var majorGroupNames = {
+        "11": "Management",
+        "13": "Business and financial operations",
+        "15": "Computer and mathematical",
+        "17": "Architecture and engineering",
+        "19": "Life, physical, and social science",
+        "21": "Community and social service",
+        "23": "Legal",
+        "25": "Education, training, and library",
+        "27": "Art, design, entertainment, sport and media",
+        "29": "Healthcare practitioners and technical",
+        "31": "Healthcare support",
+        "33": "Protective service",
+        "35": "Food preparation and serving related",
+        "37": "Building and ground cleaning and maintenance",
+        "39": "Personal care and service",
+        "41": "Sales and related",
+        "43": "Office and administration",
+        "45": "Farming, fishing, and forestry",
+        "47": "Construction and extraction",
+        "49": "Installation, maintenance, and repair",
+        "51": "Production",
+        "53": "Transportation and material moving"
+      };
+      
+      var majorGroupWages = [
+        { majorGroup: "11", wage: 97230 },
+        { majorGroup: "13", wage: 64790 },
+        { majorGroup: "15", wage: 79420 },
+        { majorGroup: "17", wage: 75780 },
+        { majorGroup: "19", wage: 61450 },
+        { majorGroup: "21", wage: 41290 },
+        { majorGroup: "23", wage: 76860 },
+        { majorGroup: "25", wage: 46660 },
+        { majorGroup: "27", wage: 45180 },
+        { majorGroup: "29", wage: 61710 },
+        { majorGroup: "31", wage: 26440 },
+        { majorGroup: "33", wage: 37180 },
+        { majorGroup: "35", wage: 19130 },
+        { majorGroup: "37", wage: 23270 },
+        { majorGroup: "39", wage: 21260 },
+        { majorGroup: "41", wage: 25360 },
+        { majorGroup: "43", wage: 32520 },
+        { majorGroup: "45", wage: 20250 },
+        { majorGroup: "47", wage: 41380 },
+        { majorGroup: "49", wage: 42110 },
+        { majorGroup: "51", wage: 31720 },
+        { majorGroup: "53", wage: 29530 }
+      ];
+
+      var scale = {
+        x: d3.scale.linear().domain([0, 200000]).range([0, width]),
+        y: d3.scale.ordinal().rangeBands([height, 0], .25),
+        area: d3.scale.linear().range([25, 750]),
+        color: d3.scale.category20()
+      };
+
+      var dollarFormat = d3.format("$,");
+      var thousandFormat = d3.format(",");
+
+      var axis = {
+        x: d3.svg.axis().scale(scale.x).orient("bottom")
+            .tickFormat(dollarFormat),
+        y: d3.svg.axis().scale(scale.y).orient("left")
+            .tickFormat(function(d) { return majorGroupNames[d]; })
+      };
+
+      var bubbleChart = d3.forceChart()
+        .size([width, height])
+        .x(function(d) { return scale.x(d.wage); })
+        .y(function(d) { return scale.y(d.majorGroup) + scale.y.rangeBand()/2; })
+        .r(function(d) { return Math.sqrt(scale.area(d.employment)/Math.PI); })
+        .xGravity(10)
+        .yGravity(1/2)
+        .rGravity(2)
+        .rStart(2);
+
+      var body = d3.select("body");
+
+      var svg = body.append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      svg.append("g").attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")");
+      svg.append("g").attr("class", "y axis");
+
+      var tooltip = body.append("div")
+        .attr("class", "tooltip")
+        .style("position", "absolute")
+        .classed("hidden", true);
+      tooltip.append("h4").attr("class", "title")
+      tooltip.append("p").attr("class", "employment")
+      tooltip.append("p").attr("class", "wage");
+
+      d3.json("occupation.json", ready);
+
+      function ready(error, nodes) {
+        if (error) throw error;
+        
+        // Update scales
+        scale.y.domain(
+          majorGroupWages
+            .sort(function(a, b) { return a.wage - b.wage; })
+            .map(function(d) { return d.majorGroup; })
+        );
+        scale.area.domain([0, d3.max(nodes, function(d) { return d.employment; })]);
+
+        // Draw axes
+        svg.select(".x.axis").call(axis.x)
+          .append("text")
+            .attr("class", "label")
+            .attr("x", width)
+            .attr("y", -6)
+            .style("text-anchor", "end")
+            .text("Median Annual Wage");
+
+        svg.select(".y.axis").call(axis.y)
+          .selectAll(".tick text")
+            .call(wrap, 180)
+              .selectAll("tspan")
+              .attr("x", -9);
+        
+        // Draw bubbles
+        svg.append("g").call(bubbleChart, nodes)
+            .attr("class", "bubbles")
+          .selectAll(".node").append("circle")
+            .attr("r", function(d) { return d.r0; })
+            .style("fill", function(d) { return scale.color(d.majorGroup); })
+            .style("stroke", function(d) {
+              return d3.hsl(scale.color(d.majorGroup)).darker(2);
+            })
+            .on("mouseenter", mouseenter)  // draw tooltip
+            .on("mouseleave", mouseleave); // remove tooltip
+        
+        // Draw median wage annotation
+        svg.append("g").attr("class", "annotation")
+            .selectAll(".median-wage").data(majorGroupWages)
+          .enter().append("g")
+            .attr("transform", function(d) { 
+              return "translate(" + scale.x(d.wage) + "," + scale.y(d.majorGroup) + ")"; 
+            })
+            .attr("class", "median-wage")
+            .each(function(d) {
+              
+              // draw line
+              d3.select(this).append("line")
+                .attr("y2", scale.y.rangeBand());
+                
+              // draw text
+              d3.select(this).append("text")
+                .attr("dx", 5)
+                .attr("dy", 8)
+                .text(dollarFormat(d.wage));
+            });
+      }
+      
+      function mouseenter(d) {
+        // Draw tooltip when bubble is entered
+            x = d.x + 300,
+            y = d.y - 50;
+
+        // shift left if mouse is too far right
+        x = x > (960 - 300) ? x - 400 : x;
+
+        tooltip
+          .classed("hidden", false)
+          .style("left", x + "px")
+          .style("top", y + "px");
+        tooltip.select(".title").text(d.title);
+        tooltip.select(".employment")
+          .text(thousandFormat(d.employment*1000) + " jobs");
+        tooltip.select(".wage")
+          .text("Wage: " + dollarFormat(d.wage));
+      }
+      
+      function mouseleave() {
+        // Remove tooltip when bubble is exited
+        tooltip.classed("hidden", true);
+      }
+      
+      function wrap(text, width) {
+          text.each(function() {
+            var text = d3.select(this),
+                words = text.text().split(/\s+/).reverse(),
+                word,
+                line = [],
+                lineNumber = 0,
+                lineHeight = 1.1, // ems
+                y = text.attr("y"),
+                dy = parseFloat(text.attr("dy")),
+                tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+            while (word = words.pop()) {
+              line.push(word);
+              tspan.text(line.join(" "));
+              if (tspan.node().getComputedTextLength() > width) {
+                line.pop();
+                tspan.text(line.join(" "));
+                line = [word];
+                tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+              }
+            }
+          });
+        }
+    </script>
+  </body>
+</html>

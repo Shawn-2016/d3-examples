@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<link href="http://fonts.googleapis.com/css?family=Open+Sans:300,800" rel="stylesheet" type="text/css">
+<style>
+  body {
+    font: 11px "Open Sans";
+    margin: 0;
+    fill: #5d6263;
+    font-weight: 300;
+  }
+  
+  .axis path,
+  .axis line {
+    fill: none;
+    stroke: #5d6263;
+    shape-rendering: crispEdges;
+  }
+  
+  .legend-box {
+    cursor: pointer;
+  }
+  
+  line.regressionLine {
+    stroke: #5d6263;
+    stroke-width: 0.7px;
+    stroke-dasharray: 4px 6px;
+  }
+  /*.teamLabel{font-weight:bold;fill:#74736c;}*/
+</style>
+
+<body>
+  <script src="https://d3js.org/d3.v3.min.js"></script>
+  <script>
+    var margin = {
+        top: 130,
+        right: 145,
+        bottom: 30,
+        left: 45
+      },
+      width = 850 - margin.left - margin.right,
+      height = 820 - margin.top - margin.bottom;
+
+    var x = d3.scale.linear()
+      .range([0, width]);
+
+    var y = d3.scale.linear()
+      .range([height, 0]);
+
+    var color = d3.scale.category20();
+
+    var xAxis = d3.svg.axis()
+      .scale(x)
+      .orient("bottom");
+
+    var yAxis = d3.svg.axis()
+      .scale(y)
+      .orient("left");
+ 
+    var svg = d3.select("body").append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+
+    d3.csv("data.csv", function(error, data) {
+
+      data.forEach(function(d) {
+        if (d.pays == "United Kingdom") {
+          return d.visible = true;
+          d.prod = +d.prod;
+          d.cons = +d.cons;
+        } else {
+          return d.visible = false;
+          d.prod = +d.prod;
+          d.cons = +d.cons;
+        };
+      });
+
+      var dataNest = d3.nest()
+        .key(function(d) {
+          return d.pays;
+        })
+        .entries(data);
+
+      var categories = dataNest.map(function(d, i) {
+        return {
+          name: d.key,
+          values: dataNest[i].values.map(function(d) {
+            return {
+              prod: +d.prod,
+              cons: +d.cons,
+              year: d.year
+            };
+          }),
+          visible: (d.key === "United Kingdom" ? true : false)
+        };
+      });
+
+      x.domain([0, 31]);
+      y.domain([0, 31]);
+
+      svg.append("foreignObject")
+    .attr("width", 600)
+    .attr("height", 200)
+    .attr("x", 50)
+    .attr("y", -110)
+  .append("xhtml:body")
+    .style("font-size", "12px")
+    .html("<h2>Daily Biofuels Production and Consumption, 2010-2012</h2><p>Explore the connections between consumption and production for the top-40 highest consumers and producers of biofuels in the world. Countries below the dashed line consume more biofuels than they produce. Countries above the line produce more than they consume. For example, United Kingdom and Germany consume more than they produce, whereas Argentina and Indonesia produce more than they consume.</p>");
+      
+      svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis)
+        .append("text")
+        .attr("class", "label")
+        .attr("x", width)
+        .attr("y", -6)
+        .style("text-anchor", "end")
+        .style("font-weight", 800)
+        .text("Daily Biofuels Consumption (1,000 Barrels)");
+
+      svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis)
+        .append("text")
+        .attr("class", "label")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", ".71em")
+        .style("text-anchor", "end")
+        .style("font-weight", 800)
+        .text("DailyBiofuels Production (1,000 Barrels)");
+
+      var agencies = svg.selectAll(".agencies")
+        .data(categories) // Select nested data and append to new svg group elements
+        .enter().append("g")
+        .attr("class", "agencies");
+
+      var dots = svg.selectAll(".dot")
+        .data(data).enter().append("g").attr("class", "dot")
+
+      dots.append("circle")
+        .attr("id", function(d) {
+          return d.pays.replace(/\s+/g, "");
+        })
+        .attr("class", "circles")
+        .attr("opacity", 1)
+        .attr("r", 3.5)
+        .attr("cx", function(d) {
+          return d.visible ? x(d.cons) : x(-100 * 100);
+        })
+        .attr("cy", function(d) {
+          return d.visible ? y(d.prod) : y(-100 * 100);
+        })
+        .style("fill", function(d) {
+          return color(d.pays);
+        });
+
+      // begin of drawing lines
+      var line = d3.svg.line()
+        .x(function(d) {
+          return x(d.cons);
+        })
+        .y(function(d) {
+          return y(d.prod);
+        })
+        .interpolate("linear");
+
+      var fitLine = svg.append("line")
+        .attr({
+          "class": "regressionLine",
+          "x1": x(0),
+          "x2": x(31),
+          "y1": y(0),
+          "y2": y(31)
+        })
+      
+      svg.append("foreignObject")
+      .attr("class", "label")
+      .attr("text-anchor", "start")
+      .attr("x", -510)
+      .attr("y", 88)
+      .attr("transform", "rotate(-45) translate(333, 353)")
+      .append("xhtml:body")
+        .html("&uarr;");
+      
+      svg.append("text")
+        .attr("class", "label")
+        .attr("text-anchor", "start")
+        .attr("x", -500)
+        .attr("y", -65)
+        .attr("dy", "165px")
+        .attr("transform", "rotate(-45) translate(333, 353)")
+        .text("Production higher than consumption");
+      
+      svg.append("foreignObject")
+      .attr("class", "label")
+      .attr("text-anchor", "start")
+      .attr("x", -510)
+      .attr("y", 123)
+      .attr("transform", "rotate(-45) translate(333, 353)")
+      .append("xhtml:body")
+        .html("&darr;");
+
+      svg.append("text")
+        .attr("class", "label")
+        .attr("text-anchor", "start")
+        .attr("x", -500)
+        .attr("y", -60)
+        .attr("dy", "195px")
+        .attr("transform", "rotate(-45) translate(333, 353)")
+        .text("Consumption higher than production");
+      
+      agencies.append("path")
+        .attr("d", function(d) {
+          return d.visible ? line(d.values) : null; // If array key "visible" = true then draw line, if not then don't 
+        })
+        .attr("id", function(d) {
+          return d.name.replace(/\s+/g, "")
+        })
+        .attr("class", "linkcircles")
+        .attr("transform", "translate(0,0)")
+        .attr("opacity", 1)
+        .style("stroke-width", 1.5)
+        .style("stroke", function(d) {
+          return color(d.name);
+        })
+        .style("fill", "none");
+      // end of drawing lines
+
+
+      dots.append("text").attr("id", function(d) {
+        return d.pays.replace(/\s+/g, "");
+      }).attr("class", "labels").attr("x", function(d) {
+        return d.visible ? x(d.cons) : -1000;
+      }).attr("y", function(d) {
+        return d.visible ? y(d.prod) - 7 : -100 * 100;
+      }).text(function(d) {
+        return (d.year)
+      }).attr("text-anchor", "middle");
+
+      agencies.append("rect")
+        .attr("width", 10)
+        .attr("height", 10)
+        .attr("x", (width + 15))
+        .attr("y", function(d, i) {
+          return i * 13
+        })
+        .attr("fill", function(d) {
+          return d.visible ? color(d.name) : "#F1F1F2"; // If array key "visible" = true then color rect, if not then make it grey 
+        })
+        .attr("class", "legend-box")
+        .on("click", function(d) { // On click make d.visible 
+          d.visible = !d.visible; // If array key for this data selection is "visible" = true then make
+          data.forEach(function(data) {
+            if (data.pays == d.name) {
+              return data.visible = !data.visible; // If array key for this data selection is "visible" = true then make
+            }
+          });
+
+
+          maxX = findMaxX(categories); // Find max X rating value categories data with "visible"; true
+          maxY = findMaxY(categories); // Find max Y rating value categories data with "visible"; true
+
+          if (maxX > maxY) {
+            maxY = maxX;
+          } else {
+            maxX = maxY;
+          }
+
+          x.domain([0, maxX]); // Redefine xAxis domain based on highest y value of categories data with "visible"; true
+          svg.select(".x.axis")
+            .transition()
+            .call(xAxis);
+
+          y.domain([0, maxY]); // Redefine yAxis domain based on highest y value of categories data with "visible"; true
+          svg.select(".y.axis")
+            .transition()
+            .call(yAxis);
+
+          dots.selectAll(".circles")
+            .transition()
+            .attr("cx", function(d) {
+              return d.visible ? x(d.cons) : x(-(100 * 100)); // Replace dots with new scale
+            })
+            .attr("cy", function(d) {
+              return d.visible ? y(d.prod) : y(-(100 * 100)); // Replace dots with new scale
+            });
+
+          agencies.selectAll(".linkcircles")
+            .transition()
+            .attr("d", function(d) {
+              return d.visible ? line(d.values) : null; // If d.visible is true then draw line for this d selection
+            });
+
+          agencies.select("rect")
+            .transition()
+            .attr("fill", function(d) {
+              return d.visible ? color(d.name) : "#F1F1F2";
+            });
+
+          dots.selectAll(".labels")
+            .transition()
+            .attr("x", function(d) {
+              return d.visible ? x(d.cons) : x(-(100 * 100)); // Replace labels with new scale
+            })
+            .attr("y", function(d) {
+              return d.visible ? y(d.prod) - 7 : y(-(100 * 100)); // Replace labels with new scale
+            });
+
+          svg.selectAll("line.regressionLine")
+            .transition()
+            .attr("x1", x(0))
+            .attr("x2", function(d) {
+              if (maxX < maxY) {
+                return x(maxX);
+              } else {
+                return x(maxY);
+              }
+            })
+            .attr("y1", y(0))
+            .attr("y2", function(d) {
+              if (maxX < maxY) {
+                return y(maxX);
+              } else {
+                return y(maxY);
+              }
+            });
+
+        })
+        .on("mouseover", function(d) {
+          d3.select("#" + d.name.replace(/\s+/g, "")).transition().style("stroke-width", 2.5)
+        })
+        .on("mouseout", function(d) {
+          d3.select("#" + d.name.replace(/\s+/g, "")).transition().style("stroke-width", 1.5)
+        });
+
+      agencies.append("text")
+        .attr("x", (width + 30)) // space legend
+        .attr("y", function(d, i) {
+          return i * 13 + 9
+        })
+        .attr("class", "legend") // style the legend
+        .text(function(d) {
+          return d.name
+        });
+
+
+      function findMaxX(data) { // Define function "findMaxY"
+        var maxXValues = data.map(function(d) {
+          console.log(d);
+          if (d.visible) {
+            return d3.max(d.values, function(value) { // Return max rating value
+              return value.cons * 1.05;
+            })
+          }
+        });
+        return d3.max(maxXValues);
+      };
+
+      function findMaxY(data) { // Define function "findMaxY"
+        var maxYValues = data.map(function(d) {
+          if (d.visible) {
+            return d3.max(d.values, function(value) { // Return max rating value
+              return value.prod * 1.05;
+            })
+          }
+        });
+        return d3.max(maxYValues);
+      };
+
+    });
+    </script>

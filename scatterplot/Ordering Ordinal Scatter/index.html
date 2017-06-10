@@ -1,0 +1,99 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge;chrome=1">
+	
+		<title>Data visualisation demo</title>
+		<style>
+			body
+			{
+				background-color: #ffffff;
+				font-family: sans-serif;
+				color: #7c7273;
+				font-size: 10px;
+			}
+			
+			ul
+			{
+				list-style-type: none;
+				margin: 0;
+				padding: 0;
+			}
+			div
+			{
+				float: left;
+				width: 200px;
+ 
+			}
+			.axis text
+			{
+				stroke: none;
+        shape-rendering: crispEdges;
+			}
+			.axis .domain
+			{
+				opacity: 0;
+			}
+			.tick
+			{
+				stroke: #7c7273;
+			}
+		</style>
+ 
+		
+	</head>
+	<body>
+		<h1>Visualising Data</h1>
+		<svg id="visualisation" width="800" height="600"></svg>
+ 
+		<form id="controls">
+			<div>
+				<h2>X axis</h2>
+				<ul id="x-axis">
+					<li><label><input checked='checked' type="radio" name="x-axis" value="pH">pH Values</label></li>
+					<li><label><input type="radio" name="x-axis" value="treatment">Treatment</label></li>
+					<li><label><input type="radio" name="x-axis" value="Exposure">Exposure</label></li>
+					<li><label><input type="radio" name="x-axis" value="trial">Experimental Trial</label></li>
+				</ul>
+			</div>
+			<div>
+				<h2>Y axis</h2>
+				<ul id="y-axis">
+					<li><label><input checked="checked" type="radio" name="y-axis" value="MO2">Metabolic Rate</label></li>
+				</ul>
+			</div>
+			<div>
+				<h2>Color</h2>
+				<ul id="color-axis">
+					<li><label><input  checked="checked" type="radio" name="color-axis" value="pH">pH Values</label></li>
+					<li><label><input type="radio" name="color-axis" value="treatment">Treatment</label></li>
+					<li><label><input type="radio" name="color-axis" value="Exposure">Exposure</label></li>
+					<li><label><input type="radio" name="color-axis" value="trial">Experimental Trial</label></li>
+				</ul>
+			</div>
+      <div>
+  			<h2>Temperature Data</h2>
+				<ul id="Q10-temp">
+					<li><label><input type="checkbox" checked="checked" value="11">11 ºC Data</label></li>
+					<li><label><input type="checkbox" checked="checked" value="18">18 ºC Data</label></li>
+					
+				</ul>
+			</div>
+			<div>
+				<h2>Dataset</h2>
+				<ul>
+					<li>
+						<select id="dataset">
+							<option value="RawData">Raw MO2 Data</option>
+						</select>
+					</li>
+					
+				</ul>
+ 
+			</div>
+		</form>
+	</body>
+	<script src="http://d3js.org/d3.v3.min.js"></script>
+	<script src="scatterplot.js"></script>
+</html>

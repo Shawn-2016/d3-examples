@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+
+
+
+<style>
+body {
+  font: 11px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.dot {
+  stroke: #000;
+}
+
+.tooltip {
+  position: absolute;
+  width: 200px;
+  height: 28px;
+  pointer-events: none;
+}
+</style>
+<title>
+Week 10 - In Class Assignment  
+</title>
+<body>
+
+
+<script src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="http://d3js.org/colorbrewer.v1.min.js"></script>
+
+  <h3>Select x-axis </h3> 
+<select value="" id="x-axis">
+   <option value="Rushing TD">Rushing Touchdowns </option>
+  <option value="Cmp">Pass Completions</option>
+  <option value="Passing Attempts">Pass Attempts</option>
+  <option value="Pct">Pass Completion Percentage</option>
+  <option value="Passing Yards">Passing Yards</option>
+  <option value="Y/A">Passing Yards Per Attempt</option>
+  <option value="AY/A">Adjusted Passing Yards Per Attempt</option>
+  <option value="Passing TD">Passing Touchdowns</option>
+  <option value="Interceptions">Passing Interceptions</option>
+  <option value="Rate">Passing Efficiency Rating</option>
+  <option value="Rushing Attempts">Rushing Attempts</option>
+  <option value="Rushing Yards">Rushing Yards</option>
+  <option value="Rushing Avg">Rushing Avg</option>
+ 
+</select>
+<br><br>
+<h3>Select y-axis </h3>
+<select value="" id="y-axis">
+  <option value="Passing TD">Passing Touchdowns</option>
+  <option value="Cmp">Pass Completions</option>
+  <option value="Passing Attempts">Pass Attempts</option>
+  <option value="Pct">Pass Completion Percentage</option>
+  <option value="Passing Yards">Passing Yards</option>
+  <option value="Y/A">Passing Yards Per Attempt</option>
+  <option value="AY/A">Adjusted Passing Yards Per Attempt</option>
+  <option value="Interceptions">Passing Interceptions</option>
+  <option value="Rate">Passing Efficiency Rating</option>
+  <option value="Rushing Attempts">Rushing Attempts</option>
+  <option value="Rushing Yards">Rushing Yards</option>
+  <option value="Rushing Avg">Rushing Avg</option>
+  <option value="Rushing TD">Rushing TD</option>
+</select>
+
+<br><br>
+
+<script>
+var margin = {top: 20, right: 20, bottom: 30, left: 40},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+ 
+
+var x = $('#x-axis').val();
+var y = $('#y-axis').val();
+
+// setup x 
+var xValue = function(d) { return d[x];}, // data -> value
+    xScale = d3.scale.linear().range([0, width]), // value -> display
+    xMap = function(d) { return xScale(xValue(d));}, // data -> display
+    xAxis = d3.svg.axis().scale(xScale).orient("bottom");
+
+// setup y
+var yValue = function(d) { return d[y];}, // data -> value
+    yScale = d3.scale.linear().range([height, 0]), // value -> display
+    yMap = function(d) { return yScale(yValue(d));}, // data -> display
+    yAxis = d3.svg.axis().scale(yScale).orient("left");
+
+// setup fill color
+var cValue = function(d) { return d.Group;},
+    color = d3.scale.ordinal().range(colorbrewer.Set1[3]);
+
+// add the graph canvas to the body of the webpage
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+// add the tooltip area to the webpage
+var tooltip = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
+
+// load data
+d3.csv("passing-stats-2014.csv", function(error, data) {
+
+  // change string (from CSV) into number format
+  data.forEach(function(d) {
+    d[y] = +d[y];
+    d[x] = +d[x];
+//console.log (d.School);
+//console.dir (d);
+  });
+
+  // don't want dots overlapping axis, so add in buffer to data domain
+  xScale.domain([d3.min(data, xValue)-1, d3.max(data, xValue)+1]);
+  yScale.domain([d3.min(data, yValue)-1, d3.max(data, yValue)+1]);
+
+  yScale.domain([d3.min(data, yValue), d3.max(data, yValue)]);
+
+  // x-axis
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis)
+    .append("text")
+      .attr("class", "label")
+      .attr("x", width)
+      .attr("y", -6)
+      .style("text-anchor", "end")
+      .text(x);
+
+  // y-axis
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("class", "label")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text(y);
+
+  // draw dots
+  svg.selectAll(".dot")
+      .data(data)
+    .enter().append("circle")
+      .attr("class", "dot")
+      .attr("r", 3.5)
+  
+      .attr("cx", xMap)
+      .attr("cy", yMap)
+      .style("fill", function(d) { return color(cValue(d));}) 
+      .on("mouseover", function(d) {
+          tooltip.transition()
+               .duration(200)
+               .style("opacity", .9);
+          tooltip.html(d["Player"] + "<br/> " + d.School + "<br/>(" + xValue(d) 
+	        + ", " + yValue(d) + ")")
+               .style("left", (d3.event.pageX + 10) + "px")
+               .style("top", (d3.event.pageY - 28) + "px");
+      })
+      .on("mouseout", function(d) {
+          tooltip.transition()
+               .duration(500)
+               .style("opacity", 0);
+      });
+
+  // draw legend
+  var legend = svg.selectAll(".legend")
+      .data(color.domain())
+    .enter().append("g")
+      .attr("class", "legend")
+      .attr("transform", function(d, i) { return "translate(10," + (i+7) * 20 + ")"; });
+
+  // draw legend colored rectangles
+  legend.append("rect")
+      .attr("x", width - 18)
+      .attr("width", 18)
+      .attr("height", 18)
+      .style("fill", color);
+
+  // draw legend text
+  legend.append("text")
+      .attr("x", width - 24)
+      .attr("y", 9)
+      .attr("dy", ".35em")
+      .style("text-anchor", "end")
+      .text(function(d) { return d;})
+});
+
+d3.select("#x-axis")
+  .on("change", function() {
+    animateGraph();
+  });
+
+d3.select("#y-axis")
+  .on("change", function() {
+    animateGraph();
+  })
+
+function animateGraph() {
+  var x = $('#x-axis').val();
+  var y = $('#y-axis').val();
+
+  var xValue = function(d) { return d[x];}, // data -> value
+    xScale = d3.scale.linear().range([0, width]), // value -> display
+    xMap = function(d) { return xScale(xValue(d));}, // data -> display
+    xAxis = d3.svg.axis().scale(xScale).orient("bottom");
+    console.log(xMap);
+    console.log(xAxis);
+
+  // setup y
+    var yValue = function(d) { return d[y];}, // data -> value
+    yScale = d3.scale.linear().range([height, 0]), // value -> display
+    yMap = function(d) { return yScale(yValue(d));}, // data -> display
+    yAxis = d3.svg.axis().scale(yScale).orient("left");
+    
+    var cValue = function(d) { return d.Group;},
+    color = d3.scale.category20();
+    
+    d3.csv("passing-stats-2014.csv", function(error, data) {
+
+    // change string (from CSV) into number format
+    data.forEach(function(d) {
+        d[y] = +d[y];
+        d[x] = +d[x];
+    });
+    
+  // don't want dots overlapping axis, so add in buffer to data domain
+    xScale.domain([d3.min(data, xValue)-1, d3.max(data, xValue)+1]);
+    yScale.domain([d3.min(data, yValue)-1, d3.max(data, yValue)+1]);
+    
+    svg.selectAll("circle")
+       .data(data)
+       .transition()
+       .duration(1000)
+       .delay(function(d,i){
+          return i/data.length * 500;
+       })
+       .attr("cx",xMap)
+       .attr("cy",yMap);
+    
+     // Update X Axis
+    svg.select(".x.axis")
+      .transition()
+      .duration(100)
+      .call(xAxis);
+    
+    svg.select(".x.axis text.label")
+      .text(x);
+
+    // Update Y Axis
+    svg.select(".y.axis")
+      .transition()
+      .duration(100)
+      .call(yAxis);
+      
+    svg.select(".y.axis text.label")
+       .text(y); 
+    });
+
+}
+
+</script>
+</body>
+</html>

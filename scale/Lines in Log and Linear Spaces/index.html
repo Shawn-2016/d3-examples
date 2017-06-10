@@ -1,0 +1,147 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset='utf-8' />
+	<title>Lines in Log Charts</title>
+	<style>
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: #000;
+            shape-rendering: crispEdges;
+        }
+        .line {
+            fill: none;
+        }
+        #linear.line{
+            stroke: blue;
+        }
+        #log.line{
+            stroke: red;
+        }
+        circle {
+            stroke: black;
+            fill: none;
+        }
+        #config{
+            text-align:center;
+        }
+        #config-form{
+            display:block;
+        }
+	</style>
+</head>
+<body>
+    <div id="config">
+        <form id="config-form">
+            <label for="resolution">Sampling: </label>
+            <input id="resolution" type="range" min="0" max="21" step="1" value="3"/>
+            <label>Y Scale: </label>
+            <input id="logRadio" type="radio" name="type" value="log" checked><label for="logRadio">Log</label>
+            <input id="linearRadio" type="radio" name="type" value="linear"><label for="linearRadio">Linear</label>
+        </form>
+    </div>
+	<svg></svg>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js' charset='utf-8'></script>
+<script>
+var margin = {top: 20, right: 30, bottom: 30, left: 160};
+var svgWidth = 960,
+    svgHeight = 450,
+    width = svgWidth - margin.left - margin.right,
+    height = svgHeight - margin.top - margin.bottom;
+var logY = d3.scale.log()
+    .domain([2000000,350000000])
+   // .domain([150000000,180000000])
+    .range([height,0]);
+var linearY = d3.scale.linear()
+    .domain([2000000,350000000])
+   // .domain([150000000,180000000])
+    .range([height,0]);
+var y;
+var x = d3.scale.linear()
+    .domain([1790,2010])
+   // .domain([1950,1960])
+    .range([0,width]);
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom")
+    .ticks(11,"d");
+var yAxis = d3.svg.axis()
+    .orient("left")
+    .ticks(5,",d");
+var transitionDuration = 2500;
+var odata;
+var data;
+var line = d3.svg.line()
+    .x(function(d){return x(d.year);})
+    .y(function(d){return y(d.population);});
+var svg = d3.select("svg").attr("width",svgWidth).attr("height",svgHeight).append("g").attr("transform", "translate("+margin.left+","+margin.top+")");
+var xAxisSvg;
+var yAxisSvg;
+var pointsSvg;
+var resamplePoints = function(){
+    y=document.getElementById('logRadio').checked ? logY : linearY;
+    data = [];
+    var samplePoints = +document.getElementById('resolution').value+1;
+    var skipPoints = odata.length/samplePoints;
+    var linearPoints = [];
+    var logPoints = [];
+    var i, j;
+    var interpPoints = 30;
+    for(i=0;i<odata.length-1.001;i+=skipPoints){
+        data.push(odata[Math.floor(i)]);
+    }
+    data.push(odata[odata.length-1]);
+    for(i=0;i<data.length-1;i++){
+        var logPop1 = Math.log(data[i].population);
+        var logPop2 = Math.log(data[i+1].population);
+        for(j=0;j<interpPoints;j++){
+            linearPoints.push({
+                year: data[i].year+j*(data[i+1].year-data[i].year)/interpPoints,
+                population: data[i].population+j*(data[i+1].population-data[i].population)/interpPoints
+            })
+            logPoints.push({
+                year: data[i].year+j*(data[i+1].year-data[i].year)/interpPoints,
+                population: Math.exp(logPop1+j*(logPop2-logPop1)/interpPoints)
+            })
+        }
+    }
+    linearPoints.push(data[data.length-1]);
+    logPoints.push(data[data.length-1]);
+    var points = pointsSvg.selectAll("circle").data(data,function(d){return d.year});
+    points.exit().style("opacity",0).remove();
+    var newCircles = points.enter().append("circle").attr("r",5);
+    points = pointsSvg.selectAll("circle").interrupt().attr("cx",function(d){return x(d.year)}).attr("cy",function(d){return y(d.population);});
+    linearSvg.interrupt().datum(linearPoints,function(d){return d.year;}).attr("d",line);
+    logSvg.interrupt().datum(logPoints).attr("d",line);
+}
+var updateScale = function(duration){
+    y=document.getElementById('logRadio').checked ? logY : linearY;
+    duration = duration !== undefined ? duration : transitionDuration;
+    yAxis.scale(y);
+    xAxisSvg.call(xAxis);
+    yAxisSvg.transition().duration(duration).call(yAxis);
+    var points = pointsSvg.selectAll("circle");    
+    points.transition().duration(duration).attr("cx",function(d){return x(d.year)}).attr("cy",function(d){return y(d.population);});
+    linearSvg.transition().duration(duration).attr("d",line);
+    logSvg.transition().duration(duration).attr("d",line);
+}
+d3.csv('data.csv',function(d){
+    return {year:+d.Year,population:+d.Population};
+},function(od){
+    odata = od;
+    xAxisSvg = svg.append("g").attr("class", "x axis").attr("transform","translate(0,"+height+")");
+    yAxisSvg = svg.append("g").attr("class", "y axis");
+    pointsSvg = svg.append("g");
+    linearSvg = svg.append("path").attr("class","line").attr("id","linear");
+    logSvg = svg.append("path").attr("class","line").attr("id","log");
+    document.getElementById('logRadio').addEventListener('click',function(){updateScale();});
+    document.getElementById('linearRadio').addEventListener('click',function(){updateScale();});
+    document.getElementById('resolution').addEventListener('change',resamplePoints);
+    resamplePoints();
+    updateScale(0);
+});
+
+</script>
+</body>
+</html>

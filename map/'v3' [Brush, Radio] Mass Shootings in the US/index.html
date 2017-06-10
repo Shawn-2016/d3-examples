@@ -1,0 +1,946 @@
+<!doctype html>
+<html>
+<head>
+<meta charset=utf-8 />
+<title>Mass Shootings</title>
+<!-- Author: Bo Ericsson, bo@boe.net -->
+<!-- Based on crossfilter example (http://square.github.io/crossfilter/) and API (https://github.com/square/crossfilter/wiki/API-Reference), and MapBox examples and API (https://mapbox.com) -->
+<!--<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />-->
+<script src='https://api.mapbox.com/mapbox.js/v2.2.4/mapbox.js'></script>
+<link href='https://api.mapbox.com/mapbox.js/v2.2.4/mapbox.css' rel='stylesheet' />
+<link href='http://fonts.googleapis.com/css?family=Lato&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+<style>
+  body { margin:0; 
+    padding:0; 
+    font-family: "Lato";
+  }
+  #mapDiv { 
+    position: absolute; 
+    top: 0; 
+    bottom: 0; 
+    width: 100%; 
+    max-width: 960px;
+    max-height1: 700px;
+  }
+  .reset {
+    padding-left: 1em;
+    font-size: smaller;
+    color: #ccc;
+  }
+  .ui-brusadfadsadsfah {
+    background: #f8f8f8;
+    position: absolute;
+    bottom: 35px;
+    right: 10px;
+    left: 10px;
+    height: 80px;
+    opacity: 0.5;
+  }
+  .brush .extent {
+    stroke:#fff;
+    fill-opacity:0.125;
+    shape-rendering: crispEdges;
+  }
+  .chart {
+    display: inline-block;
+    height: 110px;
+    margin-bottom: 10px; 
+    background: black; /*#f8f8f8;*/
+    position: absolute;
+    bottom: 25px;
+    right: 10px;
+    left: 10px;
+    opacity: 0.8; 
+    padding: 10px; 
+    width: 920px; 
+  }
+  .title {
+    color: #fff;
+  } 
+  path {
+    shape-rendering: crispEdges;
+  }
+  .background.bar {
+    fill: #ccc;
+  }
+  .foreground.bar {
+    fill: steelblue;
+  }
+  .axis path, .axis line {
+    fill: none;
+    stroke: #fff; /*#000*/
+    shape-rendering: crispEdges;
+  }
+  .axis text {
+    /*font: 10px sans-serif;*/
+    font-size: 10px;
+    font-family: Lato;
+    fill: #fff;
+    stroke: none;
+  }
+  .brush rect.extent {
+    fill: steelblue;
+    fill-opacity: .125;
+  }
+  .brush .resize path {
+    fill: #eee;
+    stroke: #666;
+  }
+  .select {
+    font-size: 12px;
+    display: inline-block; 
+    border1: 1px solid black; 
+    vertical-align: top;
+    margin-top: 15px;
+  }
+  .select label {
+    display: block;
+    color: #fff;
+  }
+  .animControls {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    border1: 1px solid white;
+    width: 600px;
+    height: 25px;
+  }
+  .animControls button {
+    display: inline-block;
+    cursor: default;
+    background-color: black;
+    border: 1px solid gray;
+    border-radius: 4px;
+    text-align: left;
+    padding: 2px 4px 2px 4px;
+    margin-right: 15px;
+    font-size: 13px;
+    color: #ccc;
+    font-family: Lato;
+  }
+  .titleDiv {
+    position: absolute;
+    top: 0px;
+    margin: auto;
+    width: 960px;
+    font-family: Lato;
+    color: white;
+    border1: 1px solid white;
+  }
+  .titleDiv h1 {
+    text-align: center;
+    font-weight: normal;
+    margin-bottom: 0px;
+  }
+  .titleDiv h4 {
+    text-align: center;
+    font-weight: normal;
+    margin-top: 5px;
+  }
+  .infoDiv {
+    position: absolute;
+    bottom: 190px;
+    left: 10px;
+    color: white;
+    border1: 1px solid darkgray;
+    border-radius: 4px;
+    background: black;
+    opacity: 0.9;
+    padding: 10px;
+  }
+  .infoDiv table {
+    width: 200px;
+  }
+  .infoDiv .dead {
+    color: red;
+  }
+  .infoDiv .injured {
+    color: orange;
+  }
+  .infoDiv .data {
+    text-align: right;
+  }
+  .source a {
+    color: gray;
+  }
+</style>
+</head>
+<body>
+
+<div>
+
+  <div id="mapDiv"></div>
+
+  <div class="titleDiv">
+    <h1>Mass Shootings in the US</h1>
+    <h4>January 2013 - December 2015&nbsp;&nbsp;<span class="source"><a href="http://shootingtracker.com/wiki/Main_Page" target="_blank" title="Opens in a new window">(Source)</a></span></h4>
+  </div>
+
+  <div class="infoDiv"></div>
+
+  <div class="chart">
+
+    <div class="title">Mass Shootings by Week</div>
+    <div class="select">
+      <label><input type="radio" name="view" value="count" checked>Events</label>
+      <label><input type="radio" name="view" value="dead">Dead</label>
+      <label><input type="radio" name="view" value="injured">Injured</label>
+    </div>
+
+    <div class="animControls"></div>
+
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+<script src="http://square.github.io/crossfilter/crossfilter.v1.min.js"></script>
+<script>
+"use strict";
+
+console.log("d3.version", d3.version)
+console.log("crossfilter.version", crossfilter.version)
+
+var layers = [],
+    chart,
+    chartDiv;
+
+// formats
+var fmt = d3.format("02d"),
+    fmt1dec = d3.format(".1f"),
+    fmtM = d3.format(",d");
+
+// ensure at least 700px height if running in an iframe (bl.ocks)
+// http://bl.ocks.org/mbostock/1093025
+d3.select(self.frameElement).transition().duration(500).style("height", "600px");
+
+// build the map
+var mapId = "boeric.omod7h1p"; // dark map
+L.mapbox.accessToken = 'pk.eyJ1IjoiYm9lcmljIiwiYSI6IkZEU3BSTjQifQ.XDXwKy2vBdzFEjndnE4N7Q';
+//var map = L.mapbox.map('map', 'mapbox.streets')
+var map = L.mapbox.map("mapDiv", mapId).setView([33, -100], 4);
+
+// create layer to hold shooting events
+var shootingsLayer = L.geoJson(null, { pointToLayer: scaledPoint }).addTo(map);
+
+// helper functions to set map marker attributes
+function pointColor(feature) {
+    return feature.properties.Dead > 0 ? "red" : "orange";
+}
+
+function pointRadius(feature) {
+  return Math.max(feature.properties.Dead * 2, 6);
+}
+
+function scaledPoint(feature, latlng) {
+  // generate html for popup
+  var html = "<div class='marker-title'>Mass Shooting Event</div>";
+  html +=    "<div class='marker-description'>";
+  html +=    "Location: " + feature.properties.Location + '<br>';
+  html +=    "Date: " + feature.properties.displayDate + "<br>";
+  html +=    "Dead: " + feature.properties.Dead + "<br>";
+  html +=    "Injured: " + feature.properties.Injured + "<br>";
+  html +=    "References: <br>";
+
+  // generate an anchor element for each reference
+  feature.properties.References.forEach(function(d, i) {
+    // http://stackoverflow.com/questions/8498592/extract-root-domain-name-from-string
+    var matches = d.match(/^https?\:\/\/([^\/?#]+)(?:[\/?#]|$)/i);
+    var domain = matches && matches[1];
+    html +=  "&nbsp;&nbsp;<a href='" + d + "' target='_blank' title='Opens in a new window'>" + domain + "</a><br>";
+  })
+
+  // return the marker
+  return L.circleMarker(latlng, {
+    radius: pointRadius(feature),
+    fillColor: pointColor(feature),
+    fillOpacity: 0.6,
+    weight: 0.5,
+    color: "darkred"
+  }).bindPopup(html);
+}
+
+// get reference to chart div
+chartDiv = d3.select(".chart");
+
+// add a reset anchor element
+chartDiv.select(".title")
+  .append("a")
+    .attr("href", "javascript:reset()")
+    .attr("class", "reset")
+    .text("Reset filter")
+    .style("margin-left", "10px")
+    .style("display", "none");
+
+// get the data
+d3.json("shootings.GeoJSON", function(error, data) {
+  var featureCount = data.features.length;
+
+  // process the data
+  data.features.forEach(function(d) {
+    var c = d.properties.Date.split("\/"),
+        year = +c[2] + 2000,
+        month = +c[0] - 1,
+        day = +c[1],
+        date = new Date(year, month, day),
+        week = d3.time.week(date),
+        weekOfYear = d3.time.weekOfYear(week);
+
+    d.properties.date = date;
+    d.properties.displayDate = date.toString().substring(0, 16);
+    d.properties.week = week;
+    d.properties.weekNumber = fmt(weekOfYear);
+    d.properties.year = week.getYear() + 1900;
+    d.properties.weekBin = (week.getYear() + 1900) + "-" + fmt(weekOfYear);
+  })
+
+  // get extent (earliest/latest) dates
+  var dateExtent = d3.extent(data.features, function(d) { return d.properties.date; })
+  // add one week to extent
+  dateExtent[1].setDate(dateExtent[1].getDate() + 7)
+
+  // sort the features in date order
+  data.features.sort(function(a, b) {
+    if (a.properties.date > b.properties.date) return 1;
+    if (a.properties.date < b.properties.date) return -1;
+    return 0;
+  })
+
+  // init crossfilter
+  var cf = crossfilter(data.features)
+
+  // add week dimension
+  var week = cf.dimension(function(d) { return d.properties.week; }); 
+
+  // create groups from the week dimension
+  var countGroup = week.group(d3.time.week); 
+  var deadGroup = week.group().reduceSum(function(d) { return d.properties.Dead })
+  var injuredGroup = week.group().reduceSum(function(d) { return d.properties.Injured })
+  //console.log("deadGroup.top()", deadGroup.top(Infinity))
+  //console.log("deadGroup.all())", deadGroup.all())
+  //console.log("injuredGroup.top()", injuredGroup.top(Infinity))
+
+  // add tracking dimension and group
+  var weekTracker = cf.dimension(function(d) { return d.properties.week; });
+  var countTracker = weekTracker.group(d3.time.week); 
+
+  // add event handlers to toggle data series view (based on the groups defined above)
+  d3.selectAll("input[type=radio][name=view]")
+    .on("change", function() {
+      var elem = d3.select(this);
+      var value = elem.property("value");
+      var group = value == "count" ? countGroup : value == "dead" ? deadGroup : injuredGroup;
+
+      // rebuild the svg bar chart with the new data series
+      chart
+        .removeContents()
+        .brushDirty(true)
+        .group(group);
+
+      // refresh viz
+      renderAll();
+    })
+
+  // create the bar chart
+  chart = barChart()
+    .dimension(week)
+    .group(countGroup)
+    .round(d3.time.week.round) // ensures whole week
+    .x(d3.time.scale()
+      .domain(dateExtent)
+      .rangeRound([0, 5 * countGroup.all().length + 1]))
+    .filter([new Date(2014, 9, 5), new Date(2015, 9, 4)])
+    //.filter([new Date(2013, 1, 1), new Date(2013, 5, 1)])
+    //.filter(null)
+    .on("brush", function() { renderAll(); })
+    .on("brushend", function() { renderAll(); })
+    .enableBrush(true); 
+
+  // init animator
+  var anim = animator()
+    .speed(1000)
+    .chart(chart)
+    .container(d3.select(".animControls"));
+
+  // start the animator
+  anim(countGroup.all())
+  //window.anim = anim; // uncomment this to get access to the animator object from the browser console
+
+  // called at init, by the brush event handlers and by filter reset "a" elem
+  function renderAll() {
+
+    // run the chart function (these three are equivalent functionally)
+    //d3.select(".chart").call(chart);
+    chartDiv.call(chart);
+    // chart(chartDiv)
+
+    // get the filtered data
+    var selected = week.top(Infinity);
+    //console.log("selected", selected)
+
+    // create geojson structure (needed for mapbox api)
+    var geoJson = {
+      type: "FeatureCollection",
+      features: selected
+    }
+
+    // clear the shootings layer and add the new filtered data
+    shootingsLayer
+      .clearLayers()
+      .addData(geoJson);
+
+    // update info window
+    var totalEvents = selected.length,
+        groups = countTracker.all(),
+        weeks = groups.reduce(function(p, v, i) { return groups[i].value > 0 ? p + 1 : p + 0 }, 0),
+        deadInjuredCount = selected.reduce(function(p, c, i) { 
+          return { dead: selected[i].properties.Dead + p.dead, injured: selected[i].properties.Injured + p.injured }
+        }, { dead: 0, injured: 0 }),
+        avgDead = deadInjuredCount.dead / weeks,
+        avgInjured = deadInjuredCount.injured / weeks;
+
+    // create html for info window
+    var html = "";
+    html    += "<table>";
+    html    += "  <tr><td>Number of Weeks</td><td class='data'>" + weeks + "</td></tr>";
+    html    += "  <tr><td>Total Shootings</td><td class='data'>" + fmtM(totalEvents) + "</td></tr>";
+    html    += "  <tr class='dead'><td>Total Dead</td><td class='data'>" + fmtM(deadInjuredCount.dead) + "</td></tr>";
+    html    += "  <tr class='injured'><td>Total Injured</td><td class='data'>" + fmtM(deadInjuredCount.injured) + "</td></tr>";
+    if (weeks != 1) {
+      html  += "  <tr class='dead'><td>Dead per Week</td><td class='data'>" + fmt1dec(avgDead) + "</td></tr>";
+      html  += "  <tr class='injured'><td>Injured per Week</td><td class='data'>" + fmt1dec(avgInjured) + "</td></tr>";
+    }
+    html    += "</table>"
+
+    // set the html
+    d3.select(".infoDiv").html(html)
+  }
+
+  // initial render
+  renderAll();
+
+  // resets the week filter (driven by the bar chart brush)
+  window.reset = function() {
+    if (anim) anim.exit();
+    chart.filter(null)
+    renderAll();
+  };
+
+  // setup the bar chart (used to filter weeks)
+  function barChart() {
+    //TODO: remove this instance counter (in this viz, there is only one instance)
+    if (!barChart.id) barChart.id = 0;
+
+    var margin = {top: 10, right: 10, bottom: 20, left: 50},
+        x,
+        y = d3.scale.linear().range([59, 0]),
+        id = barChart.id++,
+        axis = d3.svg.axis().orient("bottom"),
+        brush = d3.svg.brush(),
+        brushDirty,
+        dimension,
+        group,
+        round,
+        svg,
+        gBrush,
+        enableBrush,
+        theDiv;
+
+    // main bar chart function; will be called repeatedly by renderAll
+    function chart(div) {
+
+      // determine dimensions of svg
+      var width = x.range()[1],
+          height = y.range()[0];
+
+      // update y scale domain
+      y.domain([0, group.top(1)[0].value]); // set y domain to max value in this group
+
+      //TODO: inefficient code; div is an array of one
+      div.each(function() {
+        var div = theDiv = d3.select(this);
+        var g = div.select("g");
+
+        // if g is empty, reubild the svg
+        if (g.empty()) {
+
+          // create svg and group
+          g = div.append("svg")
+              .attr("width", width + margin.left + margin.right)
+              .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+              .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+              .on("click", function() {
+                // exit the animator
+                if (anim) anim.exit();
+                //TODO: need to handle the case of mouse drag as well...
+              })
+
+          // reset the clip path to full width
+          g.append("clipPath")
+              .attr("id", "clip-" + id)
+            .append("rect")
+              .attr("width", width)
+              .attr("height", height);
+
+          // generate two paths, one background, one foreground
+          g.selectAll(".bar")
+              .data(["background", "foreground"])
+            .enter().append("path")
+              .attr("class", function(d) { return d + " bar"; })
+              // assign all the data in the group to the path
+              .datum(group.all());
+
+          // assign the clip path to the foreground bars
+          g.selectAll(".foreground.bar")
+              .attr("clip-path", "url(#clip-" + id + ")");
+
+          // Initialize the brush component with pretty resize handles.
+          if (enableBrush) {
+            gBrush = g.append("g").attr("class", "brush").call(brush);
+            gBrush.selectAll("rect").attr("height", height);
+            gBrush.selectAll(".resize").append("path").attr("d", resizePath);           
+          }
+
+          // add the x-axis last (so it's drawn on top of brush)
+          g.append("g")
+              .attr("class", "axis")
+              .attr("transform", "translate(0," + height + ")")
+              .call(axis);
+        }
+
+        // Only redraw the brush if set externally.
+        // at init, the date chart has an externally set brush
+        if (brushDirty) {
+          brushDirty = false;
+          g.selectAll(".brush").call(brush);
+          div.select(".title a").style("display", brush.empty() ? "none" : null);
+          if (brush.empty()) {
+            g.selectAll("#clip-" + id + " rect")
+                .attr("x", 0)
+                .attr("width", width);
+          } else {
+            var extent = brush.extent();
+            g.selectAll("#clip-" + id + " rect")
+                .attr("x", x(extent[0]))
+                .attr("width", x(extent[1]) - x(extent[0]));
+          }
+        }
+
+        // set the d attribute on the path
+        g.selectAll(".bar").attr("d", barPath);
+      });
+
+
+      // generate the bar chart path item
+      function barPath(groups, j, a) {
+        var path = [],
+            i = -1,
+            n = groups.length,
+            d;
+        while (++i < n) {
+          d = groups[i];
+          path.push("M", x(d.key), ",", height, "V", y(d.value), "h4V", height);
+        }
+        return path.join("");
+      }
+
+      // generate pretty brush left and right "handles"
+      function resizePath(d) {
+        var e = +(d == "e"),
+            x = e ? 1 : -1,
+            y = height / 3;
+
+        return "M" + (.5 * x) + "," + y
+            + "A6,6 0 0 " + e + " " + (6.5 * x) + "," + (y + 6)
+            + "V" + (2 * y - 6)
+            + "A6,6 0 0 " + e + " " + (.5 * x) + "," + (2 * y)
+            + "Z"
+            + "M" + (2.5 * x) + "," + (y + 8)
+            + "V" + (2 * y - 8)
+            + "M" + (4.5 * x) + "," + (y + 8)
+            + "V" + (2 * y - 8);
+      }
+    }
+
+    // brush handlers
+    brush.on("brushstart.chart", function() {
+      // get the containing div
+      var div = d3.select(this.parentNode.parentNode.parentNode);
+      // remove the display property from the reset anchor elem
+      div.select(".title a").style("display", null);
+    });
+
+    brush.on("brush.chart", function() { 
+      var g = d3.select(this.parentNode),
+          extent = brush.extent(); 
+
+      // handle rounding of extent (only integers)
+      if (round) g.select(".brush")
+            .call(brush.extent(extent = extent.map(round))) // set a rounded brush extent
+          .selectAll(".resize")
+            .style("display", null); // remove the resize handles (why?)
+
+      // update clip rectangle
+      g.select("#clip-" + id + " rect")
+          .attr("x", x(extent[0])) 
+          .attr("width", x(extent[1]) - x(extent[0])); 
+
+      // update the filter
+      dimension.filterRange(extent);
+    });
+
+    brush.on("brushend.chart", function() {
+      if (brush.empty()) {
+        emptyBrush.call(this);
+      }
+    });
+
+    // function to sync UI and crossfilter to an empty brush
+    function emptyBrush() {
+      //console.log("emptyBrush", this);
+
+      if (!brush.empty()) {
+        console.error("brush not empty")
+        return;
+      }
+
+      // get reference to containing div
+      var div = d3.select(this.parentNode.parentNode.parentNode);
+
+      // hide the reset anchor element
+      div.select(".title a").style("display", "none");
+
+      // remove the clip rectangle
+      div.select("#clip-" + id + " rect")
+        .attr("x", null) // remove the x attribute which will render the clipRect invalid
+        .attr("width", "100%");
+      
+      // reset the filter
+      dimension.filterAll();
+    }
+
+    // chart configuration functions
+    chart.margin = function(_) {
+      if (!arguments.length) return margin;
+      margin = _;
+      return chart;
+    };
+    chart.x = function(_) {
+      if (!arguments.length) return x;
+      x = _;
+      axis.scale(x);
+      brush.x(x);
+      return chart;
+    };
+    chart.y = function(_) {
+      if (!arguments.length) return y;
+      y = _;
+      return chart;
+    };
+    chart.dimension = function(_) {
+      //console.log("chart.dimension..." + _)
+      if (!arguments.length) return dimension;
+      dimension = _;
+      return chart;
+    };
+    chart.filter = function(_) {
+      if (_) {
+        brush.extent(_);
+        dimension.filterRange(_);
+      } else {
+        brush.clear();
+        dimension.filterAll();
+      }
+      brushDirty = true;
+      return chart;
+    };
+    chart.group = function(_) {
+      if (!arguments.length) return group;
+      group = _;
+      return chart;
+    };
+    chart.round = function(_) {
+      if (!arguments.length) return round;
+      round = _;
+      return chart;
+    };
+    chart.removeContents = function() {
+      theDiv.selectAll("svg").remove();
+      //theDiv.selectAll("a").remove();
+      //console.log("theDiv", theDiv)
+      return chart;
+    }
+    chart.brushDirty = function(_) {
+      if (!arguments.length) return brushDirty;
+      brushDirty = _;
+      return chart;
+    }
+    chart.enableBrush = function(_) {
+      if (!arguments.length) return enableBrush;
+      enableBrush = _;
+      return chart;
+    }
+    chart.clearBrush = function() {
+      //console.log("---", d3.select(".brush"))
+      d3.select(".brush").call(brush.clear())
+      emptyBrush.call(d3.select(".brush").node())
+      return chart;
+    }
+    chart.brushExtent = function(_) {
+      if (!arguments.length) return brush.extent();
+      //console.log("setting brush extent...", _, "current", brush.extent())
+      brush.extent(_);
+      d3.select(".brush").call(brush);
+      brush.event(d3.select(".brush"))
+      return chart;
+    }
+
+    // copy "on" event handlers from "brush" to "chart"
+    return d3.rebind(chart, brush, "on");
+  }
+
+})
+
+
+// animator object/function
+function animator() {
+  var speed = 1000,
+      currPos = 0,
+      started = false,
+      animating = false,
+      data,
+      ready = false,
+      intHandle,
+      toHandle,
+      inTimeout = false,
+      chart,
+      container;
+
+  function main(_) {
+    data = _;
+    if (data.length > 0) ready = true;
+
+    // data good?
+    if (!ready) {
+      console.error("bad data")
+      return;
+    }
+
+    // container good?
+    if (!container) {
+      console.error("No animation control container provided")
+      return;
+    }
+
+    // event handlers
+    function startStop() {
+      this.blur();
+      var elem = d3.select(this)
+      var value = elem.attr("value")
+      //console.log("startStop...", this, value)
+      if (value == "start") {
+        // start the animation...
+        started = true;
+        main.resume();
+        // change this button text
+        elem.text("Exit Animation").attr("value", "stop")
+        // show buttons
+        d3.selectAll(".anim2").style("display", "inline-block")
+        d3.selectAll(".anim4").style("display", "inline-block")
+      } else {
+        // stop the animation
+        started = false;
+        main.stop();
+        // change this button text
+        elem.text("Start Animation").attr("value", "start")
+        // hide buttons
+        d3.selectAll(".anim").style("display", "none")
+        // ensure the halt/resume button says halt
+        d3.select(".anim2").text("Halt").attr("value", "halt")
+      }
+    }
+
+    function haltResume() {
+      this.blur();
+      var elem = d3.select(this)
+      var value = elem.attr("value")
+      //console.log("haltResume...", this, value)
+
+      if (value == "halt") {
+        // halt the animation
+        main.stop();
+        // change this button text
+        elem.text("Resume").attr("value", "resume")
+        // hide buttons
+        d3.selectAll(".anim4").style("display", "none")
+        // show buttons
+        d3.selectAll(".anim3").style("display", "inline-block")
+      } else {
+        // resume the animation
+        main.resume();
+        // change this button text
+        elem.text("Halt").attr("value", "halt")
+        // hide buttons
+        d3.selectAll(".anim3").style("display", "none")
+        // show buttons
+        d3.selectAll(".anim4").style("display", "inline-block")
+      }
+    }
+
+    function fasterSlower() {
+      this.blur();
+      var elem = d3.select(this)
+      var value = elem.attr("value")
+      //console.log("fasterSlower...", this, value)
+      if (value == "faster") main.faster()
+      else main.slower();
+    }
+
+    function forwardBackward() {
+      this.blur();
+      var elem = d3.select(this)
+      var value = elem.attr("value")
+      //console.log("forwardBackward...", this, value, this.value)
+      if (value == "forward") main.forward()
+      else main.backward();
+    }
+
+    function reset() {
+      this.blur();
+      main.reset();
+    }
+
+    // animation controls
+    var controls = [
+      { text: "Start Animation", handler: startStop, id: "startStop", display: "inline-block", value: "start", class: "anim1", width: "110px" },
+      { text: "Halt", handler: haltResume, display: "none", value: "halt", class: "anim anim2", width: "60px" },
+      { text: "Backward", handler: forwardBackward, display: "none", value: "backward", class: "anim anim3" },
+      { text: "Forward", handler: forwardBackward, display: "none", value: "forward", class: "anim anim3" },
+      { text: "Faster", handler: fasterSlower, display: "none", value: "faster", class: "anim anim4" },
+      { text: "Slower", handler: fasterSlower, display: "none", value: "slower", class: "anim anim4" },
+      { text: "Reset", handler: reset, display: "none", class: "anim anim3 anim4" }
+    ]
+
+    container.selectAll("button")
+        .data(controls)
+      .enter().append("button")
+        .attr("id", function(d) { return d.id ? "anim_" + d.id : null })
+        .style("display", "inline-block")
+        .style("cursor", "default")
+        .style("width", function(d) { return d.width ? d.width : "70px" })
+        .style("text-align", "center")
+        .attr("class", function(d) { return d.class })
+        .style("display", function(d) { /*return "inline-block";*/ return d.display })
+        .attr("value", function(d) { return d.value ? d.value : null })
+        //.attr("class", "reset")
+        .text(function(d) { return d.text })
+        .on("click", function(d) { /*console.log("adfads", d.handler);*/ d.handler.call(this) })
+
+    // set index
+    currPos = data.length - 1;
+
+    intHandle = setInterval(function() {
+      if (animating && !inTimeout) go(0);
+    }, 100)
+
+    function go(useSpeed) {
+      inTimeout = true;
+      toHandle = setTimeout(function() {
+        if (animating) {
+          currPos++;
+          if (currPos == data.length) currPos = 0;
+          oneCycle();
+        }
+        if (animating) go(speed);
+        else inTimeout = false;
+      }, useSpeed)
+    }
+  }
+
+  function oneCycle() {
+    //console.log("oneCycle")
+    var dateExtent = [];
+    dateExtent[0] = new Date(data[currPos].key);
+    dateExtent[1] = new Date(data[currPos].key);
+    dateExtent[1].setDate(dateExtent[1].getDate() + 7)
+    chart.brushExtent(dateExtent)
+  }
+
+  // action functions
+  main.reset = function() {
+    speed = 1000;
+    currPos = 0;
+    oneCycle();
+    //animating = false;
+  }
+  main.resume = function() {
+    animating = true;
+  }
+  main.stop = function() {
+    animating = false;
+  }
+  main.exit = function() {
+    animating = false;
+    // change this button text
+    d3.select("#anim_startStop").text("Start Animation").attr("value", "start")
+    // hide buttons
+    d3.selectAll(".anim").style("display", "none")
+    // ensure the halt/resume button says halt
+    d3.select(".anim2").text("Halt").attr("value", "halt")
+  }
+  main.slower = function() {
+    speed = Math.min(4000, speed * 2);
+  }
+  main.faster = function() {
+    speed = Math.max(250, speed / 2);
+  }
+  main.forward = function() {
+    if (ready && !animating) {
+      currPos++;
+      if (currPos == data.length) currPos = 0;
+      oneCycle();
+    }
+    else console.log("not ready");
+  }
+  main.backward = function() {
+    if (ready && !animating) {
+      currPos--;
+      if (currPos < 0) currPos = data.length - 1;
+      oneCycle();
+    }
+    else console.log("not ready");
+  }
+
+  // configuration functions
+  main.speed = function(_) {
+    if (!arguments.length) return speed;
+    speed = _;
+    return main;
+  }
+  main.chart = function(_) {
+    if (!arguments.length) return chart;
+    chart = _;
+    return main;      
+  }
+  main.container = function(_) {
+    if (!arguments.length) return container;
+    container = _;
+    return main;  
+  }
+
+  return main;
+
+} // end animator
+
+</script>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-72836906-1', 'auto');
+  ga('send', 'pageview');
+</script>

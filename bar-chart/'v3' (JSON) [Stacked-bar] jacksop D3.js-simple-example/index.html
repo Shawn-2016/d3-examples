@@ -1,0 +1,138 @@
+<!-- https://github.com/jacksop/D3.js-simple-example -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"></meta>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <title>D3 Health</title>
+    <style>
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-size: 12px;
+            position: relative;
+        }
+        figure {
+            font-size: 10px;
+        }
+        svg {
+            border: solid 1px #ccc;
+        }
+        svg g.layer:first-child {
+            fill: #1f77b4
+        }
+        svg g.layer {
+            fill: #e377c2;
+        }
+        svg line {
+            stroke: #ccc;
+            opacity: .5;
+        }
+        svg text {
+            fill: #222;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>Finished Admission Episodes with a primary diagnosis of obesity, by gender</h1>
+<figure>
+    <figcaption>Finished Admission Episodes with a primary diagnosis of obesity (blue: males, pink: females). </br>Source: <a href="http://www.hscic.gov.uk/catalogue/PUB13648/Obes-phys-acti-diet-eng-2014-tab.xls">Hospital Episode Statistics (HES), Health and Social Care Information Centre</a></figcaption>
+</figure>
+
+<script>
+
+var margin = { top: 10, right: 50, bottom: 20, left: 10 },
+    width = 500,
+    height = 300;
+
+var dataset;
+
+var x = d3.scale.ordinal().rangeRoundBands([margin.left, width - margin.right], .1);
+var y = d3.scale.linear().range([height-margin.bottom, margin.top]);
+
+var svg = d3.select("figure").insert("svg",":first-child")
+        .attr("width", width)
+        .attr("height", height);
+
+// LOAD DATA
+dataset = d3.json("obes_data_gender.json", function(error, json) {
+    if (error) console.warn(error);
+    dataset = ["males","females"].map( function(category) {
+        return json.byGender.map( function(d) {
+            return { x: d.period, y: d[category] };
+        })
+    });
+
+    console.log("dataset:\n", dataset);
+
+    showData();
+});
+
+
+var showData = function() {
+    var layers = d3.layout.stack()(dataset);
+    var heights = [];
+
+    layers.forEach(function(layer) {
+        layer.forEach(function(d) {
+            heights.push(d.y0 + d.y)
+        })
+    });
+
+    x.domain(dataset[0].map(function(d) { return d.x; }));
+    y.domain([0, d3.max(heights)]);
+
+    console.log("layers:\n", layers);
+    console.log("x.domain():\n", x.domain());
+    console.log("y.domain():\n", y.domain());
+
+
+    var layer = svg.selectAll(".layer")
+                .data(layers);
+
+    layer.enter().append("g")
+        .attr("class", "layer");
+
+    var rect = layer.selectAll("rect")
+            .data(function(d){ return d; });
+
+    rect.enter().append("rect")
+        .attr("x", function(d) { return x(d.x); })
+        .attr("y", height)
+        .attr("height", 0)
+        .attr("width", x.rangeBand());
+
+    rect.transition()
+        .delay(function(d, i) { return i * 10; })
+        .attr("y", function(d) { return y(d.y0 + d.y); })
+        .attr("height", function(d) { return y(d.y0) - y(d.y0 + d.y); });
+
+    var xAxis = d3.svg.axis().scale(x)
+                .tickSize(0).tickPadding(6)
+                .orient("bottom");
+
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + y(0) + ")")
+        .call(xAxis);
+    
+    var yTick = svg.selectAll("g.yTick")
+                .data(y.ticks(5))
+
+    yTick.enter().append("g")
+        .attr("class", "yTick")
+        .attr("transform", function(d) { return "translate(" + margin.left + "," + y(d) + ")"; });
+            
+    yTick.append("line")
+        .attr("x2", width - margin.left - margin.right);
+
+    yTick.append("text")
+        .attr("x", width - margin.left - margin.right + 10)
+        .attr("dy", ".35em")
+        .text(d3.format(",d"));
+};
+
+</script>
+</body>
+</html>

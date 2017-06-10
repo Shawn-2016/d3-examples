@@ -1,0 +1,3 @@
+The Montgomery Gardens public housing project has over 80% vacancy rate.  It was vacated and recently imploaded on August 29, 2015.  You can watch the exciting video [here](https://www.youtube.com/watch?v=4lWYPfFMD5E).
+
+This static visualization compares public housing projects' vacancy rates.  The entire data set contains granular information including monthly data, total number of units, move-in and move-out numbers, etc.  Can't wait to learn how to utilize time sliders and other interactive controls!

@@ -1,0 +1,1 @@
+This brush snaps to day boundaries. The brush fires *brush* events during brushing, allowing a listener to modify the brush selection. Compare this approach to using [brush transitions on *end*](/mbostock/6232537).

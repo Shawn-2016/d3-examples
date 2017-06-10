@@ -1,0 +1,12 @@
+body {
+	margin: 20px 0px 0px 50px;
+}
+
+.formattext {
+	text-align: right;
+}
+
+.formatresult {
+	text-align: left;
+	padding-left: 40px;
+}

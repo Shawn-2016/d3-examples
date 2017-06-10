@@ -1,0 +1,421 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Kankerscatter</title>
+    
+    <style>
+        body {
+          font: 12px sans-serif;
+          margin: 4px;
+        }
+
+        #chart {
+          width: 100%;
+          height: 100%;
+          min-width: 300px;
+          min-height: 300px;
+          position: absolute;
+        }
+
+        .d3-tip {
+          line-height: 1;
+          font: 14px sans-serif;
+          padding: 12px;
+          background: rgba(0, 0, 0, 0.8);
+          color: rgb(185, 185, 185);
+          border-radius: 2px;
+        }
+
+        /* Creates a small triangle extender for the tooltip */
+        .d3-tip:after {
+          box-sizing: border-box;
+          display: inline;
+          font-size: 10px;
+          width: 100%;
+          line-height: 1;
+          color: rgba(0, 0, 0, 0.8);
+          content: "\25BC";
+          position: absolute;
+          text-align: center;
+        }
+
+        /* Style northward tooltips differently */
+        .d3-tip.n:after {
+          margin: -1px 0 0 0;
+          top: 100%;
+          left: 0;
+        }
+        
+        button {
+            background-color: #fa4951;
+            color: white;
+            border: none;
+            border-radius: 1px;
+            font-size: 14px;
+            margin: 0px 4px;
+            padding: 4px;
+            width: 160px;
+            cursor: pointer;
+        }
+        
+        button.pressed {
+            background-color: #fdafb3;
+        }
+        
+        /*Axes stuff*/
+        .axis {
+            fill: #aaa;
+        }
+        
+        .axis path {
+            stroke: #aaa;
+            stroke-width: 2;
+            opacity: 0.5;
+        }
+        
+        .axis.y .tick line {
+            stroke: #aaa;
+            opacity: 0.3;
+        }
+        
+        .axis.y path {
+            visibility: hidden;
+        }
+        
+        .axis.x .tick line {
+            stroke: #aaa;
+            opacity: 0;
+        }
+        
+        .axis .tick text {
+            font-size: 14px;
+            fill: #aaa;
+            opacity: 0.8;
+        }
+        
+        text.label {
+            fill: #555;
+            opacity: 1;
+            font-size: 18px;
+        }
+        </style>
+</head>
+<body>
+<button id="zoomin">Rare cancers</button><button id="zoomout" class="pressed">All cancers</button><br />
+<svg id="chart"></svg>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+<script>
+
+    var margin = {top: 40, right: 40, bottom: 40, left: 60},
+        dim = parseInt(d3.select("#chart").style("width")),
+        width = dim - margin.left - margin.right,
+        height = 450 - margin.top - margin.bottom;
+    
+    //scales and axes
+    var x = d3.scale.linear()
+        .range([0, width]);
+
+    var y = d3.scale.linear()
+        .range([height, 0]);
+
+    var xAxis = d3.svg.axis()
+        .scale(x)
+        .tickValues([0,20,40,60,80,100])
+        .outerTickSize(0)
+        .innerTickSize(8)
+        .orient("bottom");
+
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .tickValues([20,40,60,80,100])
+        .innerTickSize(-width)
+        .outerTickSize(0)
+        .orient("left");
+
+    var svg = d3.select("#chart")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    
+    //Tooltip
+    var tip = d3.tip()
+        .attr('class', 'd3-tip')
+        .offset([-10, 0])
+        .html(function(d) {
+          return "<div><span></span> <span style='color:white'>" + d.Soort + " (" + d.Geslacht+ ")</span></div>" + "<div><span></span> <span style='color:white'>" + d.Prevalentie + " cases 100.000</span></div>" +
+                 "<div><span></span> <span style='color:white'>"+ Math.round(d.Overleving) + " % survival</span></div>";
+        })
+
+    svg.call(tip);
+    
+    
+    d3.csv("cancerdata.csv", function(error, data) {
+      if (error) throw error;
+
+      data.forEach(function(d) {
+        d.Prevalentie = +d.Prevalentie;
+        d.Overleving = +d.Overleving;
+      });
+        
+      x.domain([0, 100]);
+      y.domain([0, 110]);
+        
+      //generate data for the connecting lines
+      var linedata = d3.nest()
+        .key(function(d) {return d.Soort})
+        .entries(data);
+        
+      linedata = linedata.filter(function(el) {return el.values.length == 2; });
+        
+      svg.selectAll(".connect")
+            .data(linedata)
+            .enter().append("line")
+            .attr("class", function(d) { return "connect " + d.key; })
+            .attr("x1", function(d) { return x(d.values[0].Overleving)})
+            .attr("x2", function(d) { return x(d.values[1].Overleving)})
+            .attr("y1", function(d) { return y(d.values[0].Prevalentie)})
+            .attr("y2", function(d) { return y(d.values[1].Prevalentie)})
+            .attr("stroke", "grey")
+            .attr("stroke-width", 1);
+        
+        linedata.forEach(function(d) {
+            d.key = d.key.replace('kanker', '')
+        });
+        
+        //Chartlabels
+        svg.selectAll("text.chartlabel")
+            .data(linedata)
+            .enter().append("text")
+            .text(function(d) {return d.key})
+            .attr("class", "chartlabel")
+            .attr("x", function(d) { return x((d.values[0].Overleving + d.values[1].Overleving)/2); })
+            .attr("y", function(d) { return y((d.values[0].Prevalentie + d.values[1].Prevalentie)/2); })
+            .style("opacity", function(d) { 
+                if((d.values[0].Prevalentie + d.values[1].Prevalentie)/2 < 25) {
+                    return 0;
+                }
+                else {
+                    return 0.4;
+                }             
+            })
+            .style("font-size", function() {
+                if(width < 1024) {
+                    return 16;
+                }
+                else {
+                    return 22;
+                }
+            })
+            .style("fill", "#c2b6a4")
+            .attr("text-anchor", "middle");
+      
+      //Axes
+      svg.append("g")
+          .attr("class", "x axis")
+          .attr("transform", "translate(0," + height + ")")
+          .call(xAxis)
+        .append("text")
+          .attr("class", "label")
+          .attr("x", width)
+          .attr("y", 40)
+          .style("text-anchor", "end")
+          .text("Survival rate after 5 years (%)");
+
+      svg.append("g")
+          .attr("class", "y axis")
+          .call(yAxis)
+        .append("text")
+          .attr("class", "label")
+          .attr("transform", "rotate(-90)")
+          .attr("y", -50)
+          .attr("dy", ".71em")
+          .style("text-anchor", "end")
+          .text("Prevalence (cases per year per 100.000 people)")
+      
+    //Mars and Venus symbols
+    var symbolcolors = {m: "#e86756", f: "#9FA8DA", mout: "#9a0b16", fout: "#3f51b5"};
+        
+    var symbolgroup = svg.selectAll(".symbol")
+          .data(data)
+          .enter().append("g")
+          .attr("class", function(d) { return d.Geslacht; })
+          .attr("transform", function(d) { return "translate(" + x(d.Overleving) + "," + y(d.Prevalentie) + ")"; });
+        
+     var vrouwen  = svg.selectAll("g.f");
+        vrouwen
+            .append("line")
+            .attr("x1", 0)
+            .attr("x2", 0)
+            .attr("y1", 0)
+            .attr("y2", 20)
+            .attr("stroke", symbolcolors.fout)
+            .attr("stroke-width", 2);
+        vrouwen
+            .append("line")
+            .attr("x1", -7)
+            .attr("x2", 7)
+            .attr("y1", 14)
+            .attr("y2", 14)
+            .attr("stroke", symbolcolors.fout)
+            .attr("stroke-width", 2);
+        
+        var mannen =  svg.selectAll("g.m");
+        mannen
+            .append("line")
+            .attr("x1", 0)
+            .attr("x2", 14)
+            .attr("y1", 0)
+            .attr("y2", -14)
+            .attr("stroke", symbolcolors.mout)
+            .attr("stroke-width", 2);
+        mannen
+            .append("line")
+            .attr("x1", 7)
+            .attr("x2", 15)
+            .attr("y1", -14)
+            .attr("y2", -14)
+            .attr("stroke", symbolcolors.mout)
+            .attr("stroke-width", 2);
+        mannen
+            .append("line")
+            .attr("x1", 14)
+            .attr("x2", 14)
+            .attr("y1", -6)
+            .attr("y2", -14)
+            .attr("stroke", symbolcolors.mout)
+            .attr("stroke-width", 2);
+
+       symbolgroup.append("circle")
+          .attr("class", "dot")
+          .attr("r", 8)
+          .style("fill", function(d) { return symbolcolors[d.Geslacht]; })
+          .style("stroke", function(d) { return symbolcolors[d.Geslacht + "out"]; })
+          .style("stroke-width", 2)
+          .on('mouseover', function(d) {
+            tip.show(d);
+            d3.select(this).style("stroke-width", 3);
+          })
+          .on('mouseout', function(d) {
+            d3.select(this).style("stroke-width", 2);
+            tip.hide(d);
+          });
+
+    });
+    
+    //button functionality
+    d3.select("#zoomin").on("click", function() {
+        
+        d3.select("#zoomout").classed("pressed", false);
+        d3.select("#zoomin").classed("pressed", true);
+        
+        y.domain([0, 21]);
+        svg.select('.y.axis')
+            .transition().duration(1500)
+            .call(yAxis);
+        svg.selectAll("g.m, g.f")
+            .transition().duration(1500)
+            .attr("transform", function(d) { return "translate(" + x(d.Overleving) + "," + y(d.Prevalentie) + ")"; });
+        
+      svg.selectAll("line.connect")
+        .transition().duration(1500)
+        .attr("y1", function(d) { return y(d.values[0].Prevalentie)})
+        .attr("y2", function(d) { return y(d.values[1].Prevalentie)});
+        
+      svg.selectAll("text.chartlabel")
+        .transition().duration(1500)
+        .attr("x", function(d) { return x((d.values[0].Overleving + d.values[1].Overleving)/2); })
+        .attr("y", function(d) { return y((d.values[0].Prevalentie + d.values[1].Prevalentie)/2); })
+        .style("opacity", 0.4);
+        
+    });
+    
+    d3.select("#zoomout").on("click", function() {
+        
+        d3.select("#zoomin").classed("pressed", false);
+        d3.select("#zoomout").classed("pressed", true);
+        
+        y.domain([0, 110]);
+        svg.select('.y.axis')
+            .transition().duration(1500)
+            .call(yAxis);
+        svg.selectAll("g.m, g.f")
+            .transition().duration(1500)
+            .attr("transform", function(d) { return "translate(" + x(d.Overleving) + "," + y(d.Prevalentie) + ")"; });
+        
+      svg.selectAll("line.connect")
+        .transition().duration(1500)
+        .attr("y1", function(d) { return y(d.values[0].Prevalentie)})
+        .attr("y2", function(d) { return y(d.values[1].Prevalentie)});
+        
+      svg.selectAll("text.chartlabel")
+        .transition().duration(1500)
+        .attr("x", function(d) { return x((d.values[0].Overleving + d.values[1].Overleving)/2); })
+        .attr("y", function(d) { return y((d.values[0].Prevalentie + d.values[1].Prevalentie)/2); })
+        .style("opacity", function(d) { if((d.values[0].Prevalentie + d.values[1].Prevalentie)/2 < 25) {
+            return 0;
+            }
+            else {
+                return 0.4;
+            }
+        });      
+    });
+    
+    //Responsiveness
+    function resize() {
+
+      var dim = parseInt(d3.select("#chart").style("width")),
+      width = dim - margin.left - margin.right,
+      height = 450 - margin.top - margin.bottom;
+
+      // Update the range of the scale with new width/height
+      x.range([0, width]);
+      y.range([height, 0]);
+
+      // Update the axis and text with the new scale
+      svg.select('.x.axis')
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+      svg.select('.x.axis').select('.label')
+          .attr("x",width);
+
+      svg.select('.y.axis')
+        .call(yAxis);
+
+      // Update the ticks
+      yAxis.innerTickSize(-width);
+      
+      svg.selectAll("g.m, g.f")
+        .attr("transform", function(d) { return "translate(" + x(d.Overleving) + "," + y(d.Prevalentie) + ")"; });
+        
+      svg.selectAll("line.connect")
+        .attr("x1", function(d) { return x(d.values[0].Overleving)})
+        .attr("x2", function(d) { return x(d.values[1].Overleving)})
+        .attr("y1", function(d) { return y(d.values[0].Prevalentie)})
+        .attr("y2", function(d) { return y(d.values[1].Prevalentie)});
+        
+      svg.selectAll("text.chartlabel")
+        .attr("x", function(d) { return x((d.values[0].Overleving + d.values[1].Overleving)/2); })
+        .attr("y", function(d) { return y((d.values[0].Prevalentie + d.values[1].Prevalentie)/2); })
+        .style("font-size", function() {
+                if(width < 1024) {
+                    return 16;
+                }
+                else {
+                    return 22;
+                }
+            });
+    }
+
+    d3.select(window).on('resize', resize);
+
+    resize();
+
+</script>
+
+
+</body>
+</html>

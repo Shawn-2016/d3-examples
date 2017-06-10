@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <script src="https://d3js.org/d3.v4.0.0-alpha.49.min.js"></script>
+    <style>
+
+    /* #ddd: light grey */
+    .axis--grid .domain {
+        fill: #ddd;
+        stroke: none;
+    }
+
+    /* #fff: white, #5abe4e: green; */
+    .axis--x .domain,
+    .axis--grid .tick line {
+        stroke: #5abe4e;
+    }
+
+    .axis--grid .tick--minor line {
+        stroke-opacity: .5;
+    }
+
+    </style>
+</head>
+
+<body>
+
+    <script>
+
+        var margin = {top: 200, right: 40, bottom: 200, left: 40},
+            width = 960 - margin.left - margin.right,
+            height = 500 - margin.top - margin.bottom;
+
+        // new Date(2013, 7, 15) - 1 to remove the label for 15/07
+        var x = d3.scaleTime()
+            .domain([new Date(2013, 7, 1), new Date(2013, 7, 15) - 1])
+            .rangeRound([0, width]);
+
+        var brush = d3.brushX()
+            .extent([[0, 0], [width, height]])
+            .on("brush", brushed);
+
+        var svg = d3.select("body").append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        // d3.timeHour determines hours between each tick, change to 24 to see the difference
+        var xGrid = d3.axisBottom(x)
+                    .ticks(d3.timeHour, 12)
+                    .tickSize(-height)
+                    .tickFormat(function() { return null; })
+
+        svg.append("g")
+            .attr("class", "axis axis--grid")
+            .attr("transform", "translate(0," + height + ")")
+            .call(xGrid)
+            .selectAll(".tick")
+                .classed("tick--minor", function(d) { return d.getHours(); });
+
+        var xAxis = d3.axisBottom(x)
+                    .ticks(d3.timeDay)
+                    .tickPadding(0)
+
+        svg.append("g")
+                .attr("class", "axis axis--x")
+                .attr("transform", "translate(0," + height + ")")
+                .call(xAxis)
+                .attr("text-anchor", null)
+            .selectAll("text")
+                .attr("x", 6);
+
+        svg.append("g")
+                .attr("class", "brush")
+                .call(brush);
+
+
+        function brushed() {
+
+            if (d3.event.sourceEvent.type === "brush") return;
+            var domain0 = d3.event.selection.map(x.invert),
+                    domain1 = domain0.map(d3.timeDay.round);
+
+            // If empty when rounded, use floor & ceil instead.
+            if (domain1[0] >= domain1[1]) {
+                domain1[0] = d3.timeDay.floor(domain0[0]);
+                domain1[1] = d3.timeDay.ceil(domain0[1]);
+            }
+
+            d3.select(this)
+                    .call(brush.move, domain1.map(x));
+        }
+
+    </script>
+</body>
+</html>

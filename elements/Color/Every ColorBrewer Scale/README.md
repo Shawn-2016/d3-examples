@@ -1,0 +1,1 @@
+A quick visual reference to every [ColorBrewer scale](http://colorbrewer2.org); colors by Cynthia Brewer. Available in [CSS and JS format](https://github.com/mbostock/d3/tree/master/lib/colorbrewer). Click on a palette to log the constituent colors in hexadecimal RGB to the console.

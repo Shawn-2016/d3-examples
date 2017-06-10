@@ -1,0 +1,104 @@
+<!-- forked from http://bl.ocks.org/mbostock/1667367 Focus+Context via Brushing -->
+<!doctype html>
+<head lang="en">
+
+    <meta charset='utf-8'>
+    <title>brush with scatterplots &amp; sparklines</title>
+    <style>
+
+        body {
+            background: #fff;
+            color: #444;
+            font-family: sans-serif;
+            font-size: 16px;
+            margin: 0;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        svg {
+            margin: 0.625em;
+            width: calc(100vw - 20px);
+            min-width: 940px;
+            height: calc(100vh - 20px);
+            min-height: 480px;
+        }
+
+        .focus-info {
+            font-size: 0.9em;
+        }
+
+        .focus .bp-line, .focus .bp-grp {
+            clip-path: url(#focus-clip);
+        }
+
+        .axis {
+            font-size: 0.625em;
+        }
+
+        .axis path, .axis line {
+            fill: none;
+            stroke: #444;
+            shape-rendering: crispEdges;
+        }
+
+        .brush .extent {
+            stroke: #fff;
+            fill-opacity: .125;
+            shape-rendering: crispEdges;
+        }
+
+        .focus .bp-grp, .close-button {
+            cursor: pointer;
+        }
+
+        .focus-info .bold {
+            font-weight: bold;
+        }
+
+        .line-arrow {
+            stroke: #444;
+            stroke-width: 2.5;
+            marker-end: url(#line-marker);
+        }
+
+        .line-marker {
+            fill: #444;
+            stroke: none;
+        }
+
+        .popup {
+            cursor: move;
+        }
+
+        .popup text {
+            font-size: .9em;
+        }
+    </style>
+</head>
+<body>
+    <svg>
+        <defs>
+            <g id="close-button" transform="scale(0.15625)">
+                <circle fill="darkgray" stroke="none" cx="64" cy="64" r="64"></circle>
+                <rect x="16" width="96" rx="6" y="58" height="12" ry="6" transform="rotate(45 64 64)" fill="white" stroke="none"></rect>
+                <rect x="16" width="96" rx="6" y="58" height="12" ry="6" transform="rotate(-45 64 64)" fill="white" stroke="none"></rect>
+            </g>
+            <clipPath id="focus-clip">
+                <rect></rect>
+            </clipPath>
+            <marker id="line-marker" markerWidth="12" markerHeight="12" refX="6" refY="4" orient="auto">
+                <path d="M 1 1 7 4 1 7 Z" class="line-marker"></path>
+            </marker>
+            <g id="line-arrow-left" transform="scale(0.5)">
+                <line x1="25" x2="0" y1="10" y2="10" class="line-arrow"></line>
+            </g>
+            <g id="line-arrow-right" transform="scale(0.5)">
+                <line x1="0" x2="25" y1="10" y2="10" class="line-arrow"></line>
+            </g>
+    </defs>
+    </svg>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js'></script>
+    <script src='bp-brush.js'></script>
+</body>
+</html>

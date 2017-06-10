@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+circle {
+  fill: #000;
+  stroke: #000;
+  stroke-width: 1.5px;
+}
+
+</style>
+<body>
+<script src="https://d3js.org/d3.v3.min.js"></script>
+<script>
+
+	var margin = {t:40, r:40, b:40, l:40},
+		width = 960 - margin.l - margin.r,
+		height = 500 - margin.t - margin.b;
+
+	// interpolate: https://github.com/d3/d3-interpolate#interpolateHcl
+	var y = d3.scale.ordinal().domain(d3.range(10)).range([0, height]);
+	var color = d3.scale.linear().domain([10, 0]).range(["hsl(62,100%,90%)", "hsl(228,30%,20%)"])
+		.interpolate(d3.interpolateHcl);
+
+	var svg = d3.select("body").append("svg")
+		.attr("width", width + margin.l + margin.r)
+		.attr("height", height + margin.t + margin.b)
+		.append("g")
+		.attr("transform", "translate(" + margin.l + "," + margin.t + ")");
+
+	svg.selectAll("circle")
+		.data(y.domain())
+		.enter().append("circle")
+		.attr("r", 20)
+		.attr("cx", 0)
+		.attr("cy", y)
+		.style("fill", function(d) { return color(Math.abs(d % 20 - 10)); })
+		.transition()
+		.duration(1000)
+		.delay(function(d) { return d * 40 })
+		.each(slide);
+
+	// this is where the magic happens
+	// inside repeat(), you state that it goes to width then back to 0, when it reaches 0, repeat the process
+	function slide() {
+		var circle = d3.select(this);
+		(function repeat() {
+			circle = circle.transition()
+			.attr("cx", width)
+			.transition()
+			.attr("cx", 0)
+			.each("end", repeat);
+		}) ();
+	}
+
+
+</script>

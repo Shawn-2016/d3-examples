@@ -1,0 +1,1 @@
+By customizing the display of D3’s [brush component](https://github.com/mbostock/d3/wiki/SVG-Controls), you can make a single-handle slider. Or, by using [custom resize handles](/mbostock/4349545), you can make a two-handled slider.

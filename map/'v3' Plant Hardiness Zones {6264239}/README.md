@@ -1,0 +1,1 @@
+This map of [plant hardiness zones](http://planthardiness.ars.usda.gov/) shows the average annual extreme minimum temperature (from 1976-2005) across the contiguous United States. Data via Bill Morris’ [Open Plant Hardiness Zones](https://github.com/wboykinm/ophz) project.

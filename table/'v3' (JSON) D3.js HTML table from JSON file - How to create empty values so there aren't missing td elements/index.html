@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="http://d3js.org/d3.v3.min.js"></script>
+	<script src="//code.jquery.com/jquery-1.10.2.js"></script>
+	<style>
+		body{
+			font-family:Arial, sans-serif;
+			font-size:14px;
+		}
+		table{
+			border-spacing:0;
+			padding:0;
+		}
+		#buildcontent table#years td{
+			width:20px;
+			padding-left:5px;
+			padding-right:5px;
+		}
+		table#years td{
+			border-top:1px solid #ddd;
+		  border-bottom:0px;
+		  font-weight:bold;
+			padding-left:5px;
+			padding-top:3px;
+			height:18px;
+		}
+		th{
+		  text-align:left;
+		  font-weight:normal !important;
+		  border-top:1px solid #ddd;
+		  border-left:1px solid #ddd;
+		  border-bottom:1px solid #ddd;
+			height:25px;
+			padding-left:5px;
+			width: 50px;
+			font-weight:bold !important;
+		}
+		td{
+		  border:1px solid #ddd;
+			width:20px;
+			height:25px;
+			padding-left:5px;
+		}
+		tr.row-odd,
+		.row-odd{
+			background: #eee;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div id="buildcontent">
+	  <table>
+	    <thead id="years">
+	    </thead>
+	    <tbody id="countries">
+	    </tbody>
+	  </table>
+	</div>
+
+<script>
+
+d3.json("data.json", function(json) {
+
+	json.forEach(function(d){
+	     d.value = Math.round((+d.value + 0.00001) * 1000) / 1000;
+	});
+
+	var newData = [],
+	    countries = {};
+
+	json.forEach(function (d) {
+	    var country = countries[d.country];
+	    if (!country) {
+	        newData.push(country = countries[d.country] = {});
+	    }
+	     country[d.year] = d.value,
+		   countries[d.country].Country = d.country;
+	});
+	console.log(json); console.log(countries); console.log(newData); 
+
+	// add years 
+	var nestyr = d3.nest()	    
+			.key(function(d) { return d.year; })
+	 		.sortKeys(d3.ascending)
+			.map(json);
+
+	var yearstring = Object.keys(nestyr);								
+	yearstring.unshift("Country");
+
+
+			  function tabulate(newData, columns) {
+					var table = d3.select('body').append('table')
+					var thead = table.append('thead')
+					var	tbody = table.append('tbody');
+
+					// append the header row
+					thead.append('tr')
+					  .selectAll('th')
+					  .data(columns).enter()
+					  .append('th')
+					    .text(function (column) { return column; });
+
+					// create a row for each object in the data
+					var rows = tbody.selectAll('tr')
+					  .data(newData)
+					  .enter()
+					  .append('tr');
+
+					  // add stripes to the table
+				    rows.attr("class", function(d, i){ if (i++ % 2 === 0){return 'row-even'}else {return 'row-odd'}});
+
+					// create a cell in each row for each column
+					var cells = rows.selectAll('td')
+					  .data(function (row) {
+					    return columns.map(function (column) {
+					      return {column: column, value: row[column]};
+					    });					
+					  })
+					  .enter()
+					  .append('td')
+							.attr("class", function(d){ return d.year; })
+					    .text(function (d) { return d.value; });
+
+				  return table;
+				}
+
+					// render the table(s)
+					tabulate(newData, yearstring);
+
+});
+
+</script>
+</body>
+</html>

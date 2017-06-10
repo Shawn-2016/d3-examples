@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Obesity/poverty scatterp</title>
+    <script type="text/javascript" src="http://d3js.org/d3.v3.js"></script>
+    <style type="text/css">
+        body {
+            background-color: #fff1e0;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        
+        form {
+            position: absolute;
+            top: 80px;
+            left: 582px;
+            font-size: 12px;
+            color: #74736c;
+        }
+
+        circle {
+            fill: #bb6d82;
+        }
+
+        .barLabel {
+            font-size: 10px;
+            fill: blue;
+            pointer-events: none;
+        }
+        
+        .labelsOn{
+            opacity: 1;
+            transition: opacity 0.3s;
+        }
+        .labelsOff{
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .barValue {
+            font-size: 12px;
+            fill: #74736c;
+        }
+
+        h1, p {
+            position: relative;
+            left: 10px;
+            color: #333333;
+            font-weight: normal;
+        }
+
+        .hover{
+            fill: #9e2f50;
+            transition: fill 0.2s;
+        }
+
+        .footnote {
+            position: relative;
+
+        }
+
+        .source{
+            font-size: 11px;
+        }
+        
+        .axis line {
+            fill: none;
+            stroke: #e9decf;
+            stroke-dasharray:2,1;
+            shape-rendering: crispEdges;
+        }
+        
+        .axis text {
+            font-family: Arial,sans-serif;
+            font-size: 11px;
+            fill: #74736c;
+        }
+        
+        .x.axis path,
+        .y.axis path{
+            opacity: 0;
+        }
+
+        .toolTip{
+            padding: 6px;
+            background-color: #fff;
+            border-radius: 4px;
+            position: absolute;
+            font-size: 12px;
+            line-height: 18px;
+            visibility: hidden;
+        }
+        .stateName{
+            font-weight: bold;
+            font-size: 14px;
+            /*margin-bottom: -8px;
+            display: block;*/
+        }
+        .dataNum{
+            font-weight: bold;
+        }
+        .subhead{
+            fill: #74736c;
+            font-size: 14px;
+        }
+    
+        #cbLabel{
+            margin-right: 20px;
+        }
+         
+        label{
+                margin-right: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="toolTip"></div>
+<form>
+    <input id="cb_0" type="checkbox" class="myCB" name="vehicle" value="states"/>
+    <label id="cbLabel" for="cb_0">Show state labels</label>
+    <input id="rb_0" type="radio" class="myRB" name="vehicle" value="2013" checked="true"/>
+    <label for="rb_0">2013</label>
+    <input id="rb_1" type="radio" class="myRB" name="vehicle" value="2010"/>
+    <label for="rb_1">2010</label>
+    <input id="rb_2" type="radio" class="myRB" name="vehicle" value="2005"/>
+    <label for="rb_2">2005</label>
+</form>
+
+<script type="text/javascript">
+
+var margin = {top: 10, right: 10, bottom: 35, left: 50};
+var w = 900, h = 760, tt, rbYr = 2013;
+
+var body = d3.select('body');
+body.append('h1').text('Obesity in the United States');
+
+var svg = d3.select('body').append('svg');
+
+svg.append('text')
+    .text('% of Americans in poverty, by state (2013)')
+    .attr('transform', function(d) {
+        return "rotate(-90 0, 360)"
+    })
+    .attr('x', 0)
+    .attr('y', h/2)
+    .attr('text-anchor', 'middle')
+    .attr('class', 'y subhead')
+    .attr('opacity', 0);
+
+svg.append('text')
+    .text('% of Americans classified as obese, by state (2013)')
+    .attr('x', w/2)
+    .attr('y', h - 3)
+    .attr('text-anchor', 'middle')
+    .attr('class', 'x subhead')
+    .attr('opacity', 0);
+
+svg.attr('width', w).attr('height', h);
+
+var x = d3.scale.linear().range([margin.left, w - margin.left - margin.right ]);
+var y = d3.scale.linear().range([0, h - margin.bottom ]);
+
+var xAxis = d3.svg.axis().scale(x)
+                .tickSize(-(h-margin.top - margin.bottom))
+                .ticks(12)
+                .orient('bottom');
+var yAxis = d3.svg.axis().scale(y)
+                .tickSize(-w-margin.left - margin.right)
+                .ticks(15)
+                .orient('left');
+
+
+//Load in contents of CSV file
+d3.csv('obesityPoverty.csv', function(data) {
+
+    data.sort(function(a,b) {
+        return d3.descending(a.obesity2013, b.obesity2013)
+    });
+
+    console.log("data:\n", data);
+
+
+    x.domain([
+        d3.min(data, function(d) { return +d.obesity2005 - 1; }), 
+        d3.max(data, function(d) { return +d.obesity2013 + 1; })
+    ]);
+
+    y.domain([
+        d3.max(data, function(d) { return +d.poverty2013 + 1; }),
+        d3.min(data, function(d) { return +d.poverty2005 - 1; })
+    ]);
+
+
+    body.append('p')
+        .text('Source: Centers for Disease Control and Prevention')
+        .attr('class', 'source');
+
+    body.append('p')
+        .text('Hover over the circles!!!')
+        .attr('class', 'footnote');
+
+    svg.append('g')
+        .attr('class', 'x axis')
+        .attr('transform', 'translate(' + -w + ',' +  (h - margin.bottom) + ')')
+        .call(xAxis);
+    
+    svg.append('g')
+        .attr('class', 'y axis')
+        .attr('transform', 'translate(' + margin.left + ',' + -w +')')
+        .call(yAxis);
+
+    d3.select('.x.axis')
+        .transition().duration(800)
+        .ease('quad')
+        .attr('transform', 'translate(0,' +  (h - margin.bottom) + ')');
+
+    d3.select('.y.axis')
+        .transition().delay(1000).duration(800)
+        .ease('quad')
+        .attr('transform', 'translate(' + margin.left + ',0)');
+
+    d3.select('.x.subhead')
+        .transition().delay(800)
+        .attr('opacity', 1);
+
+    d3.select('.y.subhead')
+        .transition().delay(1800)
+        .attr('opacity', 1);
+
+    var circleGroups = svg.selectAll('.circleGroup')
+                    .data(data)
+                    .enter().append('g')
+                    .attr('class', 'circleGroup');
+
+    var circles = circleGroups.append('circle')
+                    .attr({
+                        'r': 5,
+                        'cx': margin.left,
+                        'cy': h - margin.bottom,
+                        'opacity': 0
+                    });
+
+    circles.transition()
+            .delay(function (d,i) { return 2000 + (i * 30); })
+            .ease('quad').duration(500)
+            .attr({
+                'cx': function(d) { return x(d.obesity2013); },
+                'cy': function(d) { return y(d.poverty2013); },
+                'opacity': 1
+            });
+
+    // STATE LABEL
+    circleGroups.append('text')
+            .text(function(d) { return d.state; })
+            .attr({
+                'class': 'barLabel',
+                'dx': 4,
+                'dy': -4,
+                'x': function(d) { return x(d.obesity2013); },
+                'y': function(d) { return y(d.poverty2013); },
+                'opacity': 0
+            });
+
+    circles.style('cursor', 'pointer');
+
+    circles.on('mouseover', function(d) { 
+        d3.select(this)
+            .classed('hover', true)
+            .transition()
+            .attr('r', 10)
+        
+        tt = d3.select('.toolTip');
+            tt.html(
+                '<span class="stateName">' + d.state + '</span><br/>' + 'Obesity ' + rbYr + ': <span class="dataNum">' + d.obesity2013 + '</span>%<br/>Poverty ' + rbYr + ': <span class="dataNum">' + d.poverty2013 + '</span>%')
+            .style('top', d3.event.pageY - 12 + 'px')
+            .style('visibility', 'visible');
+    });
+
+    circles.on('mouseout', function() { 
+        d3.select(this)
+            .classed('hover', false)
+            .transition()
+            .attr('r', 5)
+        tt.style('visibility', 'hidden')
+    });
+
+    circleGroups.on('mousemove', function (d) {
+
+        var toolW = d3.select('.toolTip').node().getBoundingClientRect().width;
+
+        if(d3.event.pageX > (w - toolW)) {
+            tt.style('left', d3.event.pageX - toolW - 12 + 'px')
+        } 
+        else {
+            tt.style('left', d3.event.pageX + 12 + 'px')
+        }
+    });
+
+
+    d3.selectAll('.myRB').on('click', function() {
+        rbYr = this.value;
+
+        circles.transition()
+                .ease('quad').duration(500)
+                .attr({
+                    'cx': function(d) { return x(d['obesity' + [rbYr]]); },
+                    'cy': function(d) { return y(d['poverty' + [rbYr]]); }
+                });
+
+        d3.selectAll('.barLabel').transition()
+                .ease('quad').duration(500)
+                .attr({
+                    'x': function(d) { return x(d['obesity' + [rbYr]]); },
+                    'y': function(d) { return y(d['poverty' + [rbYr]]); }
+                });
+
+        d3.select('.y.subhead').text('% of Americans in poverty, by state (' + rbYr + ')');
+        d3.select('.x.subhead').text('% of Americans classified as obese, by state (' + rbYr + ')');
+    });
+
+
+    d3.select('.myCB').on('click', function() {
+
+        if (this.checked) {
+            d3.selectAll('.barLabel')
+                .classed('labelsOn', true)
+                .classed('labelsOff', false)
+        }
+        else {
+             d3.selectAll('.barLabel')
+                .classed('labelsOff', true)
+                .classed('labelsOn', false)
+        }
+    });
+
+});
+
+</script>
+
+</body>
+</html>

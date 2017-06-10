@@ -1,0 +1,463 @@
+year,naics,description,exports,imports,netexports
+2000,000,Total,781.9,-1218.0,-436.1
+2001,000,Total,729.1,-1141.0,-411.9
+2002,000,Total,693.1,-1161.4,-468.3
+2003,000,Total,724.8,-1257.1,-532.4
+2004,000,Total,814.9,-1469.7,-654.8
+2005,000,Total,901.1,-1673.5,-772.4
+2006,000,Total,1026.0,-1853.9,-828.0
+2007,000,Total,1148.2,-1957.0,-808.8
+2008,000,Total,1287.4,-2103.6,-816.2
+2009,000,Total,1056.0,-1559.6,-503.6
+2010,000,Total,1278.3,-1913.2,-634.9
+2011,000,Total,1480.4,-2207.8,-727.4
+2012,000,Total,1546.5,-2275.4,-728.9
+2013,000,Total,1578.9,-2266.9,-688.0
+2000,111,Agricultural Products,24.4,-11.7,12.7
+2001,111,Agricultural Products,24.8,-11.3,13.5
+2002,111,Agricultural Products,25.9,-11.7,14.2
+2003,111,Agricultural Products,30.3,-13.0,17.4
+2004,111,Agricultural Products,33.2,-14.3,18.9
+2005,111,Agricultural Products,31.9,-15.9,16.0
+2006,111,Agricultural Products,36.2,-17.3,18.9
+2007,111,Agricultural Products,48.1,-19.6,28.5
+2008,111,Agricultural Products,63.0,-22.5,40.5
+2009,111,Agricultural Products,50.8,-21.5,29.3
+2010,111,Agricultural Products,60.2,-24.0,36.2
+2011,111,Agricultural Products,72.0,-28.8,43.1
+2012,111,Agricultural Products,71.2,-29.3,41.9
+2013,111,Agricultural Products,69.1,-31.8,37.3
+2000,112,Livestock & Livestock Products,1.3,-3.1,-1.8
+2001,112,Livestock & Livestock Products,1.3,-3.4,-2.1
+2002,112,Livestock & Livestock Products,1.0,-3.4,-2.4
+2003,112,Livestock & Livestock Products,1.2,-2.8,-1.6
+2004,112,Livestock & Livestock Products,1.0,-2.5,-1.5
+2005,112,Livestock & Livestock Products,1.1,-3.3,-2.1
+2006,112,Livestock & Livestock Products,1.3,-4.1,-2.8
+2007,112,Livestock & Livestock Products,1.4,-4.7,-3.3
+2008,112,Livestock & Livestock Products,1.6,-4.4,-2.9
+2009,112,Livestock & Livestock Products,1.4,-3.6,-2.2
+2010,112,Livestock & Livestock Products,1.6,-4.1,-2.5
+2011,112,Livestock & Livestock Products,1.9,-4.3,-2.3
+2012,112,Livestock & Livestock Products,2.4,-4.7,-2.3
+2013,112,Livestock & Livestock Products,2.4,-5.2,-2.8
+2000,113,"Forestry Products, Nesoi",1.7,-1.4,0.3
+2001,113,"Forestry Products, Nesoi",1.5,-1.2,0.3
+2002,113,"Forestry Products, Nesoi",1.5,-1.3,0.2
+2003,113,"Forestry Products, Nesoi",1.5,-1.6,-0.1
+2004,113,"Forestry Products, Nesoi",1.7,-2.0,-0.3
+2005,113,"Forestry Products, Nesoi",1.7,-2.3,-0.5
+2006,113,"Forestry Products, Nesoi",1.8,-2.8,-1.0
+2007,113,"Forestry Products, Nesoi",2.0,-2.7,-0.8
+2008,113,"Forestry Products, Nesoi",2.0,-3.4,-1.4
+2009,113,"Forestry Products, Nesoi",1.7,-1.8,-0.1
+2010,113,"Forestry Products, Nesoi",2.3,-3.4,-1.1
+2011,113,"Forestry Products, Nesoi",2.7,-5.4,-2.7
+2012,113,"Forestry Products, Nesoi",2.4,-4.1,-1.7
+2013,113,"Forestry Products, Nesoi",2.9,-3.4,-0.5
+2000,114,"Fish, Fresh/Chilled/Frozen & Other Marine Products",2.8,-8.1,-5.3
+2001,114,"Fish, Fresh/Chilled/Frozen & Other Marine Products",3.0,-7.7,-4.7
+2002,114,"Fish, Fresh/Chilled/Frozen & Other Marine Products",2.9,-7.8,-4.9
+2003,114,"Fish, Fresh/Chilled/Frozen & Other Marine Products",3.1,-8.8,-5.7
+2004,114,"Fish, Fresh/Chilled/Frozen & Other Marine Products",3.5,-9.0,-5.5
+2005,114,"Fish, Fresh/Chilled/Frozen & Other Marine Products",3.8,-9.4,-5.6
+2006,114,"Fish, Fresh/Chilled/Frozen & Other Marine Products",4.0,-10.4,-6.4
+2007,114,"Fish, Fresh/Chilled/Frozen & Other Marine Products",4.0,-10.6,-6.5
+2008,114,"Fish, Fresh/Chilled/Frozen & Other Marine Products",4.0,-10.8,-6.7
+2009,114,"Fish, Fresh/Chilled/Frozen & Other Marine Products",3.7,-9.9,-6.2
+2010,114,"Fish, Fresh/Chilled/Frozen & Other Marine Products",4.2,-11.2,-7.0
+2011,114,"Fish, Fresh/Chilled/Frozen & Other Marine Products",5.4,-12.9,-7.5
+2012,114,"Fish, Fresh/Chilled/Frozen & Other Marine Products",5.3,-12.5,-7.3
+2013,114,"Fish, Fresh/Chilled/Frozen & Other Marine Products",5.5,-13.6,-8.1
+2000,211,Oil & Gas,1.8,-106.4,-104.6
+2001,211,Oil & Gas,1.3,-93.7,-92.5
+2002,211,Oil & Gas,1.7,-91.6,-89.8
+2003,211,Oil & Gas,2.3,-122.7,-120.4
+2004,211,Oil & Gas,3.2,-163.0,-159.8
+2005,211,Oil & Gas,4.6,-222.5,-217.9
+2006,211,Oil & Gas,4.2,-258.1,-253.9
+2007,211,Oil & Gas,5.8,-281.8,-276.0
+2008,211,Oil & Gas,8.7,-393.0,-384.2
+2009,211,Oil & Gas,6.7,-213.0,-206.2
+2010,211,Oil & Gas,9.5,-280.2,-270.7
+2011,211,Oil & Gas,11.9,-353.1,-341.2
+2012,211,Oil & Gas,11.2,-327.0,-315.9
+2013,211,Oil & Gas,17.4,-286.3,-268.9
+2000,212,Minerals & Ores,4.5,-2.7,1.8
+2001,212,Minerals & Ores,4.2,-2.9,1.4
+2002,212,Minerals & Ores,3.9,-2.8,1.1
+2003,212,Minerals & Ores,4.0,-3.0,1.0
+2004,212,Minerals & Ores,5.8,-3.7,2.1
+2005,212,Minerals & Ores,8.1,-5.0,3.1
+2006,212,Minerals & Ores,9.8,-5.4,4.4
+2007,212,Minerals & Ores,11.4,-5.7,5.7
+2008,212,Minerals & Ores,16.2,-8.0,8.2
+2009,212,Minerals & Ores,10.9,-5.2,5.6
+2010,212,Minerals & Ores,17.2,-5.7,11.5
+2011,212,Minerals & Ores,25.7,-7.0,18.6
+2012,212,Minerals & Ores,23.9,-6.3,17.7
+2013,212,Minerals & Ores,20.5,-5.5,15.0
+2000,311,Food & Kindred Products,25.3,-19.1,6.2
+2001,311,Food & Kindred Products,27.0,-19.8,7.2
+2002,311,Food & Kindred Products,25.8,-21.2,4.6
+2003,311,Food & Kindred Products,27.4,-23.9,3.5
+2004,311,Food & Kindred Products,26.7,-27.9,-1.2
+2005,311,Food & Kindred Products,29.7,-29.8,-0.2
+2006,311,Food & Kindred Products,32.8,-31.9,1.0
+2007,311,Food & Kindred Products,39.5,-34.8,4.6
+2008,311,Food & Kindred Products,49.4,-40.1,9.3
+2009,311,Food & Kindred Products,44.7,-36.2,8.5
+2010,311,Food & Kindred Products,51.9,-41.1,10.8
+2011,311,Food & Kindred Products,59.9,-50.2,9.8
+2012,311,Food & Kindred Products,64.7,-54.3,10.3
+2013,311,Food & Kindred Products,68.5,-52.8,15.7
+2000,312,Beverages & Tobacco Products,5.7,-8.7,-3.0
+2001,312,Beverages & Tobacco Products,4.4,-9.0,-4.6
+2002,312,Beverages & Tobacco Products,3.7,-10.1,-6.4
+2003,312,Beverages & Tobacco Products,3.8,-11.3,-7.5
+2004,312,Beverages & Tobacco Products,3.8,-12.1,-8.3
+2005,312,Beverages & Tobacco Products,3.5,-13.2,-9.7
+2006,312,Beverages & Tobacco Products,4.0,-15.1,-11.1
+2007,312,Beverages & Tobacco Products,4.4,-16.6,-12.1
+2008,312,Beverages & Tobacco Products,5.1,-16.4,-11.3
+2009,312,Beverages & Tobacco Products,4.7,-14.8,-10.1
+2010,312,Beverages & Tobacco Products,5.8,-16.1,-10.3
+2011,312,Beverages & Tobacco Products,6.8,-17.7,-10.9
+2012,312,Beverages & Tobacco Products,7.4,-18.8,-11.4
+2013,312,Beverages & Tobacco Products,8.8,-19.9,-11.2
+2000,313,Textiles & Fabrics,7.3,-7.1,0.2
+2001,313,Textiles & Fabrics,7.4,-6.4,1.0
+2002,313,Textiles & Fabrics,7.6,-6.8,0.8
+2003,313,Textiles & Fabrics,7.8,-6.8,1.0
+2004,313,Textiles & Fabrics,8.7,-7.4,1.2
+2005,313,Textiles & Fabrics,8.8,-7.5,1.3
+2006,313,Textiles & Fabrics,8.8,-7.4,1.4
+2007,313,Textiles & Fabrics,8.5,-7.5,1.0
+2008,313,Textiles & Fabrics,8.5,-7.0,1.5
+2009,313,Textiles & Fabrics,6.7,-5.3,1.4
+2010,313,Textiles & Fabrics,8.2,-6.5,1.6
+2011,313,Textiles & Fabrics,9.5,-7.3,2.1
+2012,313,Textiles & Fabrics,9.0,-7.6,1.4
+2013,313,Textiles & Fabrics,9.4,-7.9,1.6
+2000,314,Textile Mill Products,2.3,-7.4,-5.0
+2001,314,Textile Mill Products,2.1,-7.6,-5.5
+2002,314,Textile Mill Products,2.0,-8.7,-6.7
+2003,314,Textile Mill Products,2.0,-9.9,-7.9
+2004,314,Textile Mill Products,2.3,-11.8,-9.5
+2005,314,Textile Mill Products,2.5,-13.5,-11.0
+2006,314,Textile Mill Products,2.8,-14.7,-11.9
+2007,314,Textile Mill Products,2.9,-15.4,-12.5
+2008,314,Textile Mill Products,2.9,-15.0,-12.1
+2009,314,Textile Mill Products,2.6,-13.3,-10.7
+2010,314,Textile Mill Products,2.9,-15.9,-13.0
+2011,314,Textile Mill Products,3.1,-17.0,-13.9
+2012,314,Textile Mill Products,3.2,-17.3,-14.1
+2013,314,Textile Mill Products,3.4,-18.2,-14.9
+2000,315,Apparel & Accessories,8.6,-63.0,-54.5
+2001,315,Apparel & Accessories,6.9,-62.5,-55.6
+2002,315,Apparel & Accessories,6.0,-62.4,-56.4
+2003,315,Apparel & Accessories,5.5,-66.6,-61.1
+2004,315,Apparel & Accessories,5.0,-70.7,-65.7
+2005,315,Apparel & Accessories,4.9,-74.6,-69.7
+2006,315,Apparel & Accessories,4.8,-77.1,-72.3
+2007,315,Apparel & Accessories,4.2,-79.0,-74.8
+2008,315,Apparel & Accessories,4.3,-76.3,-72.0
+2009,315,Apparel & Accessories,4.0,-66.9,-62.9
+2010,315,Apparel & Accessories,4.5,-75.6,-71.1
+2011,315,Apparel & Accessories,5.0,-82.2,-77.2
+2012,315,Apparel & Accessories,5.3,-81.4,-76.1
+2013,315,Apparel & Accessories,5.5,-84.6,-79.1
+2000,316,Leather & Allied Products,2.7,-21.5,-18.8
+2001,316,Leather & Allied Products,2.7,-21.8,-19.1
+2002,316,Leather & Allied Products,2.6,-22.2,-19.6
+2003,316,Leather & Allied Products,2.7,-22.9,-20.2
+2004,316,Leather & Allied Products,2.9,-24.7,-21.8
+2005,316,Leather & Allied Products,3.1,-26.8,-23.7
+2006,316,Leather & Allied Products,3.3,-28.8,-25.5
+2007,316,Leather & Allied Products,3.3,-29.7,-26.3
+2008,316,Leather & Allied Products,3.2,-29.7,-26.5
+2009,316,Leather & Allied Products,2.7,-25.5,-22.8
+2010,316,Leather & Allied Products,3.4,-31.2,-27.8
+2011,316,Leather & Allied Products,4.0,-34.2,-30.2
+2012,316,Leather & Allied Products,4.2,-36.4,-32.3
+2013,316,Leather & Allied Products,4.7,-37.9,-33.1
+2000,321,Wood Products,5.0,-15.4,-10.4
+2001,321,Wood Products,4.1,-15.0,-10.9
+2002,321,Wood Products,3.9,-15.7,-11.8
+2003,321,Wood Products,4.0,-16.6,-12.6
+2004,321,Wood Products,4.5,-22.9,-18.4
+2005,321,Wood Products,4.7,-23.7,-18.9
+2006,321,Wood Products,5.2,-22.8,-17.6
+2007,321,Wood Products,5.3,-18.6,-13.3
+2008,321,Wood Products,5.3,-14.1,-8.8
+2009,321,Wood Products,4.2,-9.7,-5.5
+2010,321,Wood Products,5.3,-11.4,-6.0
+2011,321,Wood Products,5.9,-11.3,-5.5
+2012,321,Wood Products,6.2,-13.0,-6.8
+2013,321,Wood Products,6.8,-15.3,-8.6
+2000,322,Paper,15.8,-19.1,-3.3
+2001,322,Paper,14.5,-18.2,-3.7
+2002,322,Paper,14.1,-17.5,-3.4
+2003,322,Paper,14.5,-18.4,-4.0
+2004,322,Paper,15.8,-20.7,-4.9
+2005,322,Paper,17.2,-22.1,-4.9
+2006,322,Paper,18.6,-23.5,-4.9
+2007,322,Paper,20.3,-23.5,-3.1
+2008,322,Paper,22.3,-24.0,-1.7
+2009,322,Paper,19.7,-18.5,1.2
+2010,322,Paper,23.7,-21.0,2.6
+2011,322,Paper,25.7,-21.9,3.8
+2012,322,Paper,25.4,-21.3,4.1
+2013,322,Paper,25.8,-22.0,3.8
+2000,323,"Printed Matter And Related Products, Nesoi",5.1,-4.2,0.9
+2001,323,"Printed Matter And Related Products, Nesoi",5.1,-4.1,0.9
+2002,323,"Printed Matter And Related Products, Nesoi",4.8,-4.4,0.3
+2003,323,"Printed Matter And Related Products, Nesoi",5.0,-4.7,0.3
+2004,323,"Printed Matter And Related Products, Nesoi",5.3,-5.2,0.1
+2005,323,"Printed Matter And Related Products, Nesoi",5.8,-5.6,0.2
+2006,323,"Printed Matter And Related Products, Nesoi",6.1,-5.8,0.3
+2007,323,"Printed Matter And Related Products, Nesoi",6.7,-6.4,0.3
+2008,323,"Printed Matter And Related Products, Nesoi",6.9,-6.2,0.7
+2009,323,"Printed Matter And Related Products, Nesoi",6.1,-4.9,1.2
+2010,323,"Printed Matter And Related Products, Nesoi",6.4,-5.3,1.1
+2011,323,"Printed Matter And Related Products, Nesoi",6.5,-5.3,1.2
+2012,323,"Printed Matter And Related Products, Nesoi",6.4,-5.3,1.2
+2013,323,"Printed Matter And Related Products, Nesoi",6.4,-5.2,1.2
+2000,324,Petroleum & Coal Products,9.1,-25.5,-16.4
+2001,324,Petroleum & Coal Products,8.4,-24.4,-16.0
+2002,324,Petroleum & Coal Products,8.0,-21.9,-13.8
+2003,324,Petroleum & Coal Products,9.6,-27.9,-18.3
+2004,324,Petroleum & Coal Products,12.8,-39.9,-27.0
+2005,324,Petroleum & Coal Products,18.1,-62.0,-43.9
+2006,324,Petroleum & Coal Products,26.0,-69.4,-43.3
+2007,324,Petroleum & Coal Products,31.3,-77.3,-46.0
+2008,324,Petroleum & Coal Products,59.0,-90.7,-31.6
+2009,324,Petroleum & Coal Products,41.6,-54.7,-13.1
+2010,324,Petroleum & Coal Products,61.4,-70.4,-9.0
+2011,324,Petroleum & Coal Products,101.9,-95.8,6.0
+2012,324,Petroleum & Coal Products,111.6,-94.4,17.2
+2013,324,Petroleum & Coal Products,119.3,-91.1,28.3
+2000,325,Chemicals,80.0,-71.9,8.1
+2001,325,Chemicals,78.5,-77.0,1.5
+2002,325,Chemicals,80.5,-83.9,-3.5
+2003,325,Chemicals,91.1,-98.0,-7.0
+2004,325,Chemicals,108.7,-108.9,-0.2
+2005,325,Chemicals,118.6,-123.6,-4.9
+2006,325,Chemicals,133.3,-136.8,-3.4
+2007,325,Chemicals,151.7,-149.2,2.5
+2008,325,Chemicals,171.6,-180.5,-8.9
+2009,325,Chemicals,152.3,-155.3,-3.1
+2010,325,Chemicals,179.6,-176.4,3.2
+2011,325,Chemicals,197.1,-201.8,-4.7
+2012,325,Chemicals,197.6,-197.3,0.3
+2013,325,Chemicals,199.2,-195.4,3.8
+2000,326,Plastics & Rubber Products,17.7,-17.5,0.2
+2001,326,Plastics & Rubber Products,16.5,-17.0,-0.5
+2002,326,Plastics & Rubber Products,16.2,-18.7,-2.5
+2003,326,Plastics & Rubber Products,16.5,-20.6,-4.1
+2004,326,Plastics & Rubber Products,18.3,-24.3,-5.9
+2005,326,Plastics & Rubber Products,19.9,-28.3,-8.4
+2006,326,Plastics & Rubber Products,21.8,-30.8,-9.1
+2007,326,Plastics & Rubber Products,23.2,-32.3,-9.1
+2008,326,Plastics & Rubber Products,24.7,-33.3,-8.5
+2009,326,Plastics & Rubber Products,21.6,-28.0,-6.3
+2010,326,Plastics & Rubber Products,25.9,-34.7,-8.8
+2011,326,Plastics & Rubber Products,29.1,-40.2,-11.1
+2012,326,Plastics & Rubber Products,30.9,-43.8,-12.9
+2013,326,Plastics & Rubber Products,31.5,-45.1,-13.6
+2000,327,Nonmetallic Mineral Products,8.2,-14.8,-6.6
+2001,327,Nonmetallic Mineral Products,7.8,-13.5,-5.8
+2002,327,Nonmetallic Mineral Products,6.3,-13.5,-7.2
+2003,327,Nonmetallic Mineral Products,6.4,-14.4,-8.0
+2004,327,Nonmetallic Mineral Products,6.7,-16.5,-9.8
+2005,327,Nonmetallic Mineral Products,7.0,-18.5,-11.4
+2006,327,Nonmetallic Mineral Products,8.0,-20.3,-12.4
+2007,327,Nonmetallic Mineral Products,8.8,-19.7,-10.9
+2008,327,Nonmetallic Mineral Products,9.4,-18.1,-8.7
+2009,327,Nonmetallic Mineral Products,7.9,-13.1,-5.2
+2010,327,Nonmetallic Mineral Products,9.8,-16.1,-6.3
+2011,327,Nonmetallic Mineral Products,10.7,-17.7,-7.0
+2012,327,Nonmetallic Mineral Products,10.8,-18.4,-7.6
+2013,327,Nonmetallic Mineral Products,11.1,-19.3,-8.2
+2000,331,Primary Metal Mfg,21.5,-43.8,-22.3
+2001,331,Primary Metal Mfg,19.3,-36.8,-17.5
+2002,331,Primary Metal Mfg,16.7,-34.8,-18.1
+2003,331,Primary Metal Mfg,19.1,-33.8,-14.7
+2004,331,Primary Metal Mfg,22.9,-56.2,-33.3
+2005,331,Primary Metal Mfg,29.8,-64.6,-34.8
+2006,331,Primary Metal Mfg,40.7,-88.4,-47.7
+2007,331,Primary Metal Mfg,48.2,-88.9,-40.7
+2008,331,Primary Metal Mfg,58.8,-99.9,-41.0
+2009,331,Primary Metal Mfg,40.7,-55.6,-14.9
+2010,331,Primary Metal Mfg,53.5,-79.0,-25.5
+2011,331,Primary Metal Mfg,76.5,-103.5,-27.0
+2012,331,Primary Metal Mfg,77.8,-101.0,-23.2
+2013,331,Primary Metal Mfg,73.4,-91.5,-18.2
+2000,332,"Fabricated Metal Products, Nesoi",23.1,-28.2,-5.1
+2001,332,"Fabricated Metal Products, Nesoi",20.7,-26.7,-5.9
+2002,332,"Fabricated Metal Products, Nesoi",20.2,-28.8,-8.6
+2003,332,"Fabricated Metal Products, Nesoi",20.4,-30.4,-10.0
+2004,332,"Fabricated Metal Products, Nesoi",22.7,-36.1,-13.4
+2005,332,"Fabricated Metal Products, Nesoi",25.4,-41.2,-15.9
+2006,332,"Fabricated Metal Products, Nesoi",29.5,-46.3,-16.8
+2007,332,"Fabricated Metal Products, Nesoi",32.3,-50.4,-18.1
+2008,332,"Fabricated Metal Products, Nesoi",35.2,-52.2,-16.9
+2009,332,"Fabricated Metal Products, Nesoi",30.2,-40.1,-9.9
+2010,332,"Fabricated Metal Products, Nesoi",35.7,-47.1,-11.4
+2011,332,"Fabricated Metal Products, Nesoi",40.7,-54.1,-13.4
+2012,332,"Fabricated Metal Products, Nesoi",44.6,-60.7,-16.1
+2013,332,"Fabricated Metal Products, Nesoi",47.9,-61.6,-13.7
+2000,333,"Machinery, Except Electrical",90.2,-80.0,10.2
+2001,333,"Machinery, Except Electrical",81.4,-72.6,8.9
+2002,333,"Machinery, Except Electrical",74.9,-69.0,5.8
+2003,333,"Machinery, Except Electrical",75.8,-77.9,-2.1
+2004,333,"Machinery, Except Electrical",92.9,-94.9,-2.0
+2005,333,"Machinery, Except Electrical",104.5,-110.0,-5.6
+2006,333,"Machinery, Except Electrical",117.7,-121.8,-4.1
+2007,333,"Machinery, Except Electrical",131.5,-122.3,9.2
+2008,333,"Machinery, Except Electrical",144.3,-124.9,19.4
+2009,333,"Machinery, Except Electrical",113.4,-87.8,25.6
+2010,333,"Machinery, Except Electrical",137.8,-105.5,32.3
+2011,333,"Machinery, Except Electrical",157.0,-135.1,21.8
+2012,333,"Machinery, Except Electrical",165.7,-148.5,17.3
+2013,333,"Machinery, Except Electrical",157.3,-143.4,14.0
+2000,334,Computer & Electronic Products,196.5,-251.6,-55.1
+2001,334,Computer & Electronic Products,165.1,-205.5,-40.4
+2002,334,Computer & Electronic Products,145.8,-206.0,-60.2
+2003,334,Computer & Electronic Products,150.0,-213.5,-63.5
+2004,334,Computer & Electronic Products,163.1,-249.1,-86.0
+2005,334,Computer & Electronic Products,168.6,-270.7,-102.1
+2006,334,Computer & Electronic Products,185.9,-296.0,-110.1
+2007,334,Computer & Electronic Products,187.0,-310.5,-123.5
+2008,334,Computer & Electronic Products,190.3,-300.5,-110.2
+2009,334,Computer & Electronic Products,160.6,-266.6,-106.0
+2010,334,Computer & Electronic Products,190.4,-325.0,-134.6
+2011,334,Computer & Electronic Products,201.2,-344.0,-142.9
+2012,334,Computer & Electronic Products,203.7,-355.2,-151.5
+2013,334,Computer & Electronic Products,205.2,-358.5,-153.2
+2000,335,"Electrical Equipment, Appliances & Components",27.3,-39.9,-12.5
+2001,335,"Electrical Equipment, Appliances & Components",24.9,-39.3,-14.5
+2002,335,"Electrical Equipment, Appliances & Components",22.8,-40.2,-17.4
+2003,335,"Electrical Equipment, Appliances & Components",23.3,-42.6,-19.2
+2004,335,"Electrical Equipment, Appliances & Components",26.8,-49.4,-22.6
+2005,335,"Electrical Equipment, Appliances & Components",30.3,-55.7,-25.4
+2006,335,"Electrical Equipment, Appliances & Components",35.4,-62.8,-27.4
+2007,335,"Electrical Equipment, Appliances & Components",38.2,-67.9,-29.6
+2008,335,"Electrical Equipment, Appliances & Components",39.6,-68.6,-29.0
+2009,335,"Electrical Equipment, Appliances & Components",31.4,-56.0,-24.6
+2010,335,"Electrical Equipment, Appliances & Components",37.5,-69.3,-31.7
+2011,335,"Electrical Equipment, Appliances & Components",42.2,-76.6,-34.4
+2012,335,"Electrical Equipment, Appliances & Components",45.8,-82.3,-36.5
+2013,335,"Electrical Equipment, Appliances & Components",48.1,-87.2,-39.0
+2000,336,Transportation Equipment,129.1,-213.1,-84.0
+2001,336,Transportation Equipment,130.6,-211.8,-81.2
+2002,336,Transportation Equipment,131.4,-218.7,-87.4
+2003,336,Transportation Equipment,129.8,-222.8,-93.0
+2004,336,Transportation Equipment,139.3,-240.1,-100.8
+2005,336,Transportation Equipment,159.0,-250.6,-91.5
+2006,336,Transportation Equipment,180.2,-269.0,-88.7
+2007,336,Transportation Equipment,204.1,-277.8,-73.7
+2008,336,Transportation Equipment,206.1,-255.5,-49.4
+2009,336,Transportation Equipment,165.4,-180.2,-14.8
+2010,336,Transportation Equipment,190.9,-241.1,-50.2
+2011,336,Transportation Equipment,217.9,-270.4,-52.5
+2012,336,Transportation Equipment,247.9,-317.2,-69.3
+2013,336,Transportation Equipment,263.9,-333.6,-69.6
+2000,337,Furniture & Fixtures,3.0,-15.6,-12.6
+2001,337,Furniture & Fixtures,2.6,-15.3,-12.7
+2002,337,Furniture & Fixtures,2.3,-17.5,-15.2
+2003,337,Furniture & Fixtures,2.5,-19.6,-17.1
+2004,337,Furniture & Fixtures,2.9,-22.6,-19.7
+2005,337,Furniture & Fixtures,3.2,-25.1,-21.9
+2006,337,Furniture & Fixtures,3.5,-27.0,-23.5
+2007,337,Furniture & Fixtures,4.0,-27.6,-23.7
+2008,337,Furniture & Fixtures,4.5,-26.2,-21.7
+2009,337,Furniture & Fixtures,4.0,-21.5,-17.5
+2010,337,Furniture & Fixtures,4.6,-25.7,-21.1
+2011,337,Furniture & Fixtures,5.1,-26.3,-21.2
+2012,337,Furniture & Fixtures,5.8,-28.6,-22.8
+2013,337,Furniture & Fixtures,5.9,-30.5,-24.6
+2000,339,Miscellaneous Manufactured Commodities,24.5,-56.7,-32.2
+2001,339,Miscellaneous Manufactured Commodities,25.8,-56.5,-30.7
+2002,339,Miscellaneous Manufactured Commodities,26.6,-61.9,-35.3
+2003,339,Miscellaneous Manufactured Commodities,29.4,-65.5,-36.1
+2004,339,Miscellaneous Manufactured Commodities,34.3,-72.6,-38.3
+2005,339,Miscellaneous Manufactured Commodities,39.7,-79.5,-39.8
+2006,339,Miscellaneous Manufactured Commodities,45.1,-85.9,-40.8
+2007,339,Miscellaneous Manufactured Commodities,52.4,-95.4,-42.9
+2008,339,Miscellaneous Manufactured Commodities,59.9,-98.3,-38.4
+2009,339,Miscellaneous Manufactured Commodities,52.7,-82.3,-29.6
+2010,339,Miscellaneous Manufactured Commodities,61.1,-97.8,-36.7
+2011,339,Miscellaneous Manufactured Commodities,69.7,-104.4,-34.7
+2012,339,Miscellaneous Manufactured Commodities,72.0,-102.2,-30.2
+2013,339,Miscellaneous Manufactured Commodities,77.6,-108.2,-30.6
+2000,511,"Newspapers, Books & Other Published Matter, Nesoi",0.0,0.0,0.0
+2001,511,"Newspapers, Books & Other Published Matter, Nesoi",0.0,0.0,0.0
+2002,511,"Newspapers, Books & Other Published Matter, Nesoi",0.0,0.0,0.0
+2003,511,"Newspapers, Books & Other Published Matter, Nesoi",0.3,-0.1,0.2
+2004,511,"Newspapers, Books & Other Published Matter, Nesoi",0.8,-0.1,0.7
+2005,511,"Newspapers, Books & Other Published Matter, Nesoi",1.0,-0.1,0.9
+2006,511,"Newspapers, Books & Other Published Matter, Nesoi",1.0,-0.1,0.9
+2007,511,"Newspapers, Books & Other Published Matter, Nesoi",1.0,-0.1,0.9
+2008,511,"Newspapers, Books & Other Published Matter, Nesoi",0.8,0.0,0.8
+2009,511,"Newspapers, Books & Other Published Matter, Nesoi",0.8,0.0,0.8
+2010,511,"Newspapers, Books & Other Published Matter, Nesoi",1.0,0.0,0.9
+2011,511,"Newspapers, Books & Other Published Matter, Nesoi",0.9,0.0,0.9
+2012,511,"Newspapers, Books & Other Published Matter, Nesoi",0.9,0.0,0.9
+2013,511,"Newspapers, Books & Other Published Matter, Nesoi",0.7,0.0,0.6
+2000,910,Waste And Scrap,5.1,-1.9,3.2
+2001,910,Waste And Scrap,4.8,-1.6,3.2
+2002,910,Waste And Scrap,5.2,-1.6,3.6
+2003,910,Waste And Scrap,6.6,-1.8,4.8
+2004,910,Waste And Scrap,8.8,-3.0,5.8
+2005,910,Waste And Scrap,10.6,-3.2,7.4
+2006,910,Waste And Scrap,16.0,-4.8,11.2
+2007,910,Waste And Scrap,22.3,-5.0,17.3
+2008,910,Waste And Scrap,29.1,-5.7,23.5
+2009,910,Waste And Scrap,21.9,-3.5,18.4
+2010,910,Waste And Scrap,29.6,-5.3,24.3
+2011,910,Waste And Scrap,32.7,-6.7,26.1
+2012,910,Waste And Scrap,27.9,-7.3,20.6
+2013,910,Waste And Scrap,23.8,-6.4,17.4
+2000,920,Used Or Second-Hand Merchandise,4.0,-6.3,-2.3
+2001,920,Used Or Second-Hand Merchandise,4.6,-5.9,-1.3
+2002,920,Used Or Second-Hand Merchandise,3.2,-5.7,-2.5
+2003,920,Used Or Second-Hand Merchandise,3.4,-4.8,-1.3
+2004,920,Used Or Second-Hand Merchandise,4.2,-5.7,-1.5
+2005,920,Used Or Second-Hand Merchandise,5.1,-6.0,-0.9
+2006,920,Used Or Second-Hand Merchandise,6.6,-7.1,-0.5
+2007,920,Used Or Second-Hand Merchandise,8.5,-9.0,-0.5
+2008,920,Used Or Second-Hand Merchandise,10.0,-7.8,2.3
+2009,920,Used Or Second-Hand Merchandise,8.0,-5.2,2.8
+2010,920,Used Or Second-Hand Merchandise,8.3,-6.4,1.9
+2011,920,Used Or Second-Hand Merchandise,8.9,-7.1,1.8
+2012,920,Used Or Second-Hand Merchandise,9.4,-8.1,1.3
+2013,920,Used Or Second-Hand Merchandise,9.3,-9.3,0.1
+2000,980,Goods Returned (Exports For Canada Only),1.9,-33.6,-31.8
+2001,980,Goods Returned (Exports For Canada Only),1.9,-34.6,-32.7
+2002,980,Goods Returned (Exports For Canada Only),1.3,-34.6,-33.2
+2003,980,Goods Returned (Exports For Canada Only),1.1,-32.7,-31.6
+2004,980,Goods Returned (Exports For Canada Only),0.8,-32.7,-31.9
+2005,980,Goods Returned (Exports For Canada Only),0.2,-35.8,-35.5
+2006,980,Goods Returned (Exports For Canada Only),0.2,-37.2,-37.0
+2007,980,Goods Returned (Exports For Canada Only),0.3,-38.3,-38.0
+2008,980,Goods Returned (Exports For Canada Only),0.6,-39.9,-39.3
+2009,980,Goods Returned (Exports For Canada Only),0.2,-37.0,-36.8
+2010,980,Goods Returned (Exports For Canada Only),0.2,-40.9,-40.7
+2011,980,Goods Returned (Exports For Canada Only),0.2,-44.6,-44.4
+2012,980,Goods Returned (Exports For Canada Only),0.2,-51.6,-51.4
+2013,980,Goods Returned (Exports For Canada Only),0.1,-55.2,-55.1
+2000,990,"Special Classification Provisions, Nesoi",26.5,-18.9,7.6
+2001,990,"Special Classification Provisions, Nesoi",25.9,-18.0,7.8
+2002,990,"Special Classification Provisions, Nesoi",24.1,-16.9,7.2
+2003,990,"Special Classification Provisions, Nesoi",24.3,-17.7,6.6
+2004,990,"Special Classification Provisions, Nesoi",25.7,-19.9,5.8
+2005,990,"Special Classification Provisions, Nesoi",28.5,-23.4,5.0
+2006,990,"Special Classification Provisions, Nesoi",31.3,-25.0,6.4
+2007,990,"Special Classification Provisions, Nesoi",35.5,-28.6,7.0
+2008,990,"Special Classification Provisions, Nesoi",39.8,-30.8,9.0
+2009,990,"Special Classification Provisions, Nesoi",32.8,-22.5,10.2
+2010,990,"Special Classification Provisions, Nesoi",43.9,-19.6,24.3
+2011,990,"Special Classification Provisions, Nesoi",42.7,-20.5,22.2
+2012,990,"Special Classification Provisions, Nesoi",45.7,-19.4,26.3
+2013,990,"Special Classification Provisions, Nesoi",47.3,-20.9,26.4

@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<link href='https://fonts.googleapis.com/css?family=PT+Serif' rel='stylesheet' type='text/css'>
+	<link href='https://fonts.googleapis.com/css?family=PT+Sans' rel='stylesheet' type='text/css'>
+	<meta charset="UTF-8">
+	<title>Obesity and Education</title>
+	<style type="text/css">
+		body { 
+		background-color: white;
+		font-family: 'PT Serif', serif;
+		}
+
+		h1 {
+			font-weight: 300;
+			color: #000;
+			font-family: "PT Sans", sans-serif;
+			font-size: 56px;
+			margin-top: 10px;
+			margin-bottom: 0px;
+			padding-left: 100px;
+			}
+
+		h2 {
+			font-weight: 300;
+			color: #000;
+			font-family: "PT Sans", sans-serif;
+			font-size: 32px;
+			margin-bottom: 20px;
+			margin-top: 0px;
+			padding-left: 100px;
+			}
+
+		p {
+			font-size: 18px;
+			width: 1000px;
+			margin-top: 5px;
+			padding-left: 100px;
+			margin-bottom: 10px;
+			color: #333;
+		}
+
+		a {
+			color: steelblue;
+			text-decoration: none;
+		}
+
+		a:hover {
+			color: darkslategray;
+		}
+
+		.footer {
+			font-size: 14px;
+			margin-top: 0px;
+		}
+
+		#svganchor {
+			padding-left: 300px;
+		}
+
+		.checkbox1, .checkbox2, .checkbox3 {
+			padding-left: 100px;
+		}
+
+		.btn-group {
+			padding-left: 300px;
+			display: inline;
+		}
+
+		.button {
+			display: inline-block;
+			color: #666;
+			background-color: #eee;
+			text-transform: uppercase;
+			font-size: 10px;
+			padding: 5px 5px;
+			border-radius: 5px;
+			-moz-border-radius: 5px;
+			-webkit-border-radius: 5px;
+			border: 1px solid rgba(0,0,0,0.3);
+			border-bottom-width: 3px;
+			margin-right: 0px;
+			margin-bottom: 10px;
+			margin-top: 10px;
+		   }
+
+		.button:hover {
+			background-color: #e3e3e3;
+			border-color: rgba(0,0,0,0.5);
+			cursor: pointer;
+		   }
+
+		.button:active {
+			background-color: #CCC;
+			border-color: rgba(0,0,0,0.9);
+		   }
+
+		.button:focus {
+			outline: none;
+		}
+
+		svg {
+			background-color: white;
+		}
+
+		div.tooltip {	
+		    position: absolute;			
+		    text-align: left;
+		    font-family: "PT Sans", sans-serif;			
+			white-space: normal;					
+		    padding: 4px;				
+		    font-size: 14px;		
+		    background: #eee;	
+		    border: 1px solid gray;	
+		    border-radius: 2px;			
+		    pointer-events: none;
+		    cursor: none;
+
+		}
+
+		.axis path,
+		.axis line {
+			fill: none;
+			stroke: lightslategray;
+			shape-rendering: crispEdges;
+		}
+
+		.axis text {
+			font-family: sans-serif;
+			font-size: 10px;
+			fill: #444444;
+			pointer-events: none;
+		}
+
+		.gridLine{
+		    stroke-opacity: 0.25;
+		    stroke-dasharray: 4, 4;
+		    pointer-events: none;
+		}
+
+		.highlightText {
+			cursor: pointer;
+		}
+
+		.highlightText:hover {
+			fill: #1F77B4;
+		}
+	</style>
+</head>
+
+<body>
+<script type="text/javascript" src="http://d3js.org/d3.v3.js"></script>
+	
+<div class="btn-group" data-toggle="buttons-radio">
+	<button type="button" class="button" value="scatter">Scatterplot</button>
+	<button type="button" class="button" value="slope">Slopegraph</button>
+</div>
+<div id="svganchor"></div>
+<br>
+
+<p class="footer">Originally Created by Gerardo Furtado. <a href="http://gf.neocities.org/oae/obesity.html"> See here</a> for more details.</p>
+
+<script type="text/javascript">
+
+var w = 600, h = 600;
+
+var paddingScatter = [10, 10, 50, 50];
+var paddingSlope = [0, 0, 0, 0];
+
+var xScale = d3.scale.linear();
+var yScale = d3.scale.linear();
+
+var yAxis = d3.svg.axis().scale(yScale)
+			.ticks(5).innerTickSize(8).outerTickSize(0)
+			.orient("left");
+
+var xAxis = d3.svg.axis().scale(xScale)
+			.ticks(5).innerTickSize(8).outerTickSize(0)
+			.orient("bottom");
+
+var tt = d3.select("#svganchor").append("div")	
+		.attr("class", "tooltip")				
+		.style("opacity", 0);
+
+var colors = d3.scale.ordinal()
+		.domain(["obesity", "education"])
+		.range(['#9C0824','#1F77B4']);
+
+var svg = d3.select("#svganchor").append("svg")
+		.attr("width", w)
+		.attr("height", h);
+
+var formatNumber = d3.format(".2f");
+
+
+d3.csv("obesity_education.csv", function(data){
+
+	data.forEach(function(d){
+		d.obesity = +d.obesity;
+		d.ba = +d.ba;
+	});
+
+	var arrayPearsons = [
+		data.map(function(d){ return +d.obesity; }),
+		data.map(function(d){ return +d.ba; })
+	];
+
+	var rCoefficient = findCorrelation(arrayPearsons, 0, 1);
+
+	console.log("data:\n", data);
+	console.log("arrayPearsons:\n", arrayPearsons);
+	console.log("rCoefficient:\n", rCoefficient);
+
+
+	var rScale = d3.scale.linear()
+				.range([h - paddingScatter[2] - 62, paddingScatter[0] + 138])
+				.domain([1, -1]);
+
+	var rLine = svg.append("line");
+	var rText = svg.append("text");
+
+	rText.attr("x", paddingScatter[3] + 20)
+					.attr("y", paddingScatter[0] + 240)
+					.attr("font-family", "PT Sans")
+					.attr("font-weight", 700)
+					.attr("font-size", 16)
+					.attr("fill-opacity", 0)
+					.text("r = " + formatNumber(rCoefficient));
+
+	rLine.attr("x1", paddingScatter[3] + 10)
+					.attr("x2", w - paddingScatter[1] - 10)
+					.attr("y1", rScale(rCoefficient))
+					.attr("y2", rScale(-rCoefficient))
+					.attr("stroke-width", 4)
+					.attr("opacity", 0)
+					.attr("stroke", "black");
+
+	var circlesObesity = svg.selectAll(".circlesObesity")
+					.data(data, function(d){ return d.state; })
+					.enter().append("circle")
+					.attr("class", function(d) { 
+						return "state " + d.state.replace(/\s/g, '')
+					});
+
+	circlesObesity.attr("stroke", "white")
+					.attr("fill", colors("education"))
+					.attr("r", 0);
+
+	var circlesBa = svg.selectAll(".circlesBa")
+					.data(data, function(d) { return d.state; })
+					.enter().append("circle")
+					.attr("class", function(d) { 
+						return "state " + d.state.replace(/\s/g, '')
+					});
+
+	var connectingLine = svg.selectAll(".conLine")
+					.data(data, function(d) { return d.state; })
+					.enter()
+					.append("line")
+					.attr("class", function(d) { 
+						return "state " + d.state.replace(/\s/g, '')
+					});
+
+	circlesBa.attr("stroke", "white")
+			.attr("fill", colors("education"))
+			.attr("r", 0);
+
+	var xAxisText = svg.append("text");
+
+	xAxisText.attr("text-anchor", "middle")
+			.attr("x", (w + paddingScatter[3]) / 2)
+			.attr("y", h - 10)
+			.attr("font-family", "PT Sans")
+			.attr("font-size", 14)
+			.attr("fill", "#333")
+			.text("Obese People (%)")
+			.attr("pointer-events", "none");
+
+	var yAxisText = svg.append("text");
+
+	yAxisText.attr("text-anchor", "middle")
+			.attr("x", -(h - paddingScatter[3])/2)
+			.attr("y", 18)
+			.attr("font-family", "PT Sans")
+			.attr("font-size", 14)
+			.attr("fill", "#333")
+			.text("BA degree or higher (%)")
+			.attr("transform", "rotate(-90)")
+			.attr("fill-opacity", 0)
+			.attr("pointer-events", "none");
+
+	var yAxisText2 = svg.append("text");
+
+	yAxisText2.attr("text-anchor", "middle")
+			.attr("x", 150)
+			.attr("y", h - 10)
+			.attr("font-family", "PT Sans")
+			.attr("font-size", 14)
+			.attr("fill", "#333")
+			.text("BA degree or higher (%)")
+			.attr("fill-opacity", 0)
+			.attr("pointer-events", "none");
+
+	svg.append("g")
+		.attr("class", "x axis")
+		.attr("transform", "translate(0," + (h - paddingScatter[2]) +")")
+		.call(xAxis);		
+
+	svg.append("g")
+		.attr("class", "y axis")
+		.attr("transform", "translate(" + (paddingScatter[3]) + ",0)")
+		.call(yAxis);
+
+	// CHOOSE BUTTON ON CLICK
+	d3.selectAll(".button").on("click", function(){
+		var thisClicked = this.value
+		if (thisClicked == "scatter") {
+			drawScatter();
+		} 
+		else if (thisClicked == "slope") {
+			drawSlope();
+		}
+	});
+
+	/*HEADER FOR SLOPEGRAPH*/
+	var header = svg.append("text");
+
+	header.attr("x", 500)
+		.attr("text-anchor", "middle")
+		.attr("y", 10)
+		.attr("fill-opacity", 0)
+		.attr("pointer-events", "none")
+		.attr("font-family", "PT Sans")
+		.attr("font-size", 12)
+		.attr("class", "highlightText")
+		.text("MOUSE OVER TO HIGHLIGHT");
+
+	var highlightBa = svg.append("text");
+
+	highlightBa.attr("x", 500)
+		.attr("text-anchor", "middle")
+		.attr("y", 40)
+		.attr("fill-opacity", 0)
+		.attr("font-family", "PT Serif")
+		.attr("font-size", 12)
+		.attr("class", "highlightText")
+		.attr("pointer-events", "none")
+		.text("States with BA percentage higher");
+
+	var highlightObesity = svg.append("text");
+
+	highlightObesity.attr("text-anchor", "middle")
+		.attr("x", 500)
+		.attr("y", 60)
+		.attr("fill-opacity", 0)
+		.attr("font-family", "PT Serif")
+		.attr("font-size", 12)
+		.attr("class", "highlightText")
+		.attr("pointer-events", "none")
+		.text("States with Obesity percentage higher");
+
+	var statesList = svg.selectAll(".statesList")
+		.data(data)
+		.enter()
+		.append("text");
+
+	// LIST ALL STATE ABBR
+	statesList.attr("text-anchor", "middle")
+		.attr("x", 500)
+		.attr("y", function(d, i) { return 80 + i * 10; })
+		.attr("fill-opacity", 0)
+		.attr("pointer-events", "none")
+		.attr("font-family", "PT Sans")
+		.attr("font-size", 10)
+		.attr("class", "highlightText")
+		.text(function(d) { return d.stateAbbr; });
+	/*[END] HEADER FOR SLOPEGRAPH*/
+
+
+	drawScatter();
+
+	function drawScatter(){
+
+		xScale.range([paddingScatter[3], w - paddingScatter[1]])
+			.domain([20, 34]);
+
+		yScale.range([h - paddingScatter[2], paddingScatter[0]])
+			.domain([10, 50]);
+
+		header.transition().duration(500)
+			.attr("fill-opacity", 0)
+			.attr("pointer-events", "none");
+
+		highlightObesity.transition().duration(500)
+			.attr("fill-opacity", 0)
+			.attr("pointer-events", "none");
+
+		highlightBa.transition().duration(500)
+			.attr("fill-opacity", 0)
+			.attr("pointer-events", "none");
+
+		statesList.transition().duration(500)
+			.attr("fill-opacity", 0)
+			.attr("pointer-events", "none");
+
+		d3.transition(svg).select(".x.axis")
+			.transition().duration(1000)
+			.attr("opacity", 1)
+			.call(xAxis);
+
+		yAxis.innerTickSize(8).tickFormat(function(d) { return d; });
+
+		d3.transition(svg).select(".y.axis")
+			.transition().duration(1000)
+			.call(yAxis);
+
+		d3.selectAll(".y.axis path").attr("opacity", 1);
+
+		circlesObesity.transition()
+			.duration(1500)
+			.attr("cx", function(d){
+				return xScale(d.obesity)
+			})
+			.attr("cy", function(d){
+				return yScale(d.ba)
+			})
+			.attr("r", 6)
+			.attr("stroke", "white")
+			.attr("fill", function(d){
+				if (d.state == "Average"){
+					return "black";
+				} else {
+					return colors("education");
+				}
+			})
+			.attr("opacity", 1)
+			.attr("pointer-events", "none");
+
+		circlesBa.transition()
+			.duration(1500)
+			.attr("cx", function(d){
+				return xScale(d.obesity)
+			})
+			.attr("cy", function(d){
+				return yScale(d.ba)
+			})
+			.attr("r", 6)
+			.attr("stroke", "white")
+			.attr("fill", function(d){
+				if (d.state == "Average"){
+					return "black";
+				} else {
+					return colors("education");
+				}
+			})
+			.attr("opacity", 1);
+
+		circlesBa
+			.on("mousemove", function(d){
+				d3.select(this).attr("stroke", "black");
+				if (d.state == "Average"){
+					tt.html("US average<br>Obese people: <strong>" +
+					d.obesity + "%</strong><br>BA degree or higher: <strong>" + d.ba +
+					"%</strong>")
+						.style('top', d3.event.pageY - 12 + 'px')
+		                .style('left', d3.event.pageX + 25 + 'px')
+		                .style("opacity", 0.95);
+				} else {
+				tt.html("State: <strong>" + d.state + "</strong><br>Obese people: <strong>" +
+					d.obesity + "%</strong><br>BA degree or higher: <strong>" + d.ba +
+					"%</strong>")
+						.style('top', d3.event.pageY - 12 + 'px')
+		                .style('left', d3.event.pageX + 25 + 'px')
+		                .style("opacity", 0.95);
+		        }
+			})
+			.on("mouseout", function(d){
+				d3.select(this).attr("stroke", "white");
+				tt.style("opacity", 0);
+			});
+
+		connectingLine.transition()
+			.duration(1500)
+			.attr("x1", function(d){ return xScale(d.obesity); })
+			.attr("x2", function(d){ return xScale(d.obesity); })
+			.attr("y1", function(d){ return yScale(d.ba); })
+			.attr("y2", function(d){ return yScale(d.ba); })
+			.attr("stroke", function(d) {
+				if(d.state != "Average" && d.ba > d.obesity){
+					return colors("education");
+				} else if (d.state != "Average" && d.ba < d.obesity){
+					return colors("obesity");
+				} else {
+					return "black";
+				}
+			})
+			.attr("stroke-width", 1);
+
+		d3.selectAll("g.x.axis .tick")
+			.append("line")
+				.classed("gridLine", true)
+				.attr("x1", 0)
+				.attr("y1", 0)
+				.attr("x2", 0)
+				.attr("y2", - (h - paddingScatter[0] - paddingScatter[2]));
+
+       	d3.selectAll("g.y.axis .tick")
+	        .append("line")
+				.classed("gridLine", true)
+				.attr("x1", 0)
+				.attr("y1", 0)
+				.attr("y2", 0)
+				.attr("x2", (w - paddingScatter[3] - paddingScatter[1]));
+
+		rLine.transition().duration(1000).attr("opacity", 0.25);
+
+		rText.transition().duration(1000).attr("fill-opacity", 0.25);
+
+		yAxisText.transition()
+			.duration(1000)
+			.attr("fill-opacity", 1);
+
+		yAxisText2.transition()
+			.duration(1000)
+			.attr("fill-opacity", 0);
+	};
+
+	function drawSlope(){
+
+		yScale.range([h - paddingScatter[2], paddingScatter[0]]).domain([15, 46]);
+
+		d3.selectAll(".state").attr("opacity", 1);
+
+		header.transition().duration(1000)
+				.attr("fill-opacity", 1);
+
+		highlightBa.transition().duration(1000)
+					.attr("fill-opacity", 1)
+					.attr("pointer-events", "all");
+
+		highlightObesity.transition().duration(1000)
+				.attr("fill-opacity", 1)
+				.attr("pointer-events", "all");
+
+		statesList.transition().duration(1000)
+				.attr("fill-opacity", 1)
+				.attr("pointer-events", "all");
+
+		highlightBa.on("mouseover", function(){
+						d3.selectAll(".state").attr("opacity", function(d){
+							if(d.ba > d.obesity){
+								return 1;
+							} else {
+								return 0.1
+							}
+						});
+					})
+					.on("mouseout", function(){
+						d3.selectAll(".state").attr("opacity", 1);
+					});
+
+		highlightObesity.on("mouseover", function(){
+							d3.selectAll(".state").attr("opacity", function(d){
+								if(d.obesity > d.ba){
+									return 1;
+								} else {
+									return 0.1
+								}
+							});
+						})
+						.on("mouseout", function(){
+							d3.selectAll(".state").attr("opacity", 1);
+						});
+
+		statesList
+				.on("mouseover", function(d){
+					d3.selectAll(".state").attr("opacity", 0.1);
+					d3.selectAll("." + d.state.replace(/\s/g, '')).attr("opacity", 1);
+
+					if (d.state == "Average"){
+						tt.html("US average<br>Obese people: <strong>" +
+						d.obesity + "%</strong><br>BA degree or higher: <strong>" + d.ba +
+						"%</strong>")
+							.style('top', d3.event.pageY - 60 + 'px')
+			                .style('left', d3.event.pageX + 25 + 'px')
+			                .style("opacity", 0.95);
+					}
+					else {
+					tt.html("State: <strong>" + d.state + "</strong><br>Obese people: <strong>" +
+						d.obesity + "%</strong><br>BA degree or higher: <strong>" + d.ba +
+						"%</strong>")
+							.style('top', d3.event.pageY - 60 + 'px')
+			                .style('left', d3.event.pageX + 25 + 'px')
+			                .style("opacity", 0.95);
+			        };
+				})
+				.on("mouseout", function(){
+					d3.selectAll(".state").attr("opacity", 1);
+					tt.style("opacity", 0);
+				});
+
+		rText.transition().duration(500).attr("fill-opacity", 0);
+
+		rLine.transition().duration(500).attr("opacity", 0);
+		
+		circlesBa.transition()
+			.duration(1500)
+			.attr("cx", 150)
+			.attr("cy", function(d){
+				return yScale(d.ba)
+			})
+			.attr("r", 3)
+			.attr("fill", function(d){
+				if(d.state != "Average" && d.ba > d.obesity){
+					return colors("education");
+				}
+				else if (d.state != "Average" && d.ba < d.obesity){
+					return colors("obesity");
+				}
+				else {
+					return "black";
+				}
+			});
+
+		circlesObesity.transition()
+			.duration(1500)
+			.attr("cx", (w + paddingScatter[3])/ 2)
+			.attr("cy", function(d){
+				return yScale(d.obesity)
+			})
+			.attr("r", 3)
+			.attr("fill", function(d){
+				if(d.state != "Average" && d.ba > d.obesity){
+					return colors("education");
+				} else if (d.state != "Average" && d.ba < d.obesity){
+					return colors("obesity");
+				} else {
+					return "black";
+				}
+			})
+			.attr("pointer-events", "all");
+
+		circlesObesity
+			.on("mousemove", function(d){
+				d3.selectAll(".state").attr("opacity", 0.1);
+				d3.selectAll("." + d.state.replace(/\s/g, '')).attr("opacity", 1);
+				
+				if (d.state == "Average"){
+					tt.html("US average<br>Obese people: <strong>" +
+					d.obesity + "%</strong><br>BA degree or higher: <strong>" + d.ba +
+					"%</strong>")
+						.style('top', d3.event.pageY - 12 + 'px')
+		                .style('left', d3.event.pageX + 25 + 'px')
+		                .style("opacity", 0.95);
+				} 
+				else {
+				tt.html("State: <strong>" + d.state + "</strong><br>Obese people: <strong>" +
+					d.obesity + "%</strong><br>BA degree or higher: <strong>" + d.ba +
+					"%</strong>")
+						.style('top', d3.event.pageY - 12 + 'px')
+		                .style('left', d3.event.pageX + 25 + 'px')
+		                .style("opacity", 0.95);
+		        }
+			})
+			.on("mouseout", function(d){
+				d3.selectAll(".state").attr("opacity", 1);
+				tt.style("opacity", 0);
+			});
+
+		circlesBa
+			.on("mousemove", function(d){
+				d3.selectAll(".state").attr("opacity", 0.1);
+				d3.selectAll("." + d.state.replace(/\s/g, '')).attr("opacity", 1);
+				if (d.state == "Average"){
+					tt.html("US average<br>Obese people: <strong>" +
+					d.obesity + "%</strong><br>BA degree or higher: <strong>" + d.ba +
+					"%</strong>")
+						.style('top', d3.event.pageY - 12 + 'px')
+		                .style('left', d3.event.pageX + 25 + 'px')
+		                .style("opacity", 0.95);
+				}
+				else {
+				tt.html("State: <strong>" + d.state + "</strong><br>Obese people: <strong>" +
+					d.obesity + "%</strong><br>BA degree or higher: <strong>" + d.ba +
+					"%</strong>")
+						.style('top', d3.event.pageY - 12 + 'px')
+		                .style('left', d3.event.pageX + 25 + 'px')
+		                .style("opacity", 0.95);
+		        }
+			})
+			.on("mouseout", function(d){
+				d3.selectAll(".state").attr("opacity", 1);
+				tt.style("opacity", 0);
+			});
+
+		connectingLine.transition()
+			.duration(1500)
+			.attr("x1", 150)
+			.attr("x2", (w + paddingScatter[3])/ 2)
+			.attr("y1", function(d) { return yScale(d.ba) })
+			.attr("y2", function(d) { return yScale(d.obesity) })
+			.attr("stroke", function(d){
+				if(d.state != "Average" && d.ba > d.obesity){
+					return colors("education");
+				}
+				else if (d.state != "Average" && d.ba < d.obesity){
+					return colors("obesity");
+				}
+				else {
+					return "black";
+				}
+			})
+			.attr("stroke-width", 1);
+
+		yAxisText.transition()
+			.duration(1000)
+			.attr("fill-opacity", 0);
+
+		yAxisText2.transition()
+			.duration(1000)
+			.attr("fill-opacity", 1);
+
+		yAxis.innerTickSize(0).tickFormat(function(d){ return d + "%"});
+
+		d3.transition(svg).select(".y.axis")
+			.transition()
+			.duration(1000)
+			.call(yAxis);
+
+		d3.selectAll(".y.axis path").transition().duration(1000).attr("opacity", 0);
+
+		d3.selectAll(".x.axis").transition().duration(1000).attr("opacity", 0);
+
+		d3.selectAll("g.x.axis .tick").select("line.gridLine").transition()
+			.duration(1000).attr("opacity", 0).remove();
+
+		d3.selectAll("g.y.axis .tick").selectAll("line.gridLine").remove();
+
+		d3.selectAll("g.y.axis .tick")
+			.append("line")
+				.classed("gridLine", true)
+				.attr("x1", 0)
+				.attr("y1", 0)
+				.attr("y2", 0)
+				.attr("x2", 350);
+	};
+
+	function findCorrelation(prefs, p1, p2) {
+		var si = [];
+		for (var key in prefs[p1]) {
+			if (prefs[p2][key]) si.push(key);
+		};
+
+		var n = si.length;
+		if (n == 0) {return 0};
+
+		var sum1 = 0;
+		for (var i = 0; i < si.length; i++) { sum1 += prefs[p1][si[i]] };
+
+		var sum2 = 0;
+		for (var i = 0; i < si.length; i++) { sum2 += prefs[p2][si[i]] };
+
+		var sum1Sq = 0;
+		for (var i = 0; i < si.length; i++) {
+			sum1Sq += Math.pow(prefs[p1][si[i]], 2);
+		};
+
+		var sum2Sq = 0;
+		for (var i = 0; i < si.length; i++) {
+			sum2Sq += Math.pow(prefs[p2][si[i]], 2);
+		};
+
+		var pSum = 0;
+		for (var i = 0; i < si.length; i++) {
+			pSum += prefs[p1][si[i]] * prefs[p2][si[i]];
+		};
+
+		var num = pSum - (sum1 * sum2 / n);
+		var den = Math.sqrt((sum1Sq - Math.pow(sum1, 2) / n) * (sum2Sq - Math.pow(sum2, 2) / n));
+
+		if (den == 0) { return 0 };
+
+		return num / den;
+	};
+
+});
+
+</script>
+</body>
+</html>

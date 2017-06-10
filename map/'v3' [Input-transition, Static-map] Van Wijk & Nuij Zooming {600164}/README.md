@@ -1,0 +1,1 @@
+A fork of [Tom Carden’s implementation](/RandomEtc/600144) of Jarke J. van Wijk and Wim A.A. Nuij’s [smooth and efficient zooming and panning](http://www.win.tue.nl/~vanwijk/zoompan.pdf) for Polymaps.

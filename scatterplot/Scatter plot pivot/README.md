@@ -1,0 +1,1 @@
+A scatter plot that pivots one axis from raw to percent.

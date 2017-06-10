@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>D3 nest examples</title>
+    <script src="http://d3js.org/d3.v2.js"></script>
+    <script src=" https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <link href='http://fonts.googleapis.com/css?family=Tienne' rel='stylesheet' type='text/css'>
+
+    <style>
+        body {
+            font-family: 'Tienne', serif;
+            font-size: 12px;
+        }
+    </style>
+
+</head>
+<body>
+<h1>D3 Nest Tutorial and examples</h1>
+<p>Here is my learning process for getting to grips with nest.  Discovered the d3 tests half way through which were a great help: <a href="https://github.com/mbostock/d3/blob/master/test/core/nest-test.js">tests</a></p><h2>Simple one level nest</h2>
+<p>In Bl.ocks.org, click on "Open in a New Window" (bottom right) to view all the examples</p>
+<p>Group by status</p>
+<code>var nested_data = d3.nest()<br />
+               .key(function(d)  { return d.status; })<br />
+    .entries(csv_data);<br />
+</code>
+<textarea id="ex1" rows="15" cols="90"></textarea>
+
+<h2>Simple two level nest</h2>
+<p>Group by status then priority</p>
+<code>var nested_data = d3.nest()<br />
+    .key(function(d) { return d.status; })<br />
+    .key(function(d) { return d.priority; })<br />
+    .entries(csv_data);<br />
+</code>
+<textarea id="ex2" rows="15" cols="90"></textarea>
+
+
+<h2>Use rollup to count leaves</h2>
+<p>The leaf level is replaced by a value at the parent level</p>
+<code>var nested_data = d3.nest()<br />
+    .key(function(d) { return d.status; })<br />
+    .key(function(d) { return d.priority; })<br />
+    .rollup(function(leaves) { return leaves.length; })<br />
+    .entries(csv_data);<br />
+</code>
+<textarea id="ex3" rows="15" cols="90"></textarea>
+
+<h2>Rollup does sums as well</h2>
+<p>Can't have two rollups, but can return an object/array</p>
+<code>var nested_data = d3.nest()<br />
+    .key(function(d) { return d.status; })<br />
+    .key(function(d) { return d.priority; })<br />
+    .rollup(function(leaves) {
+        return {"length": leaves.length,
+        "total_time": d3.sum(leaves, function(d) {return parseFloat(d.time);})} })<br />
+    .entries(csv_data);<br />
+</code>
+<textarea id="ex4" rows="15" cols="90"></textarea>
+
+<h2>Rollup everything to get a grand total of number of lines</h2>
+<p>No key</p>
+<code>var nested_data = d3.nest()<br />
+    .rollup(function(leaves) { return leaves.length; })<br />
+    .entries(csv_data);<br />
+</code>
+<textarea id="ex9" rows="15" cols="90"></textarea>
+
+<h2>Sorting</h2>
+<p>Each level can be sorted by key - a simple ascending or descending...</p>
+<code>var nested_data = d3.nest()<br />
+    .key(function(d) { return d.status; }).sortKeys(d3.ascending)<br />
+    .key(function(d) { return d.priority; }).sortKeys(function(d) { return )<br />
+    .rollup(function(leaves) { return leaves.length; })<br />
+    .entries(csv_data);<br />
+</code>
+<textarea id="ex5" rows="15" cols="90"></textarea>
+
+<h2>Sorting - custom order</h2>
+<p>Status, fortuitously, can be sorted in straing ascending order, but Priority requires a custom order.  Create an list in the order you want and use indexOf to create the order comparaitor function.</p>
+<code>
+    var priority_order = ['MUST', "SHOULD", 'COULD', 'WISH'];<br />
+    var nested_data = d3.nest()<br />
+    .key(function(d) { return d.status; }).sortKeys(d3.ascending)<br />
+    .key(function(d) { return d.priority; }).sortKeys(function(a,b) { return priority_order.indexOf(a) - priority_order.indexOf(b); })<br />
+    .rollup(function(leaves) { return leaves.length; })<br />
+    .entries(csv_data);<br />
+</code>
+<textarea id="ex6" rows="15" cols="90"></textarea>
+
+<h2>Sorting - sort the leaves as well</h2>
+<p>Use sortValue to sort the leaves - sort by time with smallest first</p>
+<code>
+    var priority_order = ['MUST', "SHOULD", 'COULD', 'WISH'];<br />
+    var nested_data = d3.nest()<br />
+    .key(function(d) { return d.status; }).sortKeys(d3.ascending)<br />
+    .key(function(d) { return d.priority; }).sortKeys(function(a,b) { return priority_order.indexOf(a) - priority_order.indexOf(b); })<br />
+    .sortValues(function(a,b) { return parseFloat(a.time) - parseFloat(b.time); } }<br />
+    .entries(csv_data);<br />
+</code>
+<textarea id="ex7" rows="15" cols="90"></textarea>
+
+<h2>Sorting - sort the leaves as well</h2>
+<p>Use sortValue to sort the leaves - sort by person this time.</p>
+<code>
+    var priority_order = ['MUST', "SHOULD", 'COULD', 'WISH'];<br />
+    var nested_data = d3.nest()<br />
+    .key(function(d) { return d.status; }).sortKeys(d3.ascending)<br />
+    .key(function(d) { return d.priority; }).sortKeys(function(a,b) { return priority_order.indexOf(a) - priority_order.indexOf(b); })<br />
+    .sortValues(function(a,b) { return ((a.who < b.who)<br />
+    ?  -1<br />
+    :  1);<br />
+    return 0;} )<br />
+    .entries(csv_data);<br />
+</code>
+<textarea id="ex8" rows="15" cols="90"></textarea>
+
+<h2>Populate a Select list from csv data</h2>
+<p>Use nest to get a unique list of people then create a select from it.</p>
+<code>
+    var nested_data = d3.nest()<br />
+    .key(function(d) { return d.who}).sortKeys(d3.ascending)<br />
+    .rollup(function(leaves) { return leaves.length; })<br />
+    .entries(csv_data);<br />
+    <br />
+    var list = d3.select("#ex10").append("select")<br />
+    <br />
+    list.selectAll("option")<br />
+    .data(nested_data)<br />
+    .enter()<br />
+    .append("option")<br />
+    .attr("value", function(d) {return d.key;})<br />
+    .text(function(d) {<br />
+    return d.key; });<br />
+    <br />
+</code>
+<div id="ex10">
+
+</div>
+
+
+<script>
+    d3.csv("./data.csv", function(csv_data){
+
+console.log(csv_data);
+
+        var nested_data = d3.nest()
+                .key(function(d)  { return d.status; })
+                .entries(csv_data);
+
+
+        $("#ex1").html(JSON.stringify(nested_data, null, 3));
+
+        var nested_data = d3.nest()
+                .key(function(d) { return d.status; })
+                .key(function(d) { return d.priority; })
+                .entries(csv_data);
+
+
+        $("#ex2").html(JSON.stringify(nested_data, null, 3));
+
+        var nested_data = d3.nest()
+                .key(function(d) { return d.status; })
+                .key(function(d) { return d.priority; })
+                .rollup(function(leaves) { return leaves.length; })
+                .entries(csv_data);
+
+
+        $("#ex3").html(JSON.stringify(nested_data, null, 3));
+
+        var nested_data = d3.nest()
+                .key(function(d) { return d.status; })
+                .key(function(d) { return d.priority; })
+                .rollup(function(leaves) {
+                    return {"length": leaves.length,
+                        "total_time": d3.sum(leaves, function(d) {return parseFloat(d.time);})} })
+                .entries(csv_data);
+
+
+        $("#ex4").html(JSON.stringify(nested_data, null, 3));
+
+
+        var nested_data = d3.nest()
+                .key(function(d) { return d.status; }).sortKeys(d3.ascending)
+                .key(function(d) { return d.priority; }).sortKeys(d3.descending)
+                .rollup(function(leaves) { return leaves.length; })
+                .entries(csv_data);
+
+
+        $("#ex5").html(JSON.stringify(nested_data, null, 3));
+
+        var priority_order = ['MUST', "SHOULD", 'COULD', 'WISH'];
+        var nested_data = d3.nest()
+                .key(function(d) { return d.status; }).sortKeys(d3.ascending)
+                .key(function(d) { return d.priority; }).sortKeys(function(a,b) { return priority_order.indexOf(a) - priority_order.indexOf(b); })
+                .rollup(function(leaves) { return leaves.length; })
+                .entries(csv_data);
+
+
+        $("#ex6").html(JSON.stringify(nested_data, null, 3));
+
+        var priority_order = ['MUST', "SHOULD", 'COULD', 'WISH'];
+        var nested_data = d3.nest()
+                .key(function(d) { return d.status; }).sortKeys(d3.ascending)
+                .key(function(d) { return d.priority; }).sortKeys(function(a,b) { return priority_order.indexOf(a) - priority_order.indexOf(b); })
+                .sortValues(function(a,b) { return parseFloat(a.time) - parseFloat(b.time); } )
+                .entries(csv_data);
+
+
+        $("#ex7").html(JSON.stringify(nested_data, null, 3));
+
+        var priority_order = ['MUST', "SHOULD", 'COULD', 'WISH'];
+        var nested_data = d3.nest()
+                .key(function(d) { return d.status; }).sortKeys(d3.ascending)
+                .key(function(d) { return d.priority; }).sortKeys(function(a,b) { return priority_order.indexOf(a) - priority_order.indexOf(b); })
+                .sortValues(function(a,b) { return ((a.who < b.who)
+                    ?  -1
+                    :  1);
+                    return 0;} )
+                .entries(csv_data);
+
+
+        $("#ex8").html(JSON.stringify(nested_data, null, 3));
+
+        var nested_data = d3.nest()
+                .rollup(function(leaves) { return leaves.length; })
+                .entries(csv_data);
+
+
+        $("#ex9").html(JSON.stringify(nested_data, null, 3));
+
+        var nested_data = d3.nest()
+                .key(function(d) { return d.who}).sortKeys(d3.ascending)
+                .rollup(function(leaves) { return leaves.length; })
+                .entries(csv_data);
+
+        var list = d3.select("#ex10").append("select")
+
+        list.selectAll("option")
+                .data(nested_data)
+                .enter()
+                .append("option")
+                .attr("value", function(d) {return d.key;})
+                .text(function(d) {
+                    return d.key; });
+    });
+
+
+
+</script>
+</body>
+</html>

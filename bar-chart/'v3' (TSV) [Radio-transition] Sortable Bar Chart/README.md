@@ -1,0 +1,1 @@
+This variation of a [simple bar chart](http://bl.ocks.org/3885304) adds sorting with staggered delay and translucency to improve readability during the transition. This technique is recommended by [Heer & Robertson](http://vis.berkeley.edu/papers/animated_transitions/). Use the checkbox in the top right to turn sorting on or off.

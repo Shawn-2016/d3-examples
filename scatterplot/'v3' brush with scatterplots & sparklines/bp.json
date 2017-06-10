@@ -1,0 +1,724 @@
+[
+  {
+    "time": "2015-10-26T10:28:00",
+    "ts": 1445855280000,
+    "key": "bp",
+    "systolic": 137,
+    "diastolic": 101,
+    "pulse": 60
+  },
+  {
+    "time": "2015-10-25T19:57:00",
+    "ts": 1445803020000,
+    "key": "bp",
+    "systolic": 119,
+    "diastolic": 73,
+    "pulse": 65
+  },
+  {
+    "time": "2015-10-24T19:05:00",
+    "key": "bp",
+    "systolic": 125,
+    "diastolic": 87,
+    "pulse": 66,
+    "ts": 1445713500000
+  },
+  {
+    "time": "2015-10-24T12:07:00",
+    "key": "bp",
+    "systolic": 108,
+    "diastolic": 79,
+    "pulse": 65,
+    "ts": 1445688420000
+  },
+  {
+    "time": "2015-10-22T13:48:00",
+    "key": "bp",
+    "systolic": 143,
+    "diastolic": 95,
+    "pulse": 62,
+    "ts": 1445521680000
+  },
+  {
+    "time": "2015-10-21T09:15:00",
+    "key": "bp",
+    "systolic": 140,
+    "diastolic": 104,
+    "pulse": 61,
+    "ts": 1445418900000
+  },
+  {
+    "time": "2015-10-20T10:50:00",
+    "key": "bp",
+    "systolic": 138,
+    "diastolic": 88,
+    "pulse": 69,
+    "ts": 1445338200000
+  },
+  {
+    "time": "2015-10-19T15:51:00",
+    "key": "bp",
+    "systolic": 124,
+    "diastolic": 93,
+    "pulse": 67,
+    "ts": 1445269860000
+  },
+  {
+    "time": "2015-10-18T11:40:00",
+    "key": "bp",
+    "systolic": 125,
+    "diastolic": 91,
+    "pulse": 67,
+    "ts": 1445168400000
+  },
+  {
+    "time": "2015-10-17T10:20:00",
+    "key": "bp",
+    "systolic": 146,
+    "diastolic": 111,
+    "pulse": 63,
+    "ts": 1445077200000
+  },
+  {
+    "time": "2015-10-16T16:53:00",
+    "key": "bp",
+    "systolic": 122,
+    "diastolic": 79,
+    "pulse": 64,
+    "ts": 1445014380000
+  },
+  {
+    "time": "2015-10-16T10:35:00",
+    "key": "bp",
+    "systolic": 138,
+    "diastolic": 94,
+    "pulse": 68,
+    "ts": 1444991700000
+  },
+  {
+    "time": "2015-10-14T13:47:00",
+    "key": "bp",
+    "systolic": 138,
+    "diastolic": 94,
+    "pulse": 68,
+    "ts": 1444830420000
+  },
+  {
+    "time": "2015-10-13T15:02:00",
+    "key": "bp",
+    "systolic": 100,
+    "diastolic": 60,
+    "pulse": 66,
+    "ts": 1444748520000
+  },
+  {
+    "time": "2015-10-13T11:48:00",
+    "key": "bp",
+    "systolic": 114,
+    "diastolic": 76,
+    "pulse": 66,
+    "ts": 1444736880000
+  },
+  {
+    "time": "2015-10-13T10:38:00",
+    "key": "bp",
+    "systolic": 148,
+    "diastolic": 112,
+    "pulse": 72,
+    "ts": 1444732680000
+  },
+  {
+    "time": "2015-10-11T08:54:00",
+    "key": "bp",
+    "systolic": 132,
+    "diastolic": 103,
+    "pulse": 66,
+    "ts": 1444553640000
+  },
+  {
+    "time": "2015-10-10T17:54:00",
+    "key": "bp",
+    "systolic": 135,
+    "diastolic": 98,
+    "pulse": 67,
+    "ts": 1444499640000
+  },
+  {
+    "time": "2015-10-10T10:03:00",
+    "key": "bp",
+    "systolic": 161,
+    "diastolic": 113,
+    "pulse": 61,
+    "ts": 1444471380000
+  },
+  {
+    "time": "2015-10-09T23:50:00",
+    "key": "bp",
+    "systolic": 110,
+    "diastolic": 77,
+    "pulse": 68,
+    "ts": 1444434600000
+  },
+  {
+    "time": "2015-10-09T10:11:00",
+    "key": "bp",
+    "systolic": 158,
+    "diastolic": 109,
+    "pulse": 60,
+    "ts": 1444385460000
+  },
+  {
+    "time": "2015-10-08T17:35:00",
+    "key": "bp",
+    "systolic": 140,
+    "diastolic": 99,
+    "pulse": 66,
+    "ts": 1444325700000
+  },
+  {
+    "time": "2015-10-08T10:04:00",
+    "key": "bp",
+    "systolic": 135,
+    "diastolic": 94,
+    "pulse": 75,
+    "ts": 1444298640000
+  },
+  {
+    "time": "2015-10-07T12:01:00",
+    "key": "bp",
+    "systolic": 149,
+    "diastolic": 101,
+    "pulse": 62,
+    "ts": 1444219260000
+  },
+  {
+    "time": "2015-10-06T22:06:00",
+    "key": "bp",
+    "systolic": 112,
+    "diastolic": 70,
+    "pulse": 69,
+    "ts": 1444169160000
+  },
+  {
+    "time": "2015-10-06T15:39:00",
+    "key": "bp",
+    "systolic": 146,
+    "diastolic": 110,
+    "pulse": 66,
+    "ts": 1444145940000
+  },
+  {
+    "time": "2015-10-06T11:12:00",
+    "key": "bp",
+    "systolic": 147,
+    "diastolic": 101,
+    "pulse": 75,
+    "ts": 1444129920000
+  },
+  {
+    "time": "2015-10-05T23:50:00",
+    "key": "bp",
+    "systolic": 87,
+    "diastolic": 58,
+    "pulse": 74,
+    "ts": 1444089000000
+  },
+  {
+    "time": "2015-10-05T16:40:00",
+    "key": "bp",
+    "systolic": 138,
+    "diastolic": 79,
+    "pulse": 70,
+    "ts": 1444063200000
+  },
+  {
+    "time": "2015-10-05T13:59:00",
+    "key": "bp",
+    "systolic": 162,
+    "diastolic": 110,
+    "pulse": 68,
+    "ts": 1444053540000
+  },
+  {
+    "time": "2015-10-04T22:19:00",
+    "key": "bp",
+    "systolic": 92,
+    "diastolic": 60,
+    "pulse": 80,
+    "ts": 1443997140000
+  },
+  {
+    "time": "2015-10-04T11:06:00",
+    "key": "bp",
+    "systolic": 138,
+    "diastolic": 101,
+    "pulse": 60,
+    "ts": 1443956760000
+  },
+  {
+    "time": "2015-10-04T01:56:00",
+    "key": "bp",
+    "systolic": 116,
+    "diastolic": 83,
+    "pulse": 55,
+    "ts": 1443923760000
+  },
+  {
+    "time": "2015-10-03T23:06:00",
+    "key": "bp",
+    "systolic": 112,
+    "diastolic": 77,
+    "pulse": 62,
+    "ts": 1443913560000
+  },
+  {
+    "time": "2015-10-03T15:12:00",
+    "key": "bp",
+    "systolic": 123,
+    "diastolic": 84,
+    "pulse": 72,
+    "ts": 1443885120000
+  },
+  {
+    "time": "2015-10-03T13:11:00",
+    "key": "bp",
+    "systolic": 156,
+    "diastolic": 109,
+    "pulse": 63,
+    "ts": 1443877860000
+  },
+  {
+    "time": "2015-10-03T10:24:00",
+    "key": "bp",
+    "systolic": 153,
+    "diastolic": 110,
+    "pulse": 63,
+    "ts": 1443867840000
+  },
+  {
+    "time": "2015-10-02T16:45:00",
+    "key": "bp",
+    "systolic": 118,
+    "diastolic": 78,
+    "pulse": 81,
+    "ts": 1443804300000
+  },
+  {
+    "time": "2015-10-02T14:30:00",
+    "key": "bp",
+    "systolic": 159,
+    "diastolic": 99,
+    "pulse": 68,
+    "ts": 1443796200000
+  },
+  {
+    "time": "2015-10-02T11:34:00",
+    "key": "bp",
+    "systolic": 160,
+    "diastolic": 111,
+    "pulse": 68,
+    "ts": 1443785640000
+  },
+  {
+    "time": "2015-09-30T13:12:00",
+    "key": "bp",
+    "systolic": 153,
+    "diastolic": 103,
+    "pulse": 64,
+    "ts": 1443618720000
+  },
+  {
+    "time": "2015-09-30T09:46:00",
+    "key": "bp",
+    "systolic": 151,
+    "diastolic": 108,
+    "pulse": 61,
+    "ts": 1443606360000
+  },
+  {
+    "time": "2015-09-29T22:27:00",
+    "key": "bp",
+    "systolic": 101,
+    "diastolic": 70,
+    "pulse": 76,
+    "ts": 1443565620000
+  },
+  {
+    "time": "2015-09-29T14:24:00",
+    "key": "bp",
+    "systolic": 120,
+    "diastolic": 82,
+    "pulse": 70,
+    "ts": 1443536640000
+  },
+  {
+    "time": "2015-09-29T13:19:00",
+    "key": "bp",
+    "systolic": 149,
+    "diastolic": 105,
+    "pulse": 72,
+    "ts": 1443532740000
+  },
+  {
+    "time": "2015-09-29T11:48:00",
+    "key": "bp",
+    "systolic": 141,
+    "diastolic": 107,
+    "pulse": 66,
+    "ts": 1443527280000
+  },
+  {
+    "time": "2015-09-29T10:15:00",
+    "key": "bp",
+    "systolic": 175,
+    "diastolic": 119,
+    "pulse": 64,
+    "ts": 1443521700000
+  },
+  {
+    "time": "2015-09-28T08:01:00",
+    "key": "bp",
+    "systolic": 151,
+    "diastolic": 112,
+    "pulse": 66,
+    "note": "for two days, taking incorrect smaller dosage of carvedilol",
+    "ts": 1443427260000
+  },
+  {
+    "time": "2015-09-27T21:05:00",
+    "key": "bp",
+    "systolic": 121,
+    "diastolic": 84,
+    "pulse": 59,
+    "ts": 1443387900000
+  },
+  {
+    "time": "2015-09-27T08:19:00",
+    "key": "bp",
+    "systolic": 143,
+    "diastolic": 109,
+    "pulse": 59,
+    "ts": 1443341940000
+  },
+  {
+    "time": "2015-09-26T20:45:00",
+    "key": "bp",
+    "systolic": 121,
+    "diastolic": 83,
+    "pulse": 85,
+    "ts": 1443300300000
+  },
+  {
+    "time": "2015-09-26T08:17:00",
+    "key": "bp",
+    "systolic": 149,
+    "diastolic": 109,
+    "pulse": 67,
+    "ts": 1443255420000
+  },
+  {
+    "time": "2015-09-25T19:45:00",
+    "key": "bp",
+    "systolic": 112,
+    "diastolic": 90,
+    "pulse": 67,
+    "ts": 1443210300000
+  },
+  {
+    "time": "2015-09-25T08:58:00",
+    "key": "bp",
+    "systolic": 133,
+    "diastolic": 99,
+    "pulse": 67,
+    "ts": 1443171480000
+  },
+  {
+    "time": "2015-09-24T18:55:00",
+    "key": "bp",
+    "systolic": 82,
+    "diastolic": 54,
+    "pulse": 65,
+    "ts": 1443120900000
+  },
+  {
+    "time": "2015-09-24T10:53:00",
+    "key": "bp",
+    "systolic": 101,
+    "diastolic": 75,
+    "pulse": 67,
+    "ts": 1443091980000
+  },
+  {
+    "time": "2015-09-23T10:10:00",
+    "key": "bp",
+    "systolic": 148,
+    "diastolic": 103,
+    "pulse": 60,
+    "ts": 1443003000000
+  },
+  {
+    "time": "2015-09-22T21:18:00",
+    "key": "bp",
+    "systolic": 87,
+    "diastolic": 56,
+    "pulse": 68,
+    "ts": 1442956680000
+  },
+  {
+    "time": "2015-09-22T18:11:00",
+    "key": "bp",
+    "systolic": 111,
+    "diastolic": 80,
+    "pulse": 65,
+    "ts": 1442945460000
+  },
+  {
+    "time": "2015-09-22T12:27:00",
+    "key": "bp",
+    "systolic": 112,
+    "diastolic": 85,
+    "pulse": 72,
+    "ts": 1442924820000
+  },
+  {
+    "time": "2015-09-22T01:01:00",
+    "key": "bp",
+    "systolic": 80,
+    "diastolic": 48,
+    "pulse": 69,
+    "ts": 1442883660000
+  },
+  {
+    "time": "2015-09-21T18:40:00",
+    "key": "bp",
+    "systolic": 92,
+    "diastolic": 60,
+    "pulse": 72,
+    "ts": 1442860800000
+  },
+  {
+    "time": "2015-09-21T10:32:00",
+    "key": "bp",
+    "systolic": 118,
+    "diastolic": 86,
+    "pulse": 66,
+    "ts": 1442831520000
+  },
+  {
+    "time": "2015-09-21T09:34:00",
+    "key": "bp",
+    "systolic": 139,
+    "diastolic": 105,
+    "pulse": 66,
+    "ts": 1442828040000
+  },
+  {
+    "time": "2015-09-21T09:15:00",
+    "key": "bp",
+    "systolic": 158,
+    "diastolic": 115,
+    "pulse": 68,
+    "ts": 1442826900000
+  },
+  {
+    "time": "2015-09-20T22:43:00",
+    "key": "bp",
+    "systolic": 60,
+    "diastolic": 45,
+    "pulse": 76,
+    "ts": 1442788980000
+  },
+  {
+    "time": "2015-09-20T16:47:00",
+    "key": "bp",
+    "systolic": 87,
+    "diastolic": 64,
+    "pulse": 78,
+    "ts": 1442767620000
+  },
+  {
+    "time": "2015-09-20T09:05:00",
+    "key": "bp",
+    "systolic": 119,
+    "diastolic": 92,
+    "pulse": 65,
+    "ts": 1442739900000
+  },
+  {
+    "time": "2015-09-19T21:13:00",
+    "key": "bp",
+    "systolic": 92,
+    "diastolic": 67,
+    "pulse": 73,
+    "ts": 1442697180000
+  },
+  {
+    "time": "2015-09-17T09:15:00",
+    "key": "bp",
+    "systolic": 127,
+    "diastolic": 92,
+    "pulse": 76,
+    "ts": 1442481300000
+  },
+  {
+    "time": "2015-09-16T21:15:00",
+    "key": "bp",
+    "systolic": 99,
+    "diastolic": 70,
+    "pulse": 69,
+    "ts": 1442438100000
+  },
+  {
+    "time": "2015-09-16T08:08:00",
+    "key": "bp",
+    "systolic": 129,
+    "diastolic": 93,
+    "pulse": 66,
+    "ts": 1442390880000
+  },
+  {
+    "time": "2015-09-15T22:10:00",
+    "key": "bp",
+    "systolic": 127,
+    "diastolic": 91,
+    "pulse": 65,
+    "ts": 1442355000000
+  },
+  {
+    "time": "2015-09-15T11:40:00",
+    "key": "bp",
+    "systolic": 173,
+    "diastolic": 115,
+    "pulse": 65,
+    "ts": 1442317200000
+  },
+  {
+    "time": "2015-09-14T14:15:00",
+    "key": "bp",
+    "systolic": 158,
+    "diastolic": 112,
+    "pulse": 69,
+    "ts": 1442240100000
+  },
+  {
+    "time": "2015-09-14T10:25:00",
+    "key": "bp",
+    "systolic": 149,
+    "diastolic": 106,
+    "pulse": 67,
+    "ts": 1442226300000
+  },
+  {
+    "time": "2015-09-14T09:32:00",
+    "key": "bp",
+    "systolic": 157,
+    "diastolic": 112,
+    "pulse": 72,
+    "ts": 1442223120000
+  },
+  {
+    "time": "2015-09-13T19:32:00",
+    "key": "bp",
+    "systolic": 144,
+    "diastolic": 95,
+    "pulse": 79,
+    "note": "this and all previous timestamps from memory",
+    "ts": 1442172720000
+  },
+  {
+    "time": "2015-09-12T16:32:00",
+    "key": "bp",
+    "systolic": 139,
+    "diastolic": 93,
+    "pulse": 59,
+    "ts": 1442075520000
+  },
+  {
+    "time": "2015-09-11T20:32:00",
+    "key": "bp",
+    "systolic": 116,
+    "diastolic": 90,
+    "pulse": 74,
+    "ts": 1442003520000
+  },
+  {
+    "time": "2015-09-11T07:32:00",
+    "key": "bp",
+    "systolic": 148,
+    "diastolic": 109,
+    "pulse": 74,
+    "ts": 1441956720000
+  },
+  {
+    "time": "2015-09-10T19:32:00",
+    "key": "bp",
+    "systolic": 115,
+    "diastolic": 94,
+    "pulse": 73,
+    "ts": 1441913520000
+  },
+  {
+    "time": "2015-09-10T07:32:00",
+    "key": "bp",
+    "systolic": 133,
+    "diastolic": 89,
+    "pulse": 63,
+    "ts": 1441870320000
+  },
+  {
+    "time": "2015-09-09T18:32:00",
+    "key": "bp",
+    "systolic": 123,
+    "diastolic": 88,
+    "pulse": 77,
+    "ts": 1441823520000
+  },
+  {
+    "time": "2015-09-09T08:12:00",
+    "key": "bp",
+    "systolic": 159,
+    "diastolic": 111,
+    "pulse": 71,
+    "ts": 1441786320000
+  },
+  {
+    "time": "2015-09-08T08:01:00",
+    "key": "bp",
+    "systolic": 167,
+    "diastolic": 121,
+    "pulse": 68,
+    "ts": 1441699260000
+  },
+  {
+    "time": "2015-09-07T18:32:00",
+    "key": "bp",
+    "systolic": 134,
+    "diastolic": 89,
+    "pulse": 75,
+    "ts": 1441650720000
+  },
+  {
+    "time": "2015-09-07T07:32:00",
+    "key": "bp",
+    "systolic": 138,
+    "diastolic": 103,
+    "pulse": 70,
+    "ts": 1441611120000
+  },
+  {
+    "time": "2015-09-06T18:32:00",
+    "key": "bp",
+    "systolic": 134,
+    "diastolic": 94,
+    "pulse": 87,
+    "ts": 1441564320000
+  },
+  {
+    "time": "2015-09-06T06:55:00",
+    "key": "bp",
+    "systolic": 149,
+    "diastolic": 102,
+    "pulse": 74,
+    "ts": 1441522500000
+  }
+]

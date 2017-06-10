@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+ .county {
+  fill: #e8e8e8;
+  stroke: #999;
+  stroke-width: 1px;
+  stroke-linejoin: round;
+ }
+ .tooltip {
+  background-color: #f7f7f7;
+  padding: 3px 12px;
+  font-family: sans-serif;
+  border: 1px solid #bbbbbb;
+  box-shadow: 1px 1px 4px #bbbbbb;
+}
+.tooltip_title {
+  font-weight: bold;
+  font-size: 14px;
+  margin: 5px 0;
+  max-width: 300px;
+  word-wrap: normal;
+}
+.tooltip_body {
+  font-weight: normal;
+  margin: 5px 0;
+}
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.js"></script>
+<script>
+
+var width = 960,
+    height = 500;
+
+var stateFIPS = { "01": { "abbrev": "AL", "name": "Alabama" }, "02": { "abbrev": "AK", "name": "Alaska" }, "05": { "abbrev": "AR", "name": "Arkansas" }, "60": { "abbrev": "AS", "name": "American Samoa" }, "04": { "abbrev": "AZ", "name": "Arizona" }, "06": { "abbrev": "CA", "name": "California" }, "08": { "abbrev": "CO", "name": "Colorado" }, "09": { "abbrev": "CT", "name": "Connecticut" }, "11": { "abbrev": "DC", "name": "District of Columbia" }, "10": { "abbrev": "DE", "name": "Delaware" }, "12": { "abbrev": "FL", "name": "Florida" }, "13": { "abbrev": "GA", "name": "Georgia" }, "66": { "abbrev": "GU", "name": "Guam" }, "15": { "abbrev": "HI", "name": "Hawaii" }, "19": { "abbrev": "IA", "name": "Iowa" }, "16": { "abbrev": "ID", "name": "Idaho" }, "17": { "abbrev": "IL", "name": "Illinois" }, "18": { "abbrev": "IN", "name": "Indiana" }, "20": { "abbrev": "KS", "name": "Kansas" }, "21": { "abbrev": "KY", "name": "Kentucky" }, "22": { "abbrev": "LA", "name": "Louisana" }, "25": { "abbrev": "MA", "name": "Massachusetts" }, "24": { "abbrev": "MD", "name": "Maryland" }, "23": { "abbrev": "ME", "name": "Maine" }, "26": { "abbrev": "MI", "name": "Michigan" }, "27": { "abbrev": "MN", "name": "Minnesota" }, "29": { "abbrev": "MO", "name": "Missouri" }, "28": { "abbrev": "MS", "name": "Mississippi" }, "30": { "abbrev": "MT", "name": "Montana" }, "37": { "abbrev": "NC", "name": "North Carolina" }, "38": { "abbrev": "ND", "name": "North Dakota" }, "31": { "abbrev": "NE", "name": "Nebraska" }, "33": { "abbrev": "NH", "name": "New Hampshire" }, "34": { "abbrev": "NJ", "name": "New Jersey" }, "35": { "abbrev": "NM", "name": "New Mexico" }, "32": { "abbrev": "NV", "name": "Nevada" }, "36": { "abbrev": "NY", "name": "New York" }, "39": { "abbrev": "OH", "name": "Ohio" }, "40": { "abbrev": "OK", "name": "Oklahoma" }, "41": { "abbrev": "OR", "name": "Oregon" }, "42": { "abbrev": "PA", "name": "Pennsylvania" }, "72": { "abbrev": "PR", "name": "Puerto Rico" }, "44": { "abbrev": "RI", "name": "Rhode Island" }, "45": { "abbrev": "SC", "name": "South Carolina" }, "46": { "abbrev": "SD", "name": "South Dakota" }, "47": { "abbrev": "TN", "name": "Tennessee" }, "48": { "abbrev": "TX", "name": "Texas" }, "49": { "abbrev": "UT", "name": "Utah" }, "51": { "abbrev": "VA", "name": "Virginia" }, "78": { "abbrev": "VI", "name": "Virgin Islands" }, "50": { "abbrev": "VT", "name": "Vermont" }, "53": { "abbrev": "WA", "name": "Washington" }, "55": { "abbrev": "WI", "name": "Wisconsin" }, "54": { "abbrev": "WV", "name": "West Virginia" }, "56": { "abbrev": "WY", "name": "Wyoming" } };
+
+console.log("stateFIPS:", stateFIPS);
+
+
+var countyFIPS = {}; 
+
+var projection = d3.geo.albersUsa()
+              .translate([width/2, height/2]);
+
+var path = d3.geo.path()
+        .projection(projection)
+
+// console.log("path:", path);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+var tooltip = d3.select("body")
+    .append("div")
+    .attr("class", "tooltip")
+    .style("position", "absolute")
+    .style("z-index", "10")
+    .style("visibility", "hidden");
+
+d3.json("us_counties.json", function(err, counties) {
+  var countyFIPS = d3.nest()
+    // nest by state
+    .key(function(d) { return d.properties.STATEFP; })
+    .entries(counties.features);
+
+console.log("counties:", counties);
+console.log("countyFIPS:", countyFIPS);
+
+
+  countyFIPS = countyFIPS.map(function(d) {
+              return { "state": d.key, 
+                      "counties": d.values.reduce(function(prev, next) {
+                          prev[next.properties.COUNTYFP] = next.properties.NAME;
+                          return prev;
+                      }, {})
+                    };
+              })
+              .reduce(function(prev, next) {
+                prev[next.state] = next.counties;
+                return prev;
+              }, {});
+
+console.log("countyFIPS:", countyFIPS);
+console.log("counties.features:", counties.features);
+
+
+  svg.selectAll(".county") 
+    .data(counties.features) 
+    .enter()
+    .append("path")
+    .attr("class", function(d) { return "county"; })
+    .attr("d", path)
+    .on("mouseover", function(d) {
+       tooltip.html("");
+       tooltip.append("h3").attr("class", "tooltip_title"); // not used here but useful
+       tooltip.append("pre").attr("class", "tooltip_body");
+       var p = d.properties;
+       tooltip.select(".tooltip_body")
+         .text(countyFIPS[p.STATEFP][p.COUNTYFP] + " County, " + stateFIPS[p.STATEFP].name)
+
+       return tooltip.style("visibility", "visible");
+     })
+     .on("mousemove", function() {
+       return tooltip.style("top", (d3.event.pageY-20) + "px").style("left", (d3.event.pageX+10) + "px");
+     })
+     .on("mouseout", function() {
+       return tooltip.style("visibility", "hidden");
+     });
+
+});
+
+</script>   

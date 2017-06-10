@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>D3 Symbols</title>
+	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+</head>
+
+<body>
+	<div id="wrapper">
+	</div>
+
+	<script>
+		var svg = d3.select('#wrapper')
+			.append('svg')
+			.attr({'width':900,'height':600});
+
+		// var arc = d3.svg.symbol().type('circle')
+		// 			.size(function(d){ return scale(d); });
+
+		// var arc = d3.svg.symbol().type('cross')
+		// 			.size(function(d){ return scale(d); });
+
+		// var arc = d3.svg.symbol().type('diamond')
+		// 			.size(function(d){ return scale(d); });
+
+		// var arc = d3.svg.symbol().type('square')
+		// 			.size(function(d){ return scale(d); });
+
+		// var arc = d3.svg.symbol().type('triangle-up')
+		// 			.size(function(d){ return scale(d); });
+
+		var arc = d3.svg.symbol().type('triangle-down')
+					.size(function(d){ return scale(d); });
+
+		var data = [2.5,2,3,4,5,6];
+
+		var scale = d3.scale.linear()
+						.domain(d3.extent(data))
+						.range([100,1000]);
+
+		var colorscale = d3.scale.linear()
+							.domain(d3.extent(data))
+							.range(["red","steelblue"]);
+
+		var group = svg.append('g')
+					.attr('transform','translate('+ 200 +','+ 200 +')');
+
+		var line = group.selectAll('path')
+				.data(data)
+				.enter()
+				.append('path')
+				.attr('d',arc)
+				.attr('fill',function(d){ return colorscale(d); })
+				.attr('stroke','#000')
+				.attr('stroke-width',1)
+				.attr('transform',function(d,i){ return "translate("+(i*38)+","+(10)+")"; });
+	</script>
+</body>
+</html>

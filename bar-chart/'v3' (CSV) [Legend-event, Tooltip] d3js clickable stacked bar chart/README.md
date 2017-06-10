@@ -1,0 +1,2 @@
+Clickable legend added to [Mike Bostock's stacked bar chart](http://bl.ocks.org/mbostock/3886208) to select display of an individual category.
+With help from [yuuniverse4444’s block #8325617](http://bl.ocks.org/yuuniverse4444/8325617).

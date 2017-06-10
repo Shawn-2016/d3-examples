@@ -1,0 +1,1 @@
+See also this [histogram of an Irwin–Hall distribution](http://bl.ocks.org/3048450).

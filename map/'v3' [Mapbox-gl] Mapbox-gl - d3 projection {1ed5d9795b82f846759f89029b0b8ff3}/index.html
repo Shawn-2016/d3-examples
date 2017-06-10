@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+  <script src="//d3js.org/topojson.v1.min.js"></script>
+  <script src="viewport.js"></script>
+  
+  <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.12.0/mapbox-gl.js'></script>
+  <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.12.0/mapbox-gl.css' rel='stylesheet' />
+
+  <style>
+    body { margin:0;position:fixed;top:0;right:0;bottom:0;left:0; }
+    #map { 
+      position:absolute; 
+      width: 100%;
+      height: 100%;
+    }
+    svg {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    circle.mapbox {
+      stroke: #111;
+      fill-opacity: 0.1;
+    }
+    circle.vp {
+      fill-opacity: 0.1;
+      stroke: #111;
+    }
+    circle.d3 {
+      fill-opacity: 0.1;
+      stroke-width: 3;
+      stroke: orange;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="map"></div>
+  <svg id="overlay2"></svg>
+  <script>
+  
+    mapboxgl.accessToken = 'pk.eyJ1IjoiZW5qYWxvdCIsImEiOiJjaWhtdmxhNTIwb25zdHBsejk0NGdhODJhIn0.2-F2hS_oTZenAWc0BMf_uw'
+    
+    //Setup mapbox-gl map
+    var map = new mapboxgl.Map({
+      container: 'map', // container id
+      style: "mapbox://styles/mapbox/light-v9",
+      center: [-0.1,51.5119112],
+      zoom: 11.5,
+      
+    })
+    //map.scrollZoom.disable()
+    map.addControl(new mapboxgl.Navigation());
+
+    // Setup our svg layer that we can manipulate with d3
+    var container = map.getCanvasContainer()
+    var svg = d3.select(container).append("svg")
+
+    // we can project a lonlat coordinate pair using mapbox's built in projection function
+    function mapboxProjection(lonlat) {
+      var p = map.project(new mapboxgl.LngLat(lonlat[0], lonlat[1]))
+      return [p.x, p.y];
+    }
+
+    // we can use viewport-mercator-project to get projection and unprojection functions
+    function getVP() {
+      var bbox = document.body.getBoundingClientRect();
+      var center = map.getCenter();
+      var zoom = map.getZoom();
+      var vp = ViewportMercator({
+        longitude: center.lng,
+        latitude: center.lat,
+        zoom: zoom,
+        width: bbox.width,
+        height: bbox.height,
+      })
+      return vp;
+    }
+    
+    
+    // we calculate the scale given mapbox state (derived from viewport-mercator-project's code)
+    // to define a d3 projection
+    function getD3() {
+      var bbox = document.body.getBoundingClientRect();
+      var center = map.getCenter();
+      var zoom = map.getZoom();
+      // 512 is hardcoded tile size, might need to be 256 or changed to suit your map config
+      var scale = (512) * 0.5 / PI * pow(2, zoom);
+
+      var d3projection = d3.geo.mercator()
+        .center([center.lng, center.lat])
+        .translate([bbox.width/2, bbox.height/2])
+        .scale(scale);
+
+      return d3projection;
+    }
+    
+    // calculate the original viewport-mercator-project projection
+    var vp = getVP();
+        
+    // calculate the original d3 projection
+    var d3Projection = getD3()
+    
+    // we want to render the same point
+    var point = [-0.1,51.5119112]
+  
+    var mapboxCircle = svg.append("circle").classed("mapbox", true)
+    var vpCircle = svg.append("circle").classed("vp", true)
+    var d3Circle = svg.append("circle").classed("d3", true)
+
+    // you can use any of these projections to create a d3.geo.path
+    // function for rendering lines and polygons
+    /*
+    var path = d3.geo.path()
+      .projection(mapboxProjection)
+    */
+    /*
+    var path = d3.geo.path()
+      .projection(d3Projection)
+    */
+
+    function render() {
+      
+      // we update our calculated projections whenever the underlying map changes 
+      // due to zoom and pan
+      vp = getVP();
+      d3Projection = getD3();
+
+      mapboxCircle.attr({
+        cx: mapboxProjection(point)[0],
+        cy: mapboxProjection(point)[1],
+        r: 15// * currentScale
+      })
+
+      vpCircle.attr({
+        cx: vp.project(point)[0],
+        cy: vp.project(point)[1],
+        r: 20// * currentScale
+      })
+
+      d3Circle.attr({
+        cx: d3Projection(point)[0],
+        cy: d3Projection(point)[1],
+        r: 25// * currentScale
+      })
+    }
+
+    // re-render our visualization whenever the view changes
+    map.on("viewreset", function() {
+      render()
+    })
+    map.on("move", function() {
+      render()
+    })
+
+    // render our initial visualization
+    render()
+
+    
+  </script>
+</body>

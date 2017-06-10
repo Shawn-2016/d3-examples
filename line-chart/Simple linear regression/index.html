@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.dot {
+  stroke: #000;
+}
+
+</style>
+
+<body>
+
+<!-- HI BRENT! -->
+<script src="https://d3js.org/d3.v3.min.js"></script>
+<script>
+
+function speciesSelect(array,species) {
+ return array.filter(function(d) {
+   return d.species === species;
+ });
+}
+
+
+function residuals(array, y, x, regOutput){
+  array.forEach(function(d) {
+   d.residual = d[y]-d[x]*regOutput.beta-regOutput.alpha;
+  });
+}
+
+
+function regressionOutput(array,x,y){
+  var meanX = mean(array,x);
+  var meanY = mean(array,y);
+  var dotProductXY = dotProduct(array,x,y);
+  var dotProductXX = dotProduct(array,x,x);
+  var beta = (dotProductXY-meanX*meanY)/(dotProductXX-meanX^2);
+  var alpha = meanY - beta*meanX;
+  return {'alpha':alpha,'beta':beta};
+}
+
+
+function dotProduct(array,x,y){
+  var result = 0;
+  array.forEach(function(d) {
+    result += d[x]*d[y];
+  });
+  return result;
+}
+
+
+function mean(array,x){
+  var result = 0;
+  array.forEach(function(d) {
+    result += d[x];
+  });
+  result=result/array.length;
+  return result;
+}
+
+
+
+
+var margin = {top: 20, right: 20, bottom: 30, left: 40},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+var x = d3.scale.linear().range([0, width]);
+var y = d3.scale.linear().range([height, 0]);
+
+var color = d3.scale.category10();
+
+var xAxis = d3.svg.axis().scale(x).orient("bottom");
+var yAxis = d3.svg.axis().scale(y).orient("left");
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+d3.tsv("data.tsv", function(error, data) {
+  if (error) throw error;
+
+  data.forEach(function(d) {
+    d.sepalLength = +d.sepalLength;
+    d.sepalWidth = +d.sepalWidth;
+  });
+  console.log("data:\n", data);
+
+
+  var species = ["setosa","virginica","versicolor"];
+  var xlimits = [0, d3.max(data, d => d.sepalWidth)]
+  var ylimits = [0, d3.max(data, d => d.sepalLength)]
+
+  x.domain(xlimits).nice();
+  y.domain(ylimits).nice();
+
+
+  var regressionstats=[];
+  species.forEach(function(d) {
+    regressionstats.push(regressionOutput(speciesSelect(data,d),"sepalWidth","sepalLength"));
+  });
+
+  var lineDataMotherload=[];
+  regressionstats.forEach(function(d) {
+    lineDataMotherload.push([ 
+      { "x": xlimits[0], "y": d.alpha},  
+      { "x": xlimits[1], "y": d.alpha + (d.beta*xlimits[1]) }
+    ]);
+  });
+
+  var lineFunction = d3.svg.line()
+                    .interpolate("linear")
+                    .x(d => x(d.x))
+                    .y(d => y(d.y));
+
+  var linePlots = lineDataMotherload.map(lineFunction);
+
+  var lineGraph = svg.selectAll(".line")
+                  .data(linePlots)
+                  .enter().append("path")
+                  .attr("d", d => d)
+                  .attr("stroke", (d,i) => color(species[i]) )
+                  .attr("stroke-width", 2)
+                  .attr("fill", "none")
+                  .attr("opacity",.5);
+
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis)
+    .append("text")
+      .attr("class", "label")
+      .attr("x", width)
+      .attr("y", -6)
+      .style("text-anchor", "end")
+      .text("Sepal Width (cm)");
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("class", "label")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Sepal Length (cm)")
+
+  svg.selectAll(".dot")
+      .data(data)
+      .enter().append("circle")
+        .attr("class", "dot")
+        .attr("r", 3.5)
+        .attr("cx", d => x(d.sepalWidth) )
+        .attr("cy", d => y(d.sepalLength) )
+        .style("fill", d => color(d.species) );
+
+  var legend = svg.selectAll(".legend")
+      .data(color.domain())
+      .enter().append("g")
+        .attr("class", "legend")
+        .attr("transform", (d,i) => ("translate(0," + i * 20 + ")") );
+
+  legend.append("rect")
+      .attr("x", width - 18)
+      .attr("width", 18)
+      .attr("height", 18)
+      .style("fill", color);
+
+  legend.append("text")
+      .attr("x", width - 24)
+      .attr("y", 9)
+      .attr("dy", ".35em")
+      .style("text-anchor", "end")
+      .text(d => d);
+
+});
+
+</script>

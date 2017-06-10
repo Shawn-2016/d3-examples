@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <meta charset="utf-8">
+  <head>
+    <script src="./js/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="./css//icons/foundation-icons.css">
+    <!-- <link rel="stylesheet" href="./css/bootstrap.min.css" crossorigin="anonymous"> -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" href="./css/bootstrap-table.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+
+    <!-- <script src="./js/bootstrap.min.js" crossorigin="anonymous"></script> -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+    <script src="./js/bootstrap-table.js"></script>
+    <script src="./js/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="./js/foundation.min.js"></script>
+  </head>
+
+  <body>
+  <div class="container">
+    <div class="row">
+      <div class="col-xs-12 col-sm-3">
+        <h2>Institute <i>of</i>&#8196Fine Arts Dissertations</h2>
+        <h4>1933 - Present</h4>
+      </div>
+    </div>
+    <!-- SIDEBAR -->
+    <div class="col-xs-12 col-sm-3">
+      <div class="row">
+        <select class="form-control" id="text-select">
+          <option value="Category" selected="selected">Category</option>
+          <option value="Advisor">Advisor</option>
+          <option value="Year">Year</option>
+        </select>
+      </div>
+
+      <div class="row">
+        <div id="search" class="ui-widget content">
+          <input id="searchbox" placeholder="Search"></input>
+        </div>
+      </div>
+
+      <div class="row">
+        <div id="advisor-legend" class="advisor-legend"></div>
+      </div>
+
+      <div class="row">
+        <div class="advisor-info" id="advisor-info">
+          <div class="advisor-thumb" id="advisor-thumb"></div>
+          <div class="advisor-name" id="advisor-name">
+            <a class="advisor-link" id="advisor-link" target="_blank"></a>
+          </div>
+          <div class="advisor-title" id="advisor-title"></div>
+          <div class="advisor-field" id="advisor-field"></div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="card">
+          <p class="heading">Credits</p>
+          <p class="caption2">
+            Design | Project Management<br>
+            <a href="../people/staff.htm#jason">Jason Varone</a><br>
+            Front-end engineering | Data visualization<br>
+            <a href="http://1023.io/" target="_blank">Yining Shi</a><br>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN VISUALIZATION -->
+    <div class="col-xs-12 col-sm-9">
+      <div class="row">
+        <div class='visualization'></div>
+      </div>
+
+      <div class="row">
+        <div id="selection"></div>
+        <table id="dissertation-table"></table>
+      </div>
+    </div>
+  <!-- END CONTAINER -->
+  </div>
+
+  <script src="js/d3/d3.min.js"></script>
+  <script src="js/d3/d3.legend.js"></script>
+  <script src="js/d3plus.js"></script>
+  <script src="js/index.js"></script>
+  </body>
+</html>

@@ -1,0 +1,1 @@
+This example is inspired by [Calendar View](http://bl.ocks.org/mbostock/4063318) and [Trulia Trends](http://www.trulia.com/vis/tru247/). You can toggle the displaying type to see either the level of values or change trends in each day. Thank [air-scientific.com](http://air-scientific.com/) for the pm2.5 data.

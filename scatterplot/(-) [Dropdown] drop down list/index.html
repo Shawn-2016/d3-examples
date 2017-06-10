@@ -1,0 +1,169 @@
+<!-- http://stackoverflow.com/questions/33885012/how-to-set-default-option-d3-js -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Plot</title>
+    <link rel="stylesheet" type="text/css" href="select2.css">
+    <script type="text/javascript" src="jquery-2.2.4.min.js"></script>
+    <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
+    <script type="text/javascript" src="select2.js"></script>
+    <style>
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: #000;
+            shape-rendering: crishpEdges;
+        }
+    </style>
+</head>
+
+<body>
+    
+<div id="filter" class="filtername">
+    <b>Filter:</b>
+</div>
+
+<div id="chart" class="center"></div>
+
+<script>
+
+// DEFINE DATA
+var data = [
+    {
+        x: 500,
+        y: "100",
+        name: "A"
+    }, {
+        x: 700,
+        y: "200",
+        name: "A"
+    }, {
+        x: 400,
+        y: "300",
+        name: "A"
+    }, {
+        x: 600,
+        y: "100",
+        name: "B"
+    }, {
+        x: 600,
+        y: "200",
+        name: "B"
+    }, {
+        x: 300,
+        y: "300",
+        name: "B"
+    }, 
+];
+
+// MODIFY DATA TYPE
+data.forEach(function(d) {
+    d.x = +d.x;
+    d.y = +d.y;
+});
+
+// define margin, width and height
+var m = { t:30, r:20, b:40, l:40 },
+    w = 600 - m.l - m.r,
+    h = 500 - m.t - m.b;
+
+var x = d3.scale.linear()
+        .range([0, w])
+        .domain([0, d3.max(data, d => d.x)]);
+
+var y = d3.scale.ordinal()
+        .rangeRoundPoints([h, 0])
+        .domain(data.map(d => d.y));
+
+var xAxis = d3.svg.axis().scale(x).orient("bottom").ticks(4);
+var yAxis = d3.svg.axis().scale(y).orient("left").ticks(3);
+
+// define color
+var color = d3.scale.ordinal()
+        .range(["yellow", "green"])
+        .domain(d3.keys(data[0]).filter(key => key == "name"));
+
+console.log("data:\n", data);
+console.log("d3.keys(data[0]):\n", d3.keys(data[0]));
+console.log('d3.keys(data[0]).filter(key => key == "name"):\n', d3.keys(data[0]).filter(key => key == "name"));
+
+
+var svg = d3.select("#chart")
+            .append("svg")
+            .attr("width", w + m.l + m.r)
+            .attr("height", h + m.t + m.b)
+                .style("margin-left", "auto")
+                .style("margin-right", "auto")
+                .style("display", "block")
+            .append("g")
+                .attr("transform", "translate(" + m.l + "," + m.t + ")");
+
+var circles = svg.selectAll("circle")
+            .data(data)
+            .enter()
+            .append("circle")
+                .attr("class", "circles")
+                .attr({ 
+                    cx: d => x(d.x),
+                    cy: d => y(d.y),
+                    r: 10
+                })
+                .attr("fill", d => color(d.name));
+
+svg.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + h + ")")
+    .call(xAxis);
+
+svg.append("g")
+    .attr("class", "y axis")
+    .call(yAxis);
+
+// set the default option
+var defaultOption = ["B"];
+
+// create the dropDown
+var dropDown = d3.select("#filter").append("select")
+            .attr("name", "dept-list")
+            .attr("class", "filter");
+
+var options = dropDown.selectAll("option")
+            .data(d3.map(data, d => d.name).keys())
+            .enter()
+            .append("option")
+            .property("selected", d => d == defaultOption)
+            .text(d => d)
+            .attr("value", d => d);
+
+console.log("d3.map(data, d => d.name):\n", d3.map(data, d => d.name));
+console.log("d3.map(data, d => d.name).keys():\n", d3.map(data, d => d.name).keys());
+
+
+// this will filter initially
+showCircles(dropDown.node());
+
+dropDown.on("change", function() {
+    showCircles(this)   // this will filter the circles on change of select
+});
+
+// function to show circles as per the select box
+function showCircles(me){
+
+    var selected = me.value;
+    displayOthers = me.checked ? "inline" : "none";
+    display = me.checked ? "none" : "inline";
+
+    svg.selectAll(".circles")
+        .filter(function(d) { return selected != d.name; })
+        .attr("display", displayOthers);
+
+    svg.selectAll(".circles")
+        .filter(function(d) { return selected == d.name; })
+        .attr("display", display);
+}
+
+</script>
+
+</body>
+</html>

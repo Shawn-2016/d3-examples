@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="http://d3js.org/colorbrewer.v1.min.js"></script>
+    <style>
+        body {
+            font: 12px Helvetica;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: #000;
+            shape-rendering: crispEdges;
+        }
+
+        .x.axis line {
+            display: none;
+        }
+
+        .network-line{
+            fill: none;
+            stroke-width: 3px;
+            opacity:.5;
+        }
+
+        .network_name {
+            font-weight: bold;
+            opacity:1;
+            padding-top: 15px;
+        }
+
+        #tooltip {
+            background: rgba(255, 255, 255, 0.95);
+            position:absolute;
+            height:auto;
+            visibility:hidden;
+            z-index:9999;
+            padding:5px;
+            border: 1px solid #ddd;
+            padding: 5px 3px 0px 5px;
+            font-family: arial, sans-serif;
+            -webkit-box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3);
+            -moz-box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3);
+            box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        #main {
+            line-height: .5em;
+        }
+
+        #viewers, #show, #show_rating {
+            font-weight: bold !important;
+        }
+
+        #network, #year {
+            font-weight: bold;
+        }
+
+        .y-text {
+            font-weight: bold;
+        }
+
+        .data-line {
+            font-size:10px;
+            position: absolute;
+            left:300px;
+            padding: 35px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="tooltip">
+    <span id="network">hi</span>, <span id="year">year</span>
+    <p id="main">Average audience: <span id="viewers"></span></p>
+    <p id="main">Top show: <span id="show"></span> </p>
+</div>
+
+<div id="graphic"></div
+
+<div id="data">
+    <p class="data-line">GRAPHIC BY BLOOMBERG BUSINESSWEEEK. DATA: NIELSEN, HORIZON MEDIA.</p>
+</div>
+
+<script>
+
+var margin = {top: 20, right: 90, bottom: 30, left: 100},
+    width = 650 - margin.left - margin.right,
+    height = 400 - margin.top - margin.bottom;
+
+var color = d3.scale.category10()
+
+var x = d3.scale.linear().range([0, width]).domain([2002,2012]),
+    y = d3.scale.linear().range([height, 0]);
+
+var xAxis = d3.svg.axis().scale(x)
+        .orient("bottom")
+        .tickFormat(d => d);
+
+var yAxis = d3.svg.axis().scale(y)
+        .tickSize(5).ticks(8)
+        .orient("left")
+        .tickFormat(d => d + "m");
+
+// define where line is defined/undefined, useful in conjunction with missing data
+var line = d3.svg.line()
+        .x(d => x(d.year))
+        .y(d => y(d.val))
+        .defined(d => typeof(d.val) === "string" ? false : true);
+
+
+var svg = d3.select("#graphic").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+d3.csv("data4.csv", function(error, data) {
+
+    data.forEach(function(d) {
+        d.year = +d.year;
+        if (d.val) {
+            d.val = +d.val;
+        }
+    });
+
+    color.domain(d3.keys(data[0]).filter(key => key !== "year"));
+
+    viewersByNetwork = d3.nest()
+            .key(d => d.network)
+            .entries(data);
+
+    y.domain([0,d3.max(data.map(d => d.val))]);
+
+    console.log("data:\n", data);
+    console.log("color.domain():\n", color.domain());
+    console.log("viewersByNetwork:\n", viewersByNetwork);
+    console.log("x.domain():\n", x.domain());
+    console.log("y.domain():\n", y.domain());
+
+
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+    svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis);
+
+     svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis)
+        .append("text")
+        .attr("class","y-text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", -65)
+        .attr("dy", ".71em")
+        .style("text-anchor", "end")
+        .text("Primetime viewers during September");
+
+    var linesContainer = svg.append("g")
+
+    linesContainer.selectAll(".network-line")
+            .data(viewersByNetwork)
+            .enter().append("path")
+            .attr("class", "network-line")
+            .attr("d", d => line(d.values)) 
+            .style("stroke", d => color(d.key))
+            .on("mouseover", function(d){
+                d3.select(this)
+                    .transition()
+                    .duration(100)
+                    .style("opacity",1)
+            })
+            .on("mouseout", function(d){
+                d3.select(this)
+                    .transition()
+                    .style("opacity",.5)
+            });
+
+    var labelElements = svg.append("g")
+            .attr("class", "network_name");
+         
+
+    var label = labelElements.selectAll(".g-label-element")
+            .data(data.filter(d => typeof(d.val) === "string" ? false : true))
+            .enter().append("g")
+            .attr("class", "g-label-element")
+            .attr("transform", d => "translate(" + x(d.year) + "," + y(d.val) + ")");
+
+        label.append("circle")
+            .attr("class","circle")
+            .attr("r", 3)
+            .style("fill", d => color(d.network))
+            .on("mouseover", function(d){
+                d3.select(this)
+                    .transition()
+                    .duration(100)
+                    .attr("r", 6)
+                    .style("stroke", "#000")
+                    .style("stroke-width",1)
+                d3.select("#tooltip")
+                    .style("left", (d3.event.pageX) + 15 + "px")
+                    .style("top", (d3.event.pageY) - 5 + "px")
+                    .transition()
+                    .style("visibility", "visible");
+                d3.select("#viewers")
+                    .text(d.val + "m" );
+                d3.select("#show")
+                    .text( d.show);
+                d3.select("#network")
+                    .text( d.network );
+                d3.select("#year")
+                    .text( d.year );
+             })
+             .on("mouseout", function(d){
+                d3.select(this)
+                    .transition()
+                    .attr("r", 3)
+                    .style("stroke", "none")
+                    .style("stroke-width", 0)
+                d3.select("#tooltip")
+                    .transition()
+                    .style("visibility", "hidden");
+             });
+
+        label.append("text")
+            .attr("class","network_name")
+            .attr("x", 10)
+            .attr("dy",5)
+            .text(function(d) { 
+                if (d.network == "UPN" || d.network == "WB" || d.year !== 2012) {return ""
+                } 
+                else {
+                    return d.network
+                }; 
+            });
+});
+
+</script>
+
+</body>
+</html>

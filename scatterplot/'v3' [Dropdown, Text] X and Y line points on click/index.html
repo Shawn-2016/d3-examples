@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+<style>
+body {
+  font-family: "Helvetica Neue Light", "Helvetica Neue", Helvetica, sans-serif;
+}
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #aaa;
+}
+
+#svg-container{
+  position: absolute; top: 10px; left: 10px;
+  width: 720px; height: 480px;
+}
+.dot {
+  stroke: #4EA234; stroke-width: 4px;
+  fill: #fff;
+  cursor: pointer;
+}
+.to-from-lines { stroke: #4EA234; stroke-width: 4px; }
+
+#info-sidebar-container {
+  position: absolute; top: 10px; right: 20px;
+  width: 210px;
+}
+#info-sidebar-container p { text-align: center; }
+#sidebar-hour-text { font-size: 48px; }
+</style>
+
+<body>
+<div id="svg-container"></div>
+<div id="info-sidebar-container"></div>
+<script>
+var margin = {top: 20, right: 20, bottom: 30, left: 50},
+    width = 720 - margin.left - margin.right,
+    height = 460 - margin.top - margin.bottom;
+    
+var weekTotal = 0;
+var i;
+
+var selectDates = [
+    {week: "2015-10-05_2015-10-09", file: "tick_2015-10-05_2015-10-09.csv"},
+    {week: "2015-10-12_2015-10-18", file: "tick_2015-10-12_2015-10-18.csv"},
+    {week: "2015-10-19_2015-10-25", file: "tick_2015-10-19_2015-10-25.csv"},
+    {week: "2015-10-12_2015-10-18-1", file: "tick_2015-10-12_2015-10-18-1.csv"},
+    {week: "Emma-12-18-October-2015", file: "Emma-12-18-October-2015.csv"},
+    {week: "Emma-19-25-October-2015", file: "Emma-19-25-October-2015.csv"}
+];
+var selectMenu  = d3.select("#info-sidebar-container").append("select")
+    .on("change", selectMenuChange);
+var options = selectMenu.selectAll('option')
+    .data(selectDates)
+  .enter()
+    .append("option")
+    .text(function(d) { return d.week; });
+
+// Sidebar container and text elems
+var sidebarContainer = d3.select("#info-sidebar-container")
+var timeAtLogText = sidebarContainer.append("p").attr("id", "sidebar-hour-text");
+var personaNameText = sidebarContainer.append("p").attr("id", "sidebar-person");
+var dayTotalText = sidebarContainer.append("p").attr("id", "sidebar-day-total");
+var weeklyTotalText = sidebarContainer.append("p").attr("id", "sidebar-weekly");
+var projectNametext = sidebarContainer.append("p").attr("id", "sidebar-project");
+var taskNametext = sidebarContainer.append("p").attr("id", "sidebar-task");
+
+var formatDate = d3.time.format("%Y-%m-%d").parse;
+
+var x = d3.time.scale().range([0, width]);
+var y = d3.scale.linear().range([height, 0]);
+
+var xAxis = d3.svg.axis().scale(x)
+    .orient("bottom").ticks(4)
+    .innerTickSize(-height)
+    .tickPadding(10);
+    
+var yAxis = d3.svg.axis().scale(y)
+    .orient("left").ticks(4)
+    .innerTickSize(-width)
+    .tickPadding(10);
+
+var svg = d3.select("#svg-container").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + (margin.left-10) + "," + margin.top + ")");
+
+// X and Y to and from lines.
+var xLine = svg.append("line").attr("class", "to-from-lines");
+var yLine = svg.append("line").attr("class", "to-from-lines");
+
+// Initial file
+var file = "tick_2015-10-05_2015-10-09.csv";
+
+// Initial graph
+d3.csv(file, function(error, data) {
+    if (error) throw error;
+    data.forEach(function(d) {
+        d.Date = formatDate(d.Date)
+        d.Hours = +d.Hours;
+    });
+
+    var nest = groupHoursByDay(data);
+    for(i = 0; i < nest.length; i += 1) {
+        weekTotal += nest[i].values
+    }
+    timeAtLogText.text(decimalToTime(weekTotal));
+
+    x.domain(d3.extent(data, function(d) { return d.Date; }));
+    y.domain([0, d3.max(data, function(d) { return (d.Hours) + 1; })]);
+
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+    svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis);
+
+    var circles = svg.selectAll(".dot").data(data);
+    circles.enter().append("circle")
+        .attr("class", "dot")
+        .attr("r", 10)
+        .attr("cx", function(d) { return x(d.Date); })
+        .attr("cy", function(d) { return y(d.Hours); });
+    circles.on("click", function(d) {
+            var clickedCiclre = d3.select(this);
+            d3.selectAll(".dot").style("fill", "#FFF");
+            clickedCiclre.style("fill", "#4EA234");
+            addText(d, nest);
+            drawLines(d, clickedCiclre);
+        });
+});
+
+function updateGraph(file) {
+    var dataFile = file;
+    weekTotal = 0;
+  	clearText();
+
+    d3.csv(dataFile, function(error, data) {
+        if (error) throw error;
+        data.forEach(function(d) {
+            d.Date = formatDate(d.Date)
+            d.Hours = +d.Hours;
+        });
+
+        var nest = groupHoursByDay(data);
+        for(i = 0; i < nest.length; i += 1) {
+            weekTotal += nest[i].values
+        }
+        timeAtLogText.text(decimalToTime(weekTotal));
+
+        // Reset X and L to from lines
+        xLine.attr("x1", 0).attr("y1", 0).attr("x2", 0).attr("y2", 0);
+        yLine.attr("x1", 0).attr("y1", 0).attr("x2", 0).attr("y2", 0);
+
+        // Set axis domains
+        x.domain(d3.extent(data, function(d) { return d.Date; }));
+        y.domain([0, d3.max(data, function(d) { return (d.Hours) + 1; })]);
+
+        // Transition axis
+        var update = d3.select("body").transition();
+        update.select(".x.axis")
+            .duration(500)
+            .call(xAxis);
+        update.select(".y.axis")
+              .duration(500)
+              .call(yAxis);
+
+        // Draw circles data join
+        var circles = svg.selectAll(".dot").data(data);
+        circles.enter()
+            .append("circle")
+            .attr("class", "dot")
+            .attr("r", 10)
+            .attr("cx", function(d) { return x(d.Date); })
+            .attr("cy", function(d) { return y(d.Hours); });
+        // Update circles
+        circles.transition().duration(750)
+            .style("fill", "#FFF")
+            .attr("cx", function(d) { return x(d.Date); })
+            .attr("cy", function(d) { return y(d.Hours); });
+        // Exit unused circles
+        circles.exit().remove();
+      	
+      	circles.on("click", function(d) {
+            d3.selectAll(".dot").style("fill", "#FFF");
+            var clickedCiclre = d3.select(this);
+            clickedCiclre.style("fill", "#4EA234");
+            addText(d, nest);
+            drawLines(d, clickedCiclre);
+        });
+    });
+}
+
+function groupHoursByDay(data) {
+    var nest = d3.nest()
+        .key(function(d) { return d.Date; })
+        .rollup(function(d) {
+            return d3.sum(d, function(g) { return g.Hours; })
+        }).entries(data);
+    return nest
+}
+
+function drawLines(data, clickedCiclre) {
+    xLine
+        .attr("x1", clickedCiclre[0][0].cx.animVal.value)
+        .attr("y1", clickedCiclre[0][0].cy.animVal.value)
+        .attr("x2", 0)
+        .attr("y2", clickedCiclre[0][0].cy.animVal.value);
+
+    yLine
+      .attr("x1", clickedCiclre[0][0].cx.animVal.value)
+      .attr("y1", clickedCiclre[0][0].cy.animVal.value)
+      .attr("x2", clickedCiclre[0][0].cx.animVal.value)
+      .attr("y2", height);
+}
+
+function addText(d, nest) {
+    timeAtLogText.text(decimalToTime(d.Hours));
+    personaNameText.text(d.User);
+    dayTotalText.text("Day Total: " + dailyTotal(d, nest));
+    weeklyTotalText.text("Week Total: " + decimalToTime(weekTotal));
+    projectNametext.text(d.Project);
+    taskNametext.text(d.Task);
+}
+
+function clearText() {
+    personaNameText.text("");
+    dayTotalText.text("");
+    weeklyTotalText.text("");
+    projectNametext.text("");
+    taskNametext.text("");
+    personaNameText.text("");
+}
+
+function decimalToTime(time) {
+    var hours = Math.floor(Math.abs(time))
+    var mins = Math.floor((Math.abs(time) * 60) % 60);
+    return hours + "h " + mins + "m";
+}
+
+function dailyTotal(d, nest) {
+    var i;
+    var dayTotal;
+    for (i = 0; i < nest.length; i += 1) {
+        if (nest[i].key == d.Date) {
+            dayTotal = decimalToTime(nest[i].values);
+            return dayTotal;
+        }
+    }
+}
+
+function selectMenuChange() {
+    var selectedIndex = selectMenu.property('selectedIndex');
+    var file = options[0][selectedIndex].__data__.file;
+    updateGraph(file);
+}
+</script>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+    <style>
+
+    svg { font: 10px sans-serif; }
+
+    path { fill: steelblue; }
+
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+    }
+
+    .brush .extent {
+        stroke: #fff;
+        fill-opacity: .125;
+        shape-rendering: crispEdges;
+    }
+    </style>
+</head>
+
+<body>
+
+<div id="graph"></div>
+
+<script>
+var focusGraph;
+
+var bins = 20;
+var values = [0.0001684401067905128, 0.00016923464136198163, 0.00016923464136198163, 0.00016963190864771605, 0.00016963190864771605, 0.00017002916138153523, 0.00017042642866726965, 0.00017122096323873848, 0.00017122096323873848, 0.00017161823052447289, 0.00017161823052447289, 0.00017161823052447289, 0.00017161823052447289, 0.00017201548325829208, 0.00017201548325829208, 0.00017201548325829208, 0.00017241275054402649, 0.00017241275054402649, 0.00017281001782976091, 0.00017320728511549532, 0.00017360453784931451, 0.00017360453784931451, 0.00017400180513504893, 0.00017400180513504893, 0.00017400180513504893, 0.00017400180513504893, 0.00017559085972607136, 0.00017559085972607136, 0.00017598812701180577, 0.00017598812701180577, 0.0001775771816028282, 0.00016724831948522478, 0.0001684401067905128, 0.00016883737407624722, 0.00016963190864771605, 0.00016963190864771605, 0.00017002916138153523, 0.00017002916138153523, 0.00017042642866726965, 0.00017042642866726965, 0.00017122096323873848, 0.00017122096323873848, 0.00017122096323873848, 0.00017122096323873848, 0.00017161823052447289, 0.00017201548325829208, 0.00017201548325829208, 0.00017201548325829208, 0.00017201548325829208, 0.00017241275054402649, 0.00017241275054402649, 0.00017241275054402649, 0.00017281001782976091, 0.00017320728511549532, 0.00017320728511549532, 0.00017400180513504893, 0.00017400180513504893, 0.00017400180513504893, 0.00017519360699225217, 0.00017519360699225217, 0.00017559085972607136, 0.00017598812701180577, 0.00017598812701180577, 0.00017876896890811622, 0.00017956350347958505, 0.00017956350347958505]
+
+console.log("values:", values);
+
+var margin = {top: 10, right: 10, bottom: 100, left: 40},
+    margin2 = {top: 430, right: 10, bottom: 20, left: 40},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom,
+    height2 = 500 - margin2.top - margin2.bottom;
+
+
+var lower = values[0];
+var upper = values[values.length-1];
+
+if (lower == upper)
+    {
+        upper += 1;
+        lower -= 1;
+    };
+
+var x = d3.scale.linear().domain([lower, upper]).range([0, width]),
+    x2 = d3.scale.linear().domain([lower, upper]).range([0, width]),
+    y = d3.scale.linear().range([0, height]),
+    y2 = d3.scale.linear().range([0, height2]);
+
+var xAxis = d3.svg.axis().scale(x).orient("bottom"),
+    xAxis2 = d3.svg.axis().scale(x2).orient("bottom"),
+    yAxis = d3.svg.axis().scale(y).orient("left");
+
+var brush = d3.svg.brush().x(x2).on("brush", brushed);
+
+/*
+var area = d3.svg.area()
+    .x(function(d) { return x(d.x); })
+    .y0(height)
+    .y1(function(d) { return y(d.y); });
+*/
+
+/*
+var area2 = d3.svg.area()
+    .x(function(d) { return x2(d.x); })
+    .y0(height2)
+    .y1(function(d) { return y2(d.y); });
+*/
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom);
+
+svg.append("defs").append("clipPath")
+    .attr("id", "clip")
+    .append("rect")
+    .attr("width", width)
+    .attr("height", height);
+
+var focus = svg.append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var barsGroup = focus.append("g")
+    .attr('clip-path', 'url(#clip)');
+
+var context = svg.append("g")
+    .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
+
+var data = d3.layout.histogram()
+        .bins(x.ticks(bins))(values);
+
+console.log("data:", data);
+
+
+var numBins = data.length;
+var barWidth = parseInt((width)/numBins) - 1;
+
+console.log("numBins:", numBins);
+console.log("barWidth:", barWidth);
+
+
+x.domain(d3.extent(data.map(function(d) { return d.x; })));
+y.domain([0, d3.max(data.map(function(d) { return d.y; }))]);
+x2.domain(x.domain());
+y2.domain(y.domain());
+
+console.log("x.domain()/x2.domain():", x.domain());
+console.log("y.domain()/y2.domain():", y.domain());
+
+
+focus.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + height + ")")
+    .call(xAxis);
+
+focus.append("g")
+    .attr("class", "y axis")
+    .call(yAxis);
+
+focusGraph = barsGroup.selectAll("rect")
+    .data(data)
+    .enter().append("rect")
+    .attr("x", function(d, i) { return x(d.x); })
+    .attr("y", function(d) { return height - y(d.y); })
+    .attr("width", barWidth)
+    .attr("height", function(d) { return y(d.y); });
+
+context.selectAll("rect")
+    .data(data)
+    .enter().append("rect")
+    .attr("x", function(d, i) { return x2(d.x); })
+    .attr("y", function(d) { return height2 - y2(d.y); })
+    .attr("width", barWidth)
+    .attr("height", function(d) { return y2(d.y); });
+
+context.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + height2 + ")")
+    .call(xAxis2);
+
+context.append("g")
+    .attr("class", "x brush")
+    .call(brush)
+    .selectAll("rect")
+    .attr("y", -6)
+    .attr("height", height2 + 7);
+
+
+function brushed() {
+
+    x.domain(brush.empty() ? x2.domain() : brush.extent());
+    var b = x(data[1].x)-x(data[0].x);
+    var w = b-2;
+
+console.log("brush.extent():", brush.extent());
+console.log("b:", b);
+console.log("w:", w);
+
+    focusGraph.attr("x", function(d, i) { return x(d.x); });
+    focusGraph.attr("width", w);
+
+    focus.select(".x.axis").call(xAxis);
+
+}
+
+</script>
+
+</body>
+</html>

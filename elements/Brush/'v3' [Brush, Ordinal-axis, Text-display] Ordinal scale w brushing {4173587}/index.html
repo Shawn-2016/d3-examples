@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Ordinal scale w/ brushing</title>    
+    <script src="http://d3js.org/d3.v2.min.js"></script>
+    <link href="styles.css" rel="stylesheet" type="text/css">    
+</head>
+
+<body>
+
+<script type="text/javascript">
+
+    var alphabet = "abcdefghijklmnopqrstuvwxyz",
+        yScale = d3.scale.ordinal()
+                .domain(d3.range(26)
+                .map(function(d) {
+                    return alphabet.charAt(d)}))
+                .rangePoints([0,500],1);
+
+console.log("alphabet:\n", alphabet);
+console.log("yScale.domain():\n", yScale.domain());
+
+
+    var axis = d3.svg.axis().scale(yScale).tickSize(5).orient("right");
+
+    var brushed = function() {
+        var selected =  yScale.domain().filter(function(d) {
+            return (brush.extent()[0] <= yScale(d)) && (yScale(d) <= brush.extent()[1]
+
+        )});
+
+console.log("brush.extent():", brush.extent());
+console.log("selected:", selected);
+
+        d3.select(".selected").text(selected.join(","));
+    };
+
+
+    brush = d3.svg.brush().y(yScale).on("brush",brushed);  
+
+d3.select("body").append("svg")
+        .attr("class", "axis")
+        .attr("width", "300")
+        .attr("height", "530")
+    .append("g")
+        .attr("transform", "translate(50,30)")
+        .call(axis)
+    .append("g")
+        .attr("class", "brush")
+        .call(brush)
+        .selectAll("rect")
+        .style("visibility", null)
+        .attr("x", -15)
+        .attr("width", 30);
+
+d3.select("svg").append("text")
+    .attr("class","selected")
+    .attr("transform","translate(70,30)");
+
+</script>
+</body>
+</html>

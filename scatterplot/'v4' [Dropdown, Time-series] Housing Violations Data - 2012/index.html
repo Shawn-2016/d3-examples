@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.axis text {
+  font: 10px sans-serif;
+}
+.container1{
+  padding-top: 10px;
+  position: relative;
+  left: 6%;
+  top: 0%;
+}
+.container2{
+  padding-top: 10px;
+  position: relative;
+  left: 6%;
+  top: 0%;
+}
+/* .header{
+  position: relative;
+  width: 960px;
+  height: 100px;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: #5d6d7e;
+  color: white;
+  font: 30px palatino;
+}
+.head-txt{
+  position: absolute;
+  left: 20%;
+  top: 5%;
+} */
+.cells path {
+  fill: none;
+  pointer-events: all;
+}
+
+.cells :hover circle {
+  fill: red;
+}
+</style>
+
+<body>
+<!--   <header class="header">
+    <p class="head-txt">2012 Housing Violations Data — Beeswarm Plot</p>
+  </header> -->
+  <div class="container2"></div>
+  <div class="container1"></div>
+
+<svg width="960" height="150"></svg>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script> 
+  
+function plot(name) {
+d3.select("svg").remove();
+ 
+margin = {top: 40, right: 40, bottom: 40, left: 40},
+width = 960 - margin.left - margin.right,
+height = 250 - margin.top - margin.bottom;  
+  
+var svg = d3.select("body").append("svg")
+		.attr("class", "svg")
+    .attr("width", width)
+    .attr("height", height)
+    
+
+var formatValue = d3.format(",d");
+
+var x = d3.scaleTime()
+    .rangeRound([0, width-50]);
+  
+var color = d3.scaleOrdinal().domain(["Animals Prohibited number", "Animals and Pests not specified", "Damaged or defective walls floors or ceilings", "Insects not specified", "Rodents not specified", "Unsanitary conditions not specified", "Abandoned Vehicle", "Animal Feces", "Animal Urine", "Barrier to Emergency Ingress or Egress", "Bed Bugs", "Building Dampness or Water Intrusion", "Cockroaches", "Cockroaches", "Dogs", "Flies", "Human Feces", "Human Urine", "Improper Refuse Storage", "Inadequate Heating", "Inadequate Lighting", "Inadequate Pest Exclusion", "Inadequate Ventilation", "Inadequate or Improper Kitchen Facilities", "Inoperable Windows", "Lead Hazard", "Mice", "Moderate risk food holding temperature", "Mold or Mildew", "Mosquitos", "No or inadequate hot or cold water", "Non-functioning Smoke Detector", "Nuisance Odors", "Overgrown Vegetation", "Pidgeons", "Poison Ivy or Poison Oak", "Rats", "Refuse Accumulation", "Refuse Not Properly Stored", "Sewage Hazard", "Standing Water", "Unsanitary Floors or Walls", "Unsanitary Public Areas", "Unsanitary Toilets or Bathrooms"]).range(["#0a72ff", "#1eff06", "#ff1902", "#2dfefe", "#827c01", "#fe07a6", "#a8879f", "#fcff04", "#c602fe", "#16be61", "#ff9569", "#05b3ff", "#ecffa7", "#3f8670", "#e992ff", "#ffb209", "#e72955", "#83bf02", "#bba67b", "#fe7eb1", "#7570c1", "#85bfd1", "#f97505", "#9f52e9", "#8ffec2", "#dad045", "#b85f60", "#fe4df2", "#75ff6c", "#78a55a", "#ae6a02", "#bebeff", "#ffb3b3", "#a4fe04", "#ffc876", "#c548a7", "#d6492b", "#547da7", "#358b06", "#95caa9", "#07b990", "#feb6e9", "#c9ff76", "#02b708"])
+
+var g = svg.append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var parseDate = d3.timeParse("%Y-%m-%d");
+
+d3.csv("Violations-2012.csv", function(error, data) {
+  if (error) throw error;
+  
+  
+  data.map(function(d){
+//    console.log(parseDate(d.violation_date.split(" ")[0]));
+//     console.log((d.violation_date).split(" ")[0]);
+    return d.violation_date;
+  })
+  
+  var vio_by_type = d3.nest().key(function(d) {return d.violation_type}).entries(data);
+  var names = vio_by_type.map(function(f){return f.key});
+  
+
+ console.log(names);
+  
+  data_length = vio_by_type[names.indexOf(name)]["values"].length
+  
+  max_min = d3.extent(vio_by_type[names.indexOf(name)]["values"], function(d) {return parseDate(d.violation_date.split(" ")[0]);})
+  
+   d3.select(".container2").html("Number of violations: " + data_length)
+   
+d3.select(".container2").append("p").html(" First recorded Violation: " + max_min[0])
+
+d3.select(".container2").append("p").html(" Last recorded Violation: " + max_min[1])
+
+
+  x.domain(d3.extent(data, function(d) {return parseDate(d.violation_date.split(" ")[0]); }));
+
+
+  var simulation = d3.forceSimulation(vio_by_type[names.indexOf(name)]["values"])
+      .force("x", d3.forceX(function(d) { return x(parseDate(d.violation_date.split(" ")[0])); }).strength(1))
+      .force("y", d3.forceY(height / 2))
+      .force("collide", d3.forceCollide(4))
+      .stop();
+
+  for (var i = 0; i < 120; ++i) simulation.tick();
+
+  g.append("g")
+      .attr("class", "x-axis")
+      .attr("transform", "translate(0," + (height - 60) + ")")
+      .call(d3.axisBottom(x).ticks(13, "%m-%Y"));
+
+  var cell = g.append("g")
+      .attr("class", "cells")
+    .selectAll("g").data(d3.voronoi()
+        .extent([[-margin.left, -margin.top], [width + margin.right, height + margin.top]])
+        .x(function(d) { return d.x; })
+        .y(function(d) { return d.y; })
+      .polygons(vio_by_type[names.indexOf(name)]["values"])).enter().append("g");
+
+  cell.append("circle")
+      .attr("r", 3)
+      .attr("cx", function(d) { return d.data.x; })
+      .attr("cy", function(d) { return d.data.y; })
+  		.style("fill", function(d) { return color(d.data.violation_type); });
+
+  cell.append("path")
+      .attr("d", function(d) { return "M" + d.join("L") + "Z"; });
+
+  cell.append("title")
+      .text(function(d) { return "Violation id: " + d.data.violation_id + "\n" + "Violation: " +(d.data.violation_category) + "-" +(d.data.violation_type) + "\n" + "Violation date: " + d.data.violation_date.split(" ")[0]; });
+  
+});
+
+}
+
+d3.csv("Violations-2012.csv", function(error, data) {
+  if (error) throw error;
+  
+  var vio_by_type = d3.nest().key(function(d) {return d.violation_type}).entries(data);
+  var names = vio_by_type.map(function(f){return f.key});  
+  
+var selector = d3.select(".container1")
+		.append("select")
+		.attr("id", "vioselector")
+		.selectAll("option")
+		.data(names)
+		.enter().append("option")
+		.text(function(d) { return d; })
+		.attr("value", function (d) {
+			console.log(d); return d;
+		});
+  
+  
+	var name = "Refuse Accumulation";	d3.select("#vioselector").property("selectedIndex", name);
+  
+  d3.select("#vioselector")
+	.on("change", function(d) {
+		name = this.value;
+// 		update();
+    plot(name);
+	})
+});  
+  
+</script>
+</body>

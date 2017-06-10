@@ -1,0 +1,1 @@
+This example uses [topojson.neighbors](https://github.com/mbostock/topojson/wiki/API-Reference#wiki-neighbors) to compute neighboring congressional districts (from the 113th congress) from geographic boundaries by detecting shared edges (arcs). The red district is the hovered district, and the orange district is the neighboring districts.

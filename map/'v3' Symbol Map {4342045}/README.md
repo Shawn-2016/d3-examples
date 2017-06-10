@@ -1,0 +1,1 @@
+The area of each circle in this symbol map is proportional to the population of the associated state.

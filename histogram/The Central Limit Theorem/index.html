@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+  <style>
+    .ball { fill: #d62728; stroke: #000; stroke-width: 1px; }
+    
+    .bar rect { fill: #1f77b4; fill-opacity: 0.8; }
+    .bar text { fill: white; }
+    
+    .line { fill: #636363; fill-opacity: 0.2; }
+    
+    .axis path { stroke: #636363; stroke-width: 2px; }
+    .axis text { fill: #636363; }
+  </style>
+</head>
+<body>
+  <script>
+
+    var margin = {top: 20, right: 10, bottom: 20, left: 10};
+    var width = 960 - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom;
+    
+    var svg = d3.select("body")
+      .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    
+    var dt = 1000, // time step
+        n = 4; // sample size
+    
+    // sampling distribution
+    var f = {
+      sample: Math.random,
+      mu: 1/2,
+      sigma: 1/(2*Math.sqrt(3))
+    };
+    
+    var pdf = function(x) { return Math.sqrt(n)*Math.exp(-n*(x-f.mu)*(x-f.mu)/(2*f.sigma*f.sigma))/Math.sqrt(2*Math.PI)/f.sigma; };
+    
+    var x = d3.scale.linear()
+      .domain([0, 1])
+      .range([0, width]);
+    
+    var y1 = height/3,
+        y2 = height/2;
+    
+    var y = d3.scale.linear()
+      .domain([0, pdf(f.mu)])
+      .range([0, height - y2]);
+    
+    var histogram = d3.layout.histogram()
+      .bins(x.ticks(20))
+      .frequency(false);
+    
+    var area = d3.svg.area()
+      .x(function(d) { return x(d[0])})
+      .y0(y2)
+      .y1(function(d) { return y2 + y(d[1])})
+      .interpolate("basis");
+    
+    svg.append("path").attr("class", "line");
+    svg.append("g").attr("class", "bars");
+    
+    var counts = [];
+
+    (function() {
+    
+      var axis = svg.selectAll(".axis")
+          .data([{y: 0, label: "draw"}, {y: y1, label: "average"}, {y: y2, label: "count"}])
+        .enter().append("g")
+          .attr("class", "axis")
+          .attr("transform", function(d) { return "translate(0," + d.y + ")"; });
+      
+      axis.append("path")
+        .attr("d", function(d) { return "M0,0H" + width; })
+      
+      axis.append("text")
+        .attr("dominant-baseline", "hanging")
+        .attr("dy", 5)
+        .text(function(d) { return d.label; });
+
+    })();
+    
+    function renderBars() {
+    
+      var data = histogram(counts);
+    
+      var ymax = d3.max(data, function(d) { return d.y; });
+      y.domain([0, ymax / (1/20)]);
+    
+      var bar = svg.select(".bars").selectAll(".bar").data(data);
+    
+      var g = bar.enter().append("g")
+        .attr("class", "bar")
+        .attr("transform", function(d) { return "translate(" + x(d.x) + "," + y2 + ")"; });
+    
+      g.append("rect")
+        .attr("width", x(data[0].dx) - 2);
+    
+      g.append("text")
+        .attr("x", x(1/40))
+        .attr("dy", 10)
+        .attr("dominant-baseline", "hanging")
+        .attr("text-anchor", "middle");
+    
+      bar.select("rect").transition().duration(dt/4)
+        .attr("height", function(d) { return y(d.y / (1/20)); });
+    
+      bar.select("text")
+        .text(function(d) { return d.y > 0 ? d3.format("%")(d.y) : ""; });
+    
+      svg.select(".line").datum(d3.range(0, 1.05, 0.05).map(function(x) { return [x, pdf(x)]; }))
+        .transition().duration(dt/4)
+          .attr("d", area);
+    }
+
+    function renderBalls() {
+      
+      var data = d3.range(n).map(f.sample);
+      var mean = d3.mean(data);
+      
+      var ball = svg.append("g").selectAll(".ball").data(data);
+      
+      var i = 0;
+      ball.enter().append("circle")
+        .attr("class", "ball")
+        .attr("cx", function(d) { return x(d); })
+        .attr("cy", 0)
+        .attr("r", 5)
+      .transition().duration(dt).ease("bounce")
+        .attr("cy", y1 - 5)
+        .each("end", function() {
+          d3.select(this)
+            .transition().duration(dt/4)
+              .attr("cy", (y2 + y1) / 2)
+            .transition().duration(dt/4)
+              .attr("cx", x(mean))
+            .transition().duration(dt/4).ease("bounce")
+              .attr("cy", y2 - 3)
+              .attr("r", 3)
+              .each(function() { ++i; })
+              .each("end", function() {
+                if (!--i) {
+                  counts.push(mean);
+                } else {
+                  d3.select(this).remove();
+                };
+              });
+        });
+    }
+
+    function renderAll() {
+      renderBars();
+      renderBalls();
+    }
+    
+    setInterval(renderAll, dt);
+
+  </script>
+</body>

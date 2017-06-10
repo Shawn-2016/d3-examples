@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Top items in the 2016 Israeli budget</title>
+	<script type="text/javascript" src="http://d3js.org/d3.v3.js"></script>
+	<style type="text/css">
+
+		@import url(http://fonts.googleapis.com/earlyaccess/alefhebrew.css);
+
+		body {
+			background-color: white;
+	        font-family: "Alef Hebrew",
+	               "Helvetica Neue",
+	               Helvetica,
+	               Arial,
+	               sans-serif;
+		}
+
+		h1 {
+			font-size: 24px;
+			margin: 0;
+		}
+
+		p {
+			font-size: 14px;
+			margin: 10px 0 0 0;
+		}
+
+		svg {
+			background-color: white;
+		}
+
+		rect {
+			opacity: 0.2;
+		}
+
+		rect:hover {
+			fill: orange;
+			opacity: 1;
+		}
+
+		.axis path,
+		.axis line {
+			fill: none;
+			stroke: black;
+			shape-rendering: crispEdges;
+		}
+
+		.axis text {
+			font-size: 11px;
+		}
+
+		.y.axis path,
+		.y.axis line {
+			opacity: 0;
+		}
+	</style>
+</head>
+
+<body>
+
+<h1>Top Level Items in the Israeli Budget</h1>
+<p>These are the top level items in the Israeli budget in yet another senseless barchart on the way to becoming a slightly more useful infographic as the course progresses. Source: <a href="http://data.obudget.org/queries/225/source">oBudget.org</a>, 2015</p>
+
+<script type="text/javascript">
+
+var w = 1000;
+var h = 1800;
+// TOP, RIGHT, BOTTOM, LEFT
+var padding = [ 20, 10, 30, 160 ];
+
+var x = d3.scale.linear()
+		.range([ 0, w - padding[1] - padding[3] ]);
+var y = d3.scale.ordinal()
+		.rangeRoundBands([ padding[0], h - padding[2] ], 0.1);
+
+var xAxis = d3.svg.axis().scale(x).orient("bottom");
+var yAxis = d3.svg.axis().scale(y).orient("left");
+
+var svg = d3.select("body").append("svg")
+		.attr("width", w)
+		.attr("height", h);
+
+
+d3.csv("top_level_2016.csv", function(data) {
+
+	data.sort(function(a, b) {
+		return d3.descending(+a.sum, +b.sum);
+	});
+
+	x.domain([ 0, d3.max(data, function(d) { return +d.sum; }) ]);
+	y.domain(data.map(function(d) { return d.saif; } ));
+
+	console.log("data:\n", data);
+	console.log("x.domain():\n", x.domain());
+	console.log("y.domain():\n", y.domain());
+
+
+	var rects = svg.selectAll("rect")
+				.data(data)
+				.enter()
+				.append("rect");
+
+	rects.attr("x", padding[3])
+		.attr("y", function(d) { return y(d.saif); })
+		.attr("width", function(d) { return x(d.sum); })
+		.attr("height", y.rangeBand())
+		.attr("fill", "steelblue")
+		.append("title")
+		.text(function(d) {
+			return "תקציב 2016 של \"" + d.saif + "\" (מסוג " + d.class_top + " / " + d.class_full  + ") הוא ₪" + d.sum * 1000;
+		});
+
+	svg.append("g")
+		.attr("class", "x axis")
+		.attr("transform", "translate(" + padding[3] + "," + (h - padding[2]) + ")")
+		.call(xAxis);
+
+	svg.append("g")
+		.attr("class", "y axis")
+		.attr("transform", "translate(" + padding[3] + ",0)")
+		.call(yAxis);
+
+});
+
+
+</script>
+
+</body>
+</html>

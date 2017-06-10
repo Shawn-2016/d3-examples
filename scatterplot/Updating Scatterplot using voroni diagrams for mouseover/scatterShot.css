@@ -1,0 +1,5 @@
+#highlight { 
+   width: 150px; height: 28px; padding: 10px 10px; font-size: 14px; line-height: 14px; border: 2px solid #ccc; background-color: #fff;
+  -webkit-border-radius: 8px; -moz-border-radius: 8px; border-radius: 8px; outline: none;
+}
+

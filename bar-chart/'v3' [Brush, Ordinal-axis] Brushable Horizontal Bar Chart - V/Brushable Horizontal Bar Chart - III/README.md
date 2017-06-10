@@ -1,0 +1,1 @@
+This brushable horizontal bar chart is another version of the [Brushable Horizontal Bar Chart - II](http://bl.ocks.org/nbremer/aadec1b834a6602575a217fea67f6f44) where the x-axis now also updates on a brush change to always have the largest bar fill the entire width.

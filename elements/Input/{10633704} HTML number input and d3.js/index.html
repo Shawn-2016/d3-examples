@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <title>Input (number) test</title>
+</head>
+
+<body>
+<p>
+    <!-- This part display the label -->
+    <label for="nValue" style="display: inline-block; width: 240px; text-align: right">
+            angle = <span id="nValue-value"></span>
+    </label>
+    <!-- This part defines the input -->
+    <input type="number" min="0" max="360" step="5" value="0" id="nValue">
+</p>
+
+
+<script>
+
+var width = 600,
+    height = 300;
+ 
+var holder = d3.select("body")
+            .append("svg")
+            .attr("width", width)    
+            .attr("height", height); 
+
+// draw the element
+holder.append("text")
+    .style("fill", "black")
+    .style("font-size", "56px")
+    .attr("dy", ".35em")
+    .attr("text-anchor", "middle")
+    .attr("transform", "translate(300,150) rotate(0)")
+    .text("d3noob.org");
+
+// when the input range changes update value 
+d3.select("#nValue").on("input", function() {
+    update(+this.value);
+});
+
+// Initial update value 
+update(0);
+
+// adjust the text
+function update(nValue) {
+
+    // adjust the value
+    holder.select("text") 
+        .attr("transform", "translate(300,150) rotate("+nValue+")");
+}
+
+</script>
+
+</body>
+</html>

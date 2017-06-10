@@ -1,0 +1,1 @@
+A variant of the [Zoom to Bounding Box](/mbostock/4699541) example that uses [zoom transitions](/mbostock/6238040) to smoothly interpolate between different views. This example also allows you to freely pan and zoom with the mouse (or touch).

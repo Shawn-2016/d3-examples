@@ -1,0 +1,1 @@
+Brushing makes more sense for quantitative dimensions. It’s possible to use a brush to select categorical values, as shown here, though I’d recommend using per-value toggles instead. This way, users can pick arbitrary sets of values, rather than being forced to pick contiguous ranges.

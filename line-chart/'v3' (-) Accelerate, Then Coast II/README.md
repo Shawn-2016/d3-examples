@@ -1,0 +1,1 @@
+This diagram takes the [Accelerate, Then Coast](/mbostock/10342273) easing function and reflects it to apply slow-out. The reflection center <i>r</i> is configurable. With <i>r</i> = .5, the reflection is equivalent to the standard “in-out” symmetric easing; with <i>r</i> = 0, only slow-out is applied, and with <i>r</i> = 1, only slow-in is applied.

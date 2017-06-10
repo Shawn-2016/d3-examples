@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="https://d3js.org/topojson.v1.min.js"></script>
+    <title>都道府県マップ</title>
+    <style>
+      .keys.selected {
+        font-weight: bold;
+      }
+      #tooltip {
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: #f0f0f0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container"></div>
+
+<script type="text/javascript">
+
+var mapfilepath = 'japan.topojson';
+var csvpath = 'chika.csv';
+var japan;
+var keys; // 項目名の配列
+var currentKey; // 現在選択中の項目名
+
+var zoom = d3.behavior.zoom()
+    .scaleExtent([1, 8])
+    .on("zoom", zoomed);
+
+var w = 960;
+var h = 780;
+var container = d3.select('.container');
+var svg = container.append('svg')
+    .attr('width', w)
+    .attr('height', h)
+    .append("g");
+
+var g = svg.append("g");
+
+// ツールチップ
+var tooltip = d3.select("body")
+                .append("div")
+                .attr("id", "tooltip")
+                .style("opacity", 0);
+
+svg.call(zoom)
+    .call(zoom.event);
+
+var clickKey = function() {
+  currentKey = d3.select(this).attr('value');
+  d3.selectAll('.keys')
+    .classed("selected", function(){return (d3.select(this).attr('value') === currentKey)});
+  updateMap();
+}
+
+// データの数値から色に変換する関数
+var color = d3.scale.linear()
+    .domain([5000,1000,500,100,50,25,10,5,0])
+    .range(['red','coral' ,'orange','gold', 'yellow', '#2bff00','#00FF7F','cyan', 'blue']);
+
+// マップの更新
+var updateMap = function() {
+  g.selectAll('path')
+    .transition()
+    .duration(1000)
+    .style('fill', function(d) {
+      return color(d.properties[currentKey]);
+    });
+}
+
+// 凡例を追加
+svg.selectAll('rect.legend')
+  .data(color.domain())
+  .enter()
+  .append('rect')
+  .attr('class', 'legend')
+  .attr('x', 65)
+  .attr('y', function(d, i) { return 100 + 20 * i; })
+  .attr('width', 20)
+  .attr('height', 20)
+  .attr('fill', function(d) { return color(d); });
+
+svg.selectAll('text.legend')
+  .data(color.domain())
+  .enter()
+  .append('text')
+  .attr('x', 60)
+  .attr('y', function(d, i) { return 100 + 20 * i + 12; })
+  .attr('font-size', 9)
+  .attr('text-anchor', 'end')
+  .text(function(d) { return d + '件'; });
+
+// mapファイルの読み込み
+d3.json(mapfilepath, function(error, collection) {
+  var japan = topojson.feature(collection, collection.objects.japan).features;
+
+  // setup map
+  var projection = d3.geo.mercator()
+                     .scale(1500)
+                     .center([137, 34.5])
+                     //.center(d3.geo.centroid(collection))
+                     .translate([w / 2, h / 2]);
+  var path = d3.geo.path().projection(projection);
+
+  g.selectAll('path')
+    .data(japan)
+    .enter()
+    .append('path')
+    .attr('d', path)
+    .attr('ken', function(d) {
+      return d.properties.name_local;
+    })
+    .style('fill', function(d, i) {
+      return 'white';
+    })
+    .style('cursor', 'pointer')
+    .on('mouseover', function(d){
+      tooltip.style("opacity", 1)
+        .html(d.properties['name_local']+'<br/>'+d.properties[currentKey]+"件")
+        .style("left", (d3.event.pageX + 10) + "px")
+        .style("top", (d3.event.pageY - 40) + "px");
+
+    	var self = d3.select(this);
+    	self.style('fill', 'red');
+    })
+    .on('mousemove', function(d){
+      tooltip
+        .style("left", (d3.event.pageX + 10) + "px")
+        .style("top", (d3.event.pageY - 40) + "px");
+    })
+    .on('mouseout', function(d, i){
+      tooltip.style("opacity", 0);
+
+    	var self = d3.select(this);
+    	self.transition()
+    	  .duration(300)
+        .style('fill', function(d, i) {
+          return color(d.properties[currentKey]);
+        });
+    })
+    ;
+
+    // mapファイルを読み込んだ後にcsvファイルを読み込み
+    d3.csv(csvpath, function(error, rows) {
+
+      // ken以外の項目名を取り出す
+      keys = Object.keys(rows[0]).filter(function(key){ return key !== 'ken'; });
+      svg.selectAll('.keys')
+        .data(keys)
+        .enter()
+        .append('text')
+        .attr('class', 'keys')
+        .attr('x', w - 100)
+        .attr('y', function(d,i){return 100 + i*20})
+        .attr('value', function(d){return d;})
+        .attr('font-size', 10)
+        .style('cursor', 'pointer')
+        .text(function(d){return d;})
+        .on('click', clickKey);
+
+      // 人口超過データを追加する
+      for (var i = 0; i < rows.length; i++) {
+        var municipality = japan.filter(function(obj) {
+          return (obj.properties['name_local'] === rows[i]['ken']);
+        })[0];
+        console.log('municipality', i, municipality, rows[i]);
+
+        if (municipality) {
+          // 各項目の数値を、pathのpropertiesに代入する
+          keys.forEach(function(key){
+            municipality.properties[key] = rows[i][key];
+          });
+    		}
+      }
+
+      // データを読み込んだので、現在の項目名を最初の項目名にして、マップの色を更新
+      currentKey = keys[0];
+      updateMap();
+    });
+});
+
+
+// ズーム用関数
+function zoomed() {
+  g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+}
+
+// blocks公開用の高さ調節
+d3.select(self.frameElement).style("height", h + "px");
+
+</script>
+
+ </body>
+</html>

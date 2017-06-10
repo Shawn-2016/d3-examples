@@ -1,0 +1,64 @@
+{
+    "byGender": [
+        {
+            "period": "2002/03",
+            "total": 1275,
+            "males": 427,
+            "females": 848
+        },
+        {
+            "period": "2004/05",
+            "total": 2035,
+            "males": 589,
+            "females": 1442
+        },
+        {
+            "period": "2005/06",
+            "total": 2564,
+            "males": 746,
+            "females": 1786
+        },
+        {
+            "period": "2006/07",
+            "total": 3862,
+            "males": 1047,
+            "females": 2807
+        },
+        {
+            "period": "2007/08",
+            "total": 5018,
+            "males": 1405,
+            "females": 3613
+        },
+        {
+            "period": "2008/09",
+            "total": 7988,
+            "males": 2077,
+            "females": 5910
+        },
+        {
+            "period": "2009/10",
+            "total": 10571,
+            "males": 2495,
+            "females": 8074
+        },
+        {
+            "period": "2010/11",
+            "total": 11574,
+            "males": 2919,
+            "females": 8654
+        },
+        {
+            "period": "2011/12",
+            "total": 11736,
+            "males": 2993,
+            "females": 8740
+        },
+        {
+            "period": "2012/13",
+            "total": 10957,
+            "males": 2950,
+            "females": 8007
+        }
+    ]
+}

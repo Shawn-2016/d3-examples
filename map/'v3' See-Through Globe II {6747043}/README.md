@@ -1,0 +1,1 @@
+Another way of implementing a [see-through globe](/mbostock/6746848), this time always clipping to 90°, but flipping the canvas along the <i>x</i>-axis to draw the back-facing polygons.

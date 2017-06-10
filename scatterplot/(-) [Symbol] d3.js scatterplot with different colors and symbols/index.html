@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<script src="../../d3.min.js"></script>
+	<title> Correct version </title>
+
+	<style>
+		.circle {
+		    fill: red;
+		}
+		.dot {
+		    fill: grey;
+		    stroke: grey;
+		}
+		.axis path, .axis line {
+		    fill: none;
+		    stroke: #aaa;
+		    shape-rendering: crispEdges;
+		}
+		.axis text {
+		    font-family: sans-serif;
+		    font-size: 11px;
+		}
+	</style>
+</head>
+
+<body>
+<script type="text/javascript">
+var dataSet = [{hour: "01",yval: "188",foo: "0", goo:"0", bar:"0"}, 
+               {hour: "02",yval: "63",foo: "33", goo:"0", bar:"1"}, 
+               {hour: "14",yval: "241",foo: "0", goo:"2", bar:"0"}, 
+               {hour: "15",yval: "241",foo: "27", goo:"0", bar:"0"}, 
+               {hour: "19",yval: "241",foo: "0", goo:"0", bar:"0"},
+               {hour: "22",yval: "318",foo: "12", goo:"0", bar:"1"},
+               {hour: "08",yval: "118",foo: "2", goo:"0", bar:"1"},
+               {hour: "22",yval: "48",foo: "0", goo:"2", bar:"0"},
+               {hour: "21",yval: "31",foo: "1", goo:"0", bar:"1"},
+               {hour: "12",yval: "38",foo: "0", goo:"2", bar:"0"},
+               {hour: "16",yval: "138",foo: "36", goo:"0", bar:"0"},
+               {hour: "05",yval: "344",foo: "0", goo:"1", bar:"1"},
+               {hour: "08",yval: "218",foo: "39", goo:"0", bar:"1"},
+               {hour: "03",yval: "18",foo: "41", goo:"0", bar:"0"},
+               {hour: "18",yval: "98",foo: "23", goo:"0", bar:"0"},
+               {hour: "18",yval: "98",foo: "0", goo:"2", bar:"1"},
+			];
+
+console.log("dataSet:\n", dataSet);
+
+var w = 500, h = 500,
+    top_pad = 20,
+    left_pad = 100;
+
+var x = d3.scale.linear().domain([-1, 23]).range([left_pad, w - left_pad]),
+    y = d3.scale.linear().domain([0, 350]).range([h - top_pad, top_pad]);
+
+var svg = d3.select("body")
+	    .append("svg:svg")
+	    .attr("width", w + left_pad)
+	    .attr("height", h + top_pad);
+
+var symbolTypes = {
+    "triangleDown": d3.svg.symbol().type("triangle-down"),
+    "circle": d3.svg.symbol().type("circle")
+};
+
+// #87CEFF: Sky Blue 1; #0000FF: Blue
+var fooColors = d3.scale.linear()
+				.domain([0, 50]).range(["#87CEFF", "#0000FF"]);
+
+var xAxis = d3.svg.axis().scale(x).orient("bottom"),
+    yAxis = d3.svg.axis().scale(y).orient("left");
+
+svg.append("g")
+    .attr("class", "axis")
+    .attr("transform", "translate(0, " + (h - top_pad) + ")")
+    .call(xAxis);
+
+svg.append("g")
+    .attr("class", "axis")
+    .attr("transform", "translate(" + (left_pad) + ", 0)")
+    .call(yAxis);
+
+svg.selectAll("path")
+    .data(dataSet)
+    .enter().append("path")
+    .attr("class", "dot")
+    .attr("transform", function(d) { 
+    	return "translate(" + x(d.hour) + "," +  y(d.yval) + ")"; 
+    })
+    .attr("d", function(d,i) {
+        if (d.bar === "0")
+            return symbolTypes.circle();
+        else
+            return symbolTypes.triangleDown();
+    })
+    .style("fill", function(d,i) {
+        if (d.goo !== "0") {
+            if (d.goo === "1")
+                return "red";
+            else
+                return "orange";
+        } else {
+            return fooColors(d.foo);
+        }
+    });
+
+</script>
+
+</body>
+</html>

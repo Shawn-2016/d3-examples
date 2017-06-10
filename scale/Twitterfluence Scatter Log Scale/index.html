@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Twitterfluence</title>
+	<script type="text/javascript" src="https://d3js.org/d3.v3.min.js"></script>
+	<script type="text/javascript" src="http://use.typekit.com/brf5jpj.js"></script>
+	<script src="//use.typekit.net/drk2sev.js"></script>
+	<script type="text/javascript">try{Typekit.load();}catch(e){}</script>  
+	<style type="text/css">
+		
+		body {
+			margin: 0;
+			background-color: #48494B;
+			font-family: "proxima-nova", "Source Sans Pro", sans-serif;
+		}
+
+		#container {
+			width: 850px;
+			margin-left: auto;
+			margin-right: auto;
+			margin-top: 30px;
+			padding: 30px;
+			background-color: white;
+			box-shadow: 3px 3px 7px #222;
+		}
+		
+		#tooltip {
+			width: 150px;
+			height: auto;
+			padding: 5px;
+			background-color: #fff;
+			-webkit-border-radius: 5px;
+			-moz-border-radius: 5px;
+			border-radius: 5px;
+			-webkit-box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.4);
+			-moz-box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.4);
+			box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.4);
+			pointer-events: none;
+			position: absolute;
+			}
+			
+		#tooltip.hidden {
+			display: none;
+		}
+		
+		#tooltip p {
+		margin: 0;
+		font-size: 14px;
+		line-height: 18px;
+		}
+		
+		h1 {
+			font-size: 24px;
+			margin: 0;
+		}
+
+		p {
+			font-size: 16px;
+			margin: 15px 0 10px 0;
+		}
+
+		a {
+		  color: #799DCB;
+		  text-decoration: none;
+		  transition: color .3s, background .3s, border .3s;
+		}
+		a:hover {
+		  color: #48494b;
+		  background: #e7e8e9;
+		}
+
+		svg {
+			background-color: white;
+			padding-left: 20px;
+		}
+
+		.dot {
+			opacity: 0.4;
+			stroke: #787878;
+			stroke-width: 1;
+			}	
+			
+		.dot:hover {
+			opacity: 1.0;
+			cursor:pointer;
+			}
+					
+		.axis path,
+		.axis line {
+			fill: none;
+			stroke: black;
+			shape-rendering: crispEdges;
+		}
+		
+		.axis text {
+			font-family: sans-serif;
+			font-size: 11px;
+		}
+	</style>
+</head>
+
+<body>
+
+<div id="container">
+
+	<h1>Twitterfluence</h1>
+	<p>Enjoy this exploration of Twitter users who follow <a href="http://twitter.com/threestory" title="Threestory Twitter page" target="new">@threestory</a>. You can see the correlation (or lack thereof) between the number of people a user follows and the number of followers they have themselves. The size of each circle is relative to the number of tweets that user has tweeted. The circle color matches the background color of that user's Twitter profile (just for fun). Clicking on a circle will take you to that person's Twitter page.</p>
+</div>
+<div id="tooltip" class="hidden">
+    <p><strong><span id="name">User name</strong></p>
+    <p>@<span id="handle">Screen name</span></p>
+    <p>Followers: <span id="followers">Followers</span></p>
+    <p>Following: <span id="following">Following</span></p>
+    <p>Tweets: <span id="tweets">Tweets</span></p>
+</div>
+
+<script type="text/javascript">		
+
+var w = 700;
+var h = 500;
+var padding = [20, 20, 40, 20];  //TOP, RIGHT, BOTTOM, LEFT
+
+var dataset;
+	
+// VARIOUS ACCESSORS THAT SPECIFY THE FOUR DIMENSIONS OF DATA TO VISUALIZE
+function x(d) { return d.followers_count; }
+function y(d) { return d.friends_count; }
+function radius(d) { return d.statuses_count; }
+
+
+// VARIOUS RANGE SCALES
+var maxRadius = 50;
+
+// LOG SCALES
+var x = d3.scale.log().range([0, w - maxRadius]),
+	y = d3.scale.log().range([h, 0 + maxRadius]),
+	r = d3.scale.sqrt().range([4, maxRadius]);
+
+var svg = d3.select("#container")
+		.append("svg")
+			.attr("width", w + padding[3] + padding[1])
+			.attr("height", h + padding[0] + padding[2])
+		.append("g")
+			.attr("transform", "translate(40,10)");
+
+// LOAD DATA
+d3.json("twitter_orig.json", function(error, data) {
+
+	if (error) return console.warn(error);
+	dataset = data;
+	console.log("dataset:\n", dataset);
+
+	//SORT SMALLEST CIRCLES LAST TO MAKE SURE THEY ARE ACCESSIBLE TO MOUSE EVENTS
+	data.sort(function(a, b) {
+		return d3.descending(+a.statuses_count, +b.statuses_count);
+	});
+
+	// SET DOMAINS TO DATA MAXES - LOG
+	x.domain([1, d3.max(data, function(d) {return +d.followers_count;}) ]);
+	y.domain([1, d3.max(data, function(d) {return +d.friends_count;}) ]);
+	r.domain([0, d3.max(data, function(d) {return +d.statuses_count;}) ]);
+
+	// LOG SCALE AXES
+	var xAxis = d3.svg.axis().scale(x).orient("bottom").ticks(5, d3.format(".0f")),
+		yAxis = d3.svg.axis().scale(y).orient("left").ticks(20, d3.format(".0f"));
+
+	// ADD THE X-AXIS
+	svg.append("g")
+		.attr("class", "x axis")
+		.attr("transform", "translate(0," + h + ")")
+		.call(xAxis)
+
+	// ADD THE Y-AXIS
+	svg.append("g")
+		.attr("class", "y axis")
+		.call(yAxis);
+
+	// ADD AN X-AXIS LABEL
+	svg.append("text")
+		.attr("class", "x label")
+		.attr("text-anchor", "end")
+		.attr("x", w)
+		.attr("y", h - 6)
+		.attr("transform", "translate(-" + maxRadius + ",0)")
+		.text("Number of Followers");
+
+	// ADD A Y-AXIS LABEL
+	svg.append("text")
+		.attr("class", "y label")
+		.attr("text-anchor", "end")
+		.attr("y", 6)
+		.attr("dy", ".75em")
+		.attr("transform", "translate(0," + maxRadius + ")rotate(-90)")
+		.text("Number Following");
+
+	// ADD A DOT FOR EACH FOLLOWER
+	var dot = svg.append("g")
+		.attr("class", "dots")
+		.selectAll(".dot")
+		.data(data)
+		.enter().append("a")
+		.attr("xlink:href", function(d) {
+			return "http://twitter.com/" + d.screen_name;
+		})
+		.on("click", function() {
+			 d3.select(this).attr("url")
+		})
+		.append("circle")
+		.attr("class", "dot")
+		.style("fill", function(d) {
+			return "#" + d.profile_background_color;
+		})
+		.call(position)
+		.on("mouseover", function(d) {
+			var xPosition = parseFloat(d3.select(this).attr("cx")) + 140;
+			var yPosition = parseFloat(d3.select(this).attr("cy")) + h/2 - padding[0] - padding[2];
+			d3.select("#tooltip")
+				.style("left", xPosition + "px")
+				.style("top", yPosition + "px");
+			d3.select("#name").text(d.name);
+			d3.select("#handle").text(d.screen_name);
+			d3.select("#followers").text(d.followers_count);
+			d3.select("#following").text(d.friends_count);
+			d3.select("#tweets").text(d.statuses_count);
+			d3.select("#tooltip").classed("hidden", false);
+		})
+		.on("mouseout", function() {
+			d3.select("#tooltip").classed("hidden", true);
+		})
+		// .sort(order);
+
+	//ADD TITLES
+	dot.append("title").text(function(d) { return d.screen_name; });
+
+
+	// POSITION DOTS BASED ON DATA
+	function position(dot) {
+		dot.attr("cx", function(d) { return x(d.followers_count); })
+			.attr("cy", function(d) { return y(d.friends_count); })
+			.attr("r", 0 );
+	};
+
+	dot.transition()
+		.delay(function(d, i) { return i * 10; })
+		.duration(1000)
+		.attr("r", function(d) { return r(d.statuses_count); });
+
+	// DEFINES SORT ORDER SO SMALLEST DOTS ARE DRAWN ON TOP
+	function order(a, b) { return radius(b) - radius(a); };
+
+});
+
+</script>
+
+</body>
+</html>

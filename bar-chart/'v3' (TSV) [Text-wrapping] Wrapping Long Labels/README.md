@@ -1,0 +1,1 @@
+This example, using satirical data from [The Onion](http://www.theonion.com/articles/why-are-we-leaving-facebook,34167/), demonstrates how to wrap long axis labels to fit on multiple lines.
