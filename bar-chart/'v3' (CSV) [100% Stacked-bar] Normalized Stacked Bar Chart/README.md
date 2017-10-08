@@ -1,1 +1,0 @@
-This variation of a [stacked bar chart](../3886208) shows percentages rather than absolute numbers.
