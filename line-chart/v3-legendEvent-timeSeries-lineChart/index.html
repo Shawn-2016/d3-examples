@@ -1,211 +1,102 @@
 <!DOCTYPE html>
-<html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Mapping Gun Permits</title>
-    <link href="d3.geomap.css" rel="stylesheet">
-    <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
-    <script type="text/javascript" src="http://d3js.org/topojson.v1.min.js"></script>
-    <script type="text/javascript" src="d3.geomap.dependencies.min.js"></script>
-    <script type="text/javascript" src="d3.geomap.min.js"></script>
+    <title>Kobe Bryant 2012-13 Game Log Line Graph</title>
     <style>
         body {
             font: 10px sans-serif;
         }
 
         .axis path,
-        .axis line, 
-        .axis1 path,
-        .axis1 line {
+        .axis line {
             fill: none;
-            stroke: #E6E7E8;
+            stroke: #000;
             shape-rendering: crispEdges;
         }
 
-        .x.axis path, .x.axis1 path {
-            display: none;
+        .legend-box {
+            cursor: pointer;  
         }
 
         .line {
             fill: none;
+            stroke: steelblue;
             stroke-width: 1.5px;
-        }
-
-        .legend-box, .legend-label {
-            cursor: pointer;  
-        }
-
-        #mouse-tracker {
-            stroke: #E6E7E8;
-            stroke-width: 1px;
-        }
-
-        .hover-line { 
-            stroke: #E6E7E8;
-            fill: none;
-            stroke-width: 1px;
-            left: 10px;
-            shape-rendering: crispEdges;
-            opacity: 1e-6;
-        }
-
-        .hover-text {
-            stroke: none;
-            font-size: 30px;
-            font-weight: bold;
-            fill: #000000;
-        }
-
-        .tooltip {
-            font-weight: normal;
-        }
-
-        .brush .extent {
-            stroke: #FFF;
-            shape-rendering: crispEdges;
         }
     </style>
 </head>
 
 <body>
-
-<div id="graph"></div>
-<div id="map"></div>
+<script src="http://d3js.org/d3.v3.js"></script>
 
 <script>
 
-var map = d3.geomap.choropleth()
-    	.geofile('USA.json')
-    	.projection(d3.geo.albersUsa)
-    	.colors(colorbrewer.YlGnBu[9])
-    	.column('permit')
-    	.unitId('state')
-    	.scale(600)
-    	.legend(true)
-    	.format(function(d) {
-    		d = d / 1000;
-    		return d3.format(',.0f')(d) + ' k';
-    	});
+var margin = {top:20, right:80, bottom:30, left:50};
+var width = 960 - margin.left - margin.right;
+var height = 500 - margin.top - margin.bottom;
 
-var margin = {top: 20, right: 200, bottom: 100, left: 50},
-	margin2 = {top: 430, right: 10, bottom: 20, left: 40},
-	width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom,
-    height2 = 500 - margin2.top - margin2.bottom;
-
-var parseDate = d3.time.format("%Y-%m").parse;
-var bisectDate = d3.bisector(function (d) { return d.month; }).left;
-
-var xScale = d3.time.scale().range([0, width]),
-    xScale2 = d3.time.scale().range([0, width]);
-
-var yScale = d3.scale.linear().range([height, 0]);
+var parseDate = d3.time.format("%Y-%m-%d").parse;
 
 var color = d3.scale.category20();
 
-var xAxis = d3.svg.axis().scale(xScale).orient("bottom"),
-    xAxis2 = d3.svg.axis().scale(xScale2).orient("bottom");
-
-var yAxis = d3.svg.axis().scale(yScale).orient("left");
+var x = d3.time.scale().range([0, width]);
+var y = d3.scale.linear().range([height, 0]);
+var xAxis = d3.svg.axis().scale(x).orient("bottom");
+var yAxis = d3.svg.axis().scale(y).orient("left");
 
 var line = d3.svg.line()
-        .interpolate("basis")
-        .x(function(d) { return xScale(d.month); })
-        .y(function(d) { return yScale(d.handgun); })
-        .defined(function(d) { return d.handgun; });
+        .interpolate("monotone")
+        .x(d => x(d.date))
+        .y(d => y(d.stat));
 
 var maxY;
 
-var svg = d3.select("#graph").append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom) //height + margin.top + margin.bottom
-            .append("g")
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+var svg = d3.select("body").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-// Selector focus area
-svg.append("rect")
-    .attr("width", width)
-    .attr("height", height)
-    .attr("x", 0)
-    .attr("y", 0)
-    .attr("id", "mouse-tracker")
-    .style("fill", "white");
+d3.csv("kobegamelog.csv", function(error, data) {
 
-var context = svg.append("g") //
-            .attr("transform", "translate(" + 0 + "," + 410 + ")")
-            .attr("class", "context");
-
-svg.append("defs")
-    .append("clipPath")
-    .attr("id", "clip")
-    .append("rect")
-    .attr("width", width)
-    .attr("height", height);
-
-// Process data
-d3.csv("bgcheckdata.csv", function (error, data) {
-
-    data.forEach(function (d) {
-        d.month = parseDate(d.month);
-        d.permit = +d.permit;
-        d.handgun = +d.handgun;
-    });
-
-    dataNestByState = d3.nest()
-                .key(function (d) { return d.state; })
-                .entries(data);
-
-    color.domain(d3.keys(dataNestByState).filter(function (key) {
-        return key !== "date";
+    color.domain(d3.keys(data[0]).filter(function(key) {
+        // blacklist
+        // var exclude = ["Rk","G","Date","Age","Tm","","Opp","","GS"];
+        // whitelist
+        var include = ["MP","FG","FGA","FG%","3P","3PA","FT","FTA", "ORB","DRB","TRB","AST","STL","BLK","TOV","PF","PTS","GmSc"];
+        return (include.indexOf(key) >= 0); 
     }));
 
-    var us_states = color.domain().map(function (key) {
+    data.forEach(function(d) {
+        d.Date = parseDate(d.Date);
+    });
+
+    var categories = color.domain().map(function(name) {
         return {
-            name: dataNestByState[key].key,
-            values: dataNestByState[key].values
+            name: name,
+            values: data.map(function(d) {
+                return {
+                    date: d.Date, 
+                    stat: parseFloat(d[name]),
+                    result: d.Res,
+                    opponent: d.Opp
+                };
+            }),
+            visible: (name === "PTS" ? true : false)
         };
     });
 
-    xScale.domain(d3.extent(data, function (d) {
-        return d.month;
-    }));
+    x.domain(d3.extent(data, d => d.Date));
+    y.domain([0,
+        d3.max(categories, c => d3.max(c.values, v => v.stat))
+    ]);
 
-    yScale.domain([0, 100]);
-    xScale2.domain(xScale.domain());
-
-
-    ////////for slider part
-    var brush = d3.svg.brush()
-            .x(xScale2)
-            .on("brush", brushed);
-
-    // Create brushing xAxis
-    context.append("g") 
-            .attr("class", "x axis1")
-            .attr("transform", "translate(0," + height2 + ")")
-            .call(xAxis2);
-
-    var contextArea = d3.svg.area()
-                    .interpolate("monotone")
-                    .x(function(d) { return xScale2(d.date); })
-                    .y0(height2)
-                    .y1(0);
-
-    // plot the rect as the bar at the bottom
-    // Path is created using svg.area details
-    context.append("path") 
-            .attr("class", "area")
-            .attr("d", contextArea(us_states[0].values)) // pass first us_states data .values to area path generator 
-            .attr("fill", "#F1F1F2");
-
-    //append the brush for the selection of subsection  
-    context.append("g")
-            .attr("class", "x brush")
-            .call(brush)
-            .selectAll("rect")
-            .attr("height", height2) // Make brush rects same height 
-            .attr("fill", "#E6E7E8");
-    ////////end slider part
+    console.table(data.slice(0,10));
+    console.log("data:\n", data);
+    console.log("color.domain():\n", color.domain());
+    console.log("categories:\n", categories);
+    console.log("x.domain():\n", x.domain());
+    console.log("y.domain():\n", y.domain());
 
 
     // draw line graph
@@ -215,254 +106,90 @@ d3.csv("bgcheckdata.csv", function (error, data) {
         .call(xAxis);
 
     svg.append("g")
-        .attr("class", "y axis")
-        .call(yAxis)
+            .attr("class", "y axis")
+            .call(yAxis)
         .append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 6)
-        .attr("x", -10)
-        .attr("dy", ".71em")
-        .style("text-anchor", "end")
-        .text("Handguns");
+            .attr("transform", "rotate(-90)")
+            .attr("y", 6)
+            .attr("dy", ".71em")
+            .style("text-anchor", "end")
+            .text("Stat");
 
-    var issue = svg.selectAll(".issue")
-			// Select nested data and append to new svg group elements
-            .data(us_states)
-            .enter().append("g")
-            .attr("class", "issue");
+    var statistic = svg.selectAll(".statistic")
+                .data(categories)
+                .enter().append("g")
+                .attr("class", "statistic");
 
-    issue.append("path")
-        .attr("class", "line")
-        // Stop line interferring with cursor
-        .style("pointer-events", "none")
-        .attr("id", function (d) {
-            // Give line id of line-[state name] e.g. line-Arizona
-            return "line-" + d.name.replace(" ", "").replace("/", ""); 
-        })
-        .attr("d", function (d) {
-            return d.visible ? line(d.values) : null;
-        })
-        .attr("clip-path", "url(#clip)")
-        .style("stroke", function (d) { return color(d.name); });
+    statistic.append("path")
+            .attr("class", "line")
+            .attr("id", d => "line-" + d.name.replace("%", "P"))
+            .attr("d", d => d.visible ? line(d.values) : null)
+            .style("stroke", d => color(d.name));
+
+    function redraw(d) {
+        d.visible = !d.visible;
+
+        maxY = findMaxY(categories);
+        y.domain([0, maxY]);
+        svg.select(".y.axis").call(yAxis);
+
+        statistic.select("path")
+            .attr("d", d => d.visible ? line(d.values) : null);
+
+        statistic.select("rect")
+            .attr("fill", d => d.visible ? color(d.name) : "white");
+    };
 
     // draw legend
-    var legendSpace = 800 / us_states.length;
-	var toggleLineVisibility = function (d, issue) {
+    statistic.append("rect")
+            .attr("height",10)
+            .attr("width", 25)
+            .attr("x", width + 10)
+            .attr("y", (d,i) => i * 20 - 8)
+            .attr("stroke", d => color(d.name))
+            .attr("fill", d => d.visible ? color(d.name) : "white")
+            .attr("class", "legend-box")
+            // .on("click", function(d) {
+            //     d.visible = !d.visible;
 
-        d.visible = !d.visible; 
-        maxY = findMaxY(us_states);
+            //     maxY = findMaxY(categories);
+            //     y.domain([0, maxY]);
+            //     svg.select(".y.axis").call(yAxis);
 
-        yScale.domain([0, maxY]); // Redefine yAxis domain based on highest y value
-        svg.select(".y.axis")
-            .transition()
-            .call(yAxis);
+            //     statistic.select("path")
+            //         .attr("d", d => d.visible ? line(d.values) : null)
 
-        issue.select("path")
-            .transition()
-            .attr("d", function (d) {
-                return d.visible ? line(d.values) : null;
+            //     statistic.select("rect")
+            //         .attr("fill", d => d.visible ? color(d.name) : "white");
+            // })
+            .on("click", redraw)
+            .on("mouseover", function(d) {
+                d3.select("#line-" + d.name.replace("%", "P"))
+                    .style("stroke-width", 3);
             })
-
-        issue.select("rect")
-            .transition()
-            .attr("fill", function (d) {
-                return d.visible ? color(d.name) : "#F1F1F2";
-            });
-	};
-	
-    issue.append("rect")
-        .attr("width", 10)
-        .attr("height", 10)
-        .attr("x", function(d, i){
-        	if(i < 32){
-        		return width + (margin.right / 3) - 50;
-        	}
-        	else {
-        		return width + (margin.right / 3) + 60;
-        	}
-        })
-        .attr("y", function (d, i) {
-        	if(i < 32){
-        		return (legendSpace) + i * (legendSpace) - 8;
-        	}
-        	else {
-        		return (legendSpace) + (i-32) * (legendSpace) - 8;
-        	}
-        })
-        .attr("fill", function (d) {
-            return d.visible ? color(d.name) : "#F1F1F2";
-        })
-        .attr("class", "legend-box")
-		// toggle line visibility on legend click
-        .on("click", function (d) {
-			toggleLineVisibility(d, issue);
-        })
-        .on("mouseover", function (d) {
-            d3.select(this)
-                    .transition()
-                    .attr("fill", function (d) {
-                        return color(d.name);
-                    });
-
-            d3.select("#line-" + d.name.replace(" ", "").replace("/", ""))
-                    .transition()
-                    .style("stroke-width", 2.5);
-        })
-        .on("mouseout", function (d) {
-
-            d3.select(this)
-                    .transition()
-                    .attr("fill", function (d) {
-                        return d.visible ? color(d.name) : "#F1F1F2";
-                    });
-
-            d3.select("#line-" + d.name.replace(" ", "").replace("/", ""))
-                    .transition()
+            .on("mouseout", function(d) {
+                d3.select("#line-" + d.name.replace("%", "P"))
                     .style("stroke-width", 1.5);
-        })
-
-    issue.append("text")
-        .attr("x", function(d, i){
-        	if(i < 32){
-        		return width + (margin.right / 3) - 35;
-        	}
-        	else {
-        		return width + (margin.right / 3) + 75;
-        	}
-        })
-        .attr("y", function (d, i) {
-        	if(i < 32){
-        		return (legendSpace) + i * (legendSpace);
-        	}
-        	else {
-        		return (legendSpace) + (i-32) * (legendSpace);
-        	}
-        })
-        .attr("class", "legend-label")
-        .text(function (d) { return d.name; })
-        .on("click", function (d) {
-			toggleLineVisibility(d, issue);
-        });
-
-    // Hover line 
-    var hoverLineGroup = svg.append("g").attr("class", "hover-line");
-
-    var hoverLine = hoverLineGroup // Create line with basic attributes
-                    .append("line")
-                    .attr("id", "hover-line")
-                    .attr("x1", 10).attr("x2", 10)
-                    .attr("y1", 0).attr("y2", height + 10)
-                    .style("pointer-events", "none") // Stop line interferring with cursor
-                    .style("opacity", 1e-6); // Set opacity to zero 
-
-    var hoverDate = hoverLineGroup
-                    .append('text')
-                    .attr("class", "hover-text")
-                    .attr("y", height - (height - 40))
-                    .attr("x", width - 150)
-                    .style("fill", "#E6E7E8");
-
-    var columnNames = d3.keys(dataNestByState);
-
-    var focus = issue.select("g") // create group elements to house tooltip text
-                .data(columnNames) // bind each column name date to each g element
-                .enter().append("g") //create one <g> for each columnName
-                .attr("class", "focus");
-
-    focus.append("text") // http://stackoverflow.com/questions/22064083/d3-js-multi-series-chart-with-y-value-tracking
-        .attr("class", "tooltip")
-        .attr("x", width + 20)
-        .attr("y", function (d, i) {
-            return (legendSpace) + i * (legendSpace);
-        });      
-
-    // Add mouseover events for hover line.
-    d3.select("#mouse-tracker") // select chart plot background rect #mouse-tracker
-            .on("mousemove", mousemove) // on mousemove activate mousemove function defined below
-            .on("mouseout", function () {
-                hoverDate.text(null) // on mouseout remove text for hover date
-
-                d3.select("#hover-line")
-                        .style("opacity", 1e-6); // On mouse out making line invisible
             });
 
-    function mousemove() {            	
-        var mouse_x = d3.mouse(this)[0];
-        var graph_x = xScale.invert(mouse_x);
+    // legend text
+    statistic.append("text")
+            .attr("x", d => width + 25 + 15)
+            .attr("y", (d,i) => i * 20)
+            .text(d => d.name)
 
-        var mouse_y = d3.mouse(this)[1];
-        var graph_y = yScale.invert(mouse_y);
-
-        var format = d3.time.format('%b %Y'); // Format hover date text to show three letter month and full year
-
-        hoverDate.text(format(graph_x)); // scale mouse position to xScale date and format it to show month and year
-
-        d3.select("#hover-line") // select hover-line and changing attributes to mouse position
-                .attr("x1", mouse_x)
-                .attr("x2", mouse_x)
-                .style("opacity", 1); // Making line visible
-
-        // Legend tooltips 
-        // http://www.d3noob.org/2014/07/my-favourite-tooltip-method-for-line.html
-			// d3.mouse(this)[0] returns the x position on the screen of the mouse. 
-        // xScale.invert function is reversing the process that we use to map the domain (date) to range (position on screen).
-        // So it takes the position on the screen and converts it into an equivalent date! 
-// 				debugger;
-//                 var x0 = xScale.invert(mouse_x), 
-//                         i = bisectDate(data, x0, 1),
-//                         /* It takes our data array and the date corresponding to the position 
-//                         /* of or mouse cursor and returns the index number of the data array 
-//                         /* which has a date that is higher than the cursor position.*/
-//                         d0 = data[i - 1],
-//                         d1 = data[i],
-//                         /*d0 is the combination of date and rating that is in the data array at the index to the left of the cursor and d1 is the combination of date and close that is in the data array at the index to the right of the cursor. In other words we now have two variables that know the value and date above and below the date that corresponds to the position of the cursor.*/
-//                         d = x0 - d0.month > d1.month - x0 ? d1 : d0;
-//                 /*The final line in this segment declares a new array d that is represents the date and close combination that is closest to the cursor. It is using the magic JavaScript short hand for an if statement that is essentially saying if the distance between the mouse cursor and the date and close combination on the left is greater than the distance between the mouse cursor and the date and close combination on the right then d is an array of the date and close on the right of the cursor (d1). Otherwise d is an array of the date and close on the left of the cursor (d0).*/
-// 				//d is now the data row for the date closest to the mouse position
-//                 focus.select("text").text(function (columnName) {
-//                     return(d[dataNestByState[columnName].key]);
-//                 });
-    };
-
-    //for brusher of the slider bar at the bottom
-    function brushed() {
-
-        xScale.domain(brush.empty() ? xScale2.domain() : brush.extent()); // If brush is empty then reset the Xscale domain to default, if not then make it the brush extent 
-
-        svg.select(".x.axis") // replot xAxis with transition when brush used
-                .transition()
-                .call(xAxis);
-
-        maxY = findMaxY(us_states); // Find max Y rating value us_states data with "visible"; true
-        yScale.domain([0, maxY]); // Redefine yAxis domain based on highest y value of us_states data with "visible"; true
-
-        svg.select(".y.axis") // Redraw yAxis
-                .transition()
-                .call(yAxis);
-
-        issue.select("path") // Redraw lines based on brush xAxis scale and domain
-                .transition()
-                .attr("d", function (d) {
-                    return d.visible ? line(d.values) : null; // If d.visible is true then draw line for this d selection
-                });
-
-    };
-	            
-    d3.select("#map")
-        .datum(data)
-        .call(map.draw, map);
 });
 
 function findMaxY(data) {
-    var maxYValues = data.map(function (d) {
-        if (d.visible) {
-            return d3.max(d.values, function (value) {
-                return value.handgun;
-            })
+    var maxValues = data.map(function(d) {
+        if(d.visible) {
+            return d3.max(d.values, value => value.stat)
         }
     });
-    return d3.max(maxYValues);
-}
+    return d3.max(maxValues);
+};
 
 </script>
+
+</body>
 </html>
