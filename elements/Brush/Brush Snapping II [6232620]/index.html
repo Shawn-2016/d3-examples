@@ -4,30 +4,24 @@
     <meta charset="utf-8">
     <script src="https://d3js.org/d3.v4.0.0-alpha.49.min.js"></script>
     <style>
-
     /* #ddd: light grey */
     .axis--grid .domain {
         fill: #ddd;
         stroke: none;
     }
-
     /* #fff: white, #5abe4e: green; */
     .axis--x .domain,
     .axis--grid .tick line {
         stroke: #5abe4e;
     }
-
     .axis--grid .tick--minor line {
         stroke-opacity: .5;
     }
-
     </style>
 </head>
-
 <body>
 
     <script>
-
         var margin = {top: 200, right: 40, bottom: 200, left: 40},
             width = 960 - margin.left - margin.right,
             height = 500 - margin.top - margin.bottom;
@@ -92,7 +86,6 @@
             d3.select(this)
                     .call(brush.move, domain1.map(x));
         }
-
     </script>
 </body>
 </html>
