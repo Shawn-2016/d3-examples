@@ -1,1 +1,0 @@
-Experimenting with a rainbow color scale that is cylical but has better perceptual properties. The HCL rainbow has roughly-constant luminance, but is ugly. The cubehelix rainbow, inspired by Matteo Niccoli’s <a href="http://mycarta.wordpress.com/2013/02/21/perceptual-rainbow-palette-the-method/">perceptual rainbow</a> but extended to 360°, varies in brightness but is prettier.
